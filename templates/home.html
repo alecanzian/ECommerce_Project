@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_home.css') }}">
+</head>
+<body>
+    <header>
+        <a href="{{url_for('login')}}">Login Page</a>
+        <a href="{{url_for('register')}}">Register Page</a>
+        <a href="{{ url_for('info') }}">See Info</a>
+    </header>
+    <main>
+        <h1>Login Authentication System in Flask</h1>
+        <div class="images">
+            <img src="{{ url_for('static', filename='img/product1.jpg') }}" alt="Product 1">
+            <img src="{{ url_for('static', filename='img/product2.jpg') }}" alt="Product 2">
+            <img src="{{ url_for('static', filename='img/product3.jpg') }}" alt="Product 3">
+        </div>
+        <div class="statistics">
+            <div class="stat">
+                <h2>500+</h2>
+                <p>Prodotti Disponibili</p>
+            </div>
+            <div class="stat">
+                <h2>10,000+</h2>
+                <p>Clienti Soddisfatti</p>
+            </div>
+            <div class="stat">
+                <h2>99%</h2>
+                <p>Recensioni Positive</p>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
