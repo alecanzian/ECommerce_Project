@@ -2,10 +2,6 @@ from datetime import timedelta
 from flask import Flask, render_template, session, url_for, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-#from flask_login import UserMixin
-#from flask_wtf import wtforms
-#from wtforms import StringField, PasswordField, SubmitField
-#from wtforms.validators import InputRequired, Length, ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -15,6 +11,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'thisisasecretkey'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:/Users/utente/Desktop/UNIVE/vsc/BD/dbms.db'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=20)  # Imposta la durata della sessione a 20 minuti
+#session(app)
 db = SQLAlchemy(app)
 
 
@@ -26,6 +23,7 @@ class User(db.Model, UserMixin):
         def __init__(self, username, password):
                 self.username = username
                 self.password = password
+
 
 class Products(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -105,9 +103,10 @@ def shop():
 @app.route('/logout')
 def logout():
     session.pop('username', None)
-    flash('Logout avvenuto con successo!', category='success')
+    for key in ('identity.name', 'identity.auth_type'):
+        session.pop(key, None)
+    flash('Logout successful!', category='success')
     return redirect(url_for('home'))
-        
 
 if __name__ == '__main__':
         with app.app_context():
