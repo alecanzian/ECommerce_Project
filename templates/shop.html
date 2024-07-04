@@ -8,11 +8,22 @@
 </head>
 <body>
     <h1>Shop</h1>
+    <a href="{{ url_for('info') }}">See Info</a>
     <ul>
         {% for product in products %}
             <li>{{ product.name }} - ${{ product.price }}</li>
         {% endfor %}
     </ul>
+    
     <a href="{{ url_for('logout') }}">Logout</a>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
 </body>
 </html>
