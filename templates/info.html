@@ -14,7 +14,8 @@
             <tr>
                 <th>ID</th>
                 <th>Username</th>
-                <th>Password</th>
+                <!--<th>Password</th>-->
+                <th>Roles</th>
             </tr>
         </thead>
         <tbody>
@@ -22,12 +23,17 @@
             <tr>
                 <td>{{ user.id }}</td>
                 <td>{{ user.username }}</td>
-                <td>{{ user.password }}</td>
+                <!--<td>{{ user.password }}</td>-->
+                <td>
+                    {% for role in user.roles %}
+                        {{ role.name }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    
+    <!--
     <table>
         <thead>
             <tr>
@@ -45,6 +51,22 @@
             </tr>
             {% endfor %}
         </tbody>
+    </table>-->
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in roles %}
+            <tr>
+                <td>{{ r.id }}</td>
+                <td>{{ r.name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
     <table>
         <thead>
@@ -53,14 +75,11 @@
             </tr>
         </thead>
         <tbody>
-            {% for u in session_usernames %}
             <tr>
-                <td>{{ u }}</td>
+                <td>{{ session_user.username }}</td>
             </tr>
-            {% endfor %}
         </tbody>
     </table>
     <a href="{{ url_for('shop') }}">Back to Shop</a>
-    <a href="{{ url_for('home') }}">Go Back to Home</a>
 </body>
 </html>

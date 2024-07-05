@@ -7,15 +7,25 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style_shop.css') }}">
 </head>
 <body>
+    <div class="navbar">
+        {% if enter %}
+            <a href="{{ url_for('info') }}">See Info</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
     <h1>Shop</h1>
-    <a href="{{ url_for('info') }}">See Info</a>
-    <ul>
-        {% for product in products %}
-            <li>{{ product.name }} - ${{ product.price }}</li>
+    <ul class="product-list">
+        {% for p in products %}
+            <li class="product-item">
+                <img src="{{ p.image_url }}" alt="{{ p.name }}" class="product-image">
+                <div class="product-details">
+                    <a href="{{ url_for('access_product', product_id=p.id) }}" class="product-link"><h2>{{ p.name }}</h2></a>
+                    <p>${{ p.price }}</p>
+                </div>
+            </li>
         {% endfor %}
     </ul>
-    
-    <a href="{{ url_for('logout') }}">Logout</a>
+
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <ul class="flashes">
