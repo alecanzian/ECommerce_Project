@@ -51,6 +51,14 @@ class User(db.Model, UserMixin):
         def __init__(self, username, password):
                 self.username = username
                 self.password = password
+class Profiles(db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        username = db.Column(db.String(20), nullable = False)
+        name = db.Column(db.String(20), nullable = False)
+        surname = db.Column(db.String(20), nullable = False)
+        email = db.Column(db.String(20), nullable = False)
+        address = db.Column(db.String(20), nullable = False)
+        
 
         #roles = db.relationship("Role", secondary="user_roles", back_populates="users")
         #def has_role(self, role):
