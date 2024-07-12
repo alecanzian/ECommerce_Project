@@ -16,6 +16,7 @@
                 <th>Username</th>
                 <!--<th>Password</th>-->
                 <th>Roles</th>
+                <th>Profiles</th> <!-- Nuova colonna per i profili -->
             </tr>
         </thead>
         <tbody>
@@ -29,17 +30,31 @@
                         {{ role.name }}{% if not loop.last %}, {% endif %}
                     {% endfor %}
                 </td>
+                <td>
+                    <ul>
+                        {% for profile in user.profiles %}
+                            
+                            <img src="{{ profile.image_url }}" alt="{{ profile.name }}" width="50" height = "50">
+                            <p>{{ profile.id }} {{ profile.name }} {{ profile.surname }}</p>
+                              
+                        {% endfor %}
+                    </ul>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    <!--
+    
+    
     <table>
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Name</th>
                 <th>Price</th>
+                <th>Description</th>
+                <th>Availability</th>
+                <th>Categories</th>
             </tr>
         </thead>
         <tbody>
@@ -48,10 +63,23 @@
                 <td>{{ p.id }}</td>
                 <td>{{ p.name }}</td>
                 <td>{{ p.price }}</td>
+                <td>{{ p.description }}</td>
+                <td>{{ p.availability }}</td>
+                <td>
+                    {% if p.categories %}
+                        {% for category in p.categories %}
+                            <p>{{ category.name }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <p>Nessuna categoria associata</p>
+                    {% endif %}
+                    </td>
+                
+                    
             </tr>
             {% endfor %}
         </tbody>
-    </table>-->
+    </table>
     <table>
         <thead>
             <tr>
@@ -64,6 +92,22 @@
             <tr>
                 <td>{{ r.id }}</td>
                 <td>{{ r.name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in categories %}
+            <tr>
+                <td>{{ c.id }}</td>
+                <td>{{ c.name }}</td>
             </tr>
             {% endfor %}
         </tbody>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_shop.css') }}">
+    <script>
+        function enableEditing() {
+            document.getElementById("username").removeAttribute("readonly");
+            document.getElementById("editButton").style.display = "none";
+            document.getElementById("saveButton").style.display = "inline-block";
+        }
+
+        function disableEditing() {
+            document.getElementById("username").setAttribute("readonly", "readonly");
+            document.getElementById("editButton").style.display = "inline-block";
+            document.getElementById("saveButton").style.display = "none";
+        }
+
+        function saveChanges() {
+            // Qui puoi aggiungere la logica per salvare le modifiche al server tramite AJAX o form submit
+            document.getElementById("profileForm").submit();
+        }
+    </script>
+</head>
+<body>
+    <h1>Profile</h1>
+    <form id="profileForm" action="{{ url_for('save_profile') }}" method="POST">
+        <table>
+            <tr>
+                <th>Name</th>
+                <td>{{ current_user.name }}</td>
+            </tr>
+            <tr>
+                <th>Surname</th>
+                <td>{{ current_user.surname }}</td>
+            </tr>
+            <tr>
+                <th>Birt Date</th>
+                <td>{{ current_user.birth_date }}</td>
+            </tr>
+            <tr>
+                <th>Username</th>
+                <td><input type="text" id="username" name="username" value="{{ current_user.username }}" readonly></td>
+            </tr>
+            <tr>
+                <th>Password</th>
+                <td>********</td>
+            </tr>
+            <tr>
+                <th>Roles</th>
+                <td>
+                    <ul>
+                        {% for role in current_user.roles %}
+                            <li>{{ role.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <th>Profiles</th>
+                <td>
+                    <ul>
+                        {% for p in current_user.profiles %}
+                            <p> <img src="{{ p.image_url }}" alt="Nome" width = "25" height = "25"> {{ p.name }} {{ p.surname }}</p>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+        </table>
+        <div class="buttons">
+            <button type="button" id="editButton" onclick="enableEditing()">Modifica</button>
+            <button type="button" id="saveButton" onclick="saveChanges()" style="display: none;">Salva</button>
+        </div>
+    </form>
+    {% if current_user.has_role('seller') %}
+    <table>
+        <tr>
+            <th>Products</th>
+        </tr>
+            <td>
+                <ul>
+                    {% for profile in current_user.profiles %}
+                        {% for p in profile.products %}
+                            <p>{{ p.name }}  ${{ p.price }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </td>
+    </table>
+    {% endif %}
+
+    <a href="{{url_for('shop')}}">Back to shop</a> 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>
