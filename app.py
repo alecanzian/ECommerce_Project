@@ -10,9 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_session import Session
 import os
 
-
-
-# Configurazione del databse
+# Configurazione del database
 db = SQLAlchemy()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'thisisasecretkey'
@@ -42,7 +40,6 @@ login_manager.refresh_view = "login"
 login_manager.needs_refresh_message = "To protect your account, please reauthenticate to access this page."
 login_manager.needs_refresh_message_category = "info"
 
-
 # Principals setup
 principals = Principal(app)
 
@@ -50,7 +47,6 @@ principals = Principal(app)
 admin_permission = Permission(RoleNeed('admin'))
 seller_permission = Permission(RoleNeed('seller'))
 buyer_permission = Permission(RoleNeed('buyer'))
-
 
 # Tabella di associazione per la relazione molti-a-molti tra utenti e ruoli
 user_roles = db.Table('user_roles',
@@ -90,7 +86,6 @@ class User(db.Model, UserMixin):
 
         def has_role(self, role_name):
                 return any(role.name == role_name for role in self.roles)
-        
 
 class Profile(db.Model):
         id = db.Column(db.Integer, primary_key=True)
@@ -159,7 +154,6 @@ class Role(db.Model):
         def __init__(self, name):
                 self.name = name
 
-
 # The Identity represents the user, and is stored/loaded from various locations (eg session) for each request. The Identity is the user’s avatar to the system. It contains the access rights that the user has.
 # A Need is the smallest grain of access control, and represents a specific parameter for the situation.Whilst a Need is a permission to access a resource, an Identity should provide a set of Needs that it has access to.
 # A Permission is a set of requirements, any of which should be present for access to a resource.
@@ -182,8 +176,6 @@ def on_identity_loaded(sender, identity):
 @login_manager.user_loader
 def load_user(user_id):
         return db.session.get(User,int(user_id)) #User.query.get(int(user_id)) è considerato legacy
-
-
 
 # Decoratore personalizzato per gestire il caso in cui l'utente non ha l'autorizzazione(ovvero non possiede il ruolo) per eseguire una azione
 def anonymous_required(f):
@@ -371,7 +363,7 @@ def access_product(product_id):
 @app.route('/profile')
 @login_required
 @fresh_login_required
-@buyer_required
+#@buyer_required
 def profile():    
     return render_template('profile.html')
 
