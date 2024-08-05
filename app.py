@@ -8,7 +8,7 @@ from flask_principal import Principal, Permission, RoleNeed, UserNeed, Identity,
 from werkzeug.security import generate_password_hash, check_password_hash
 # Importa le sessione server-side
 from flask_session import Session
-
+import os
 
 
 
@@ -16,7 +16,8 @@ from flask_session import Session
 db = SQLAlchemy()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'thisisasecretkey'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:/Users/utente/Desktop/UNIVE/vsc/BD/dbms.db'
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'dbms.db')
 db = SQLAlchemy(app)
 
 # Configurazione per la sessione server-side
