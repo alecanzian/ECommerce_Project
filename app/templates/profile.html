@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style_shop.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='profile.css') }}">
     <script>
         function enableEditing() {
             document.getElementById("username").removeAttribute("readonly");
@@ -26,7 +26,7 @@
 </head>
 <body>
     <h1>Profile</h1>
-    <form id="profileForm" action="{{ url_for('save_profile') }}" method="POST">
+    <form id="profileForm" action="{{ url_for('profile.save_profile') }}" method="POST">
         <table>
             <tr>
                 <th>Name</th>
@@ -91,7 +91,7 @@
     </table>
     {% endif %}
 
-    <a href="{{url_for('shop')}}">Back to shop</a> 
+    <a href="{{url_for('shop.shop')}}">Back to shop</a> 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <ul class="flashes">

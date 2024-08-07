@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style_home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
 </head>
 <body>
     <header>
-        <a href="{{url_for('login')}}">Login Page</a>
-        <a href="{{url_for('register')}}">Register Page</a>
+        <a href="{{url_for('auth.login')}}">Login Page</a>
+        <a href="{{url_for('auth.register')}}">Register Page</a>
     </header>
     <main>
         <h1>Login Authentication System in Flask</h1>

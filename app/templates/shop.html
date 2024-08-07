@@ -4,26 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style_shop.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='shop.css') }}">
 </head>
 <body>
     <div class="navbar">
         <div class="dropdown">
             <a href="#" class="dropbtn">Menu</a>
             <div class="dropdown-content">
-                <a href="{{ url_for('profile') }}">Profile</a>
-                <a href="{{ url_for('cart') }}">Cart</a>
+                <a href="{{ url_for('profile.profile') }}">Profile</a>
+                <a href="{{ url_for('shop.cart') }}">Cart</a>
                 {% if current_user.has_role('admin') %}
-                    <a href="{{ url_for('info') }}">See Info</a>
+                    <a href="{{ url_for('profile.info') }}">See Info</a>
                 {% endif %}
-                <a href="{{ url_for('logout') }}">Logout</a>
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
             </div>
         </div>
     </div>
     <h1>Shop</h1>
 
    
-        <form action="{{ url_for('filtered_results') }}" method="POST" id="filter-form">
+        <form action="{{ url_for('shop.filtered_results') }}" method="POST" id="filter-form">
         <div class="search-bar">
             <input type="text" name="query" placeholder="Search products...">
             <button type="submit">Search</button>
@@ -45,7 +45,7 @@
             </div>
         </div> 
         </form>
-        <form action="{{ url_for('reset_filters') }}" method="post" class="inline-form">
+        <form action="{{ url_for('shop.reset_filters') }}" method="post" class="inline-form">
             <button type="submit">Reset</button>
         </form>
     
@@ -67,7 +67,7 @@
             <li class="product-item">
                 <img src="{{ p.image_url }}" alt="{{ p.name }}" class="product-image">
                 <div class="product-details">
-                    <a href="{{ url_for('access_product', product_id=p.id) }}" class="product-link"><h2>{{ p.name }}</h2></a>
+                    <a href="{{ url_for('shop.access_product', product_id=p.id) }}" class="product-link"><h2>{{ p.name }}</h2></a>
                     <p>|{% for c in p.categories %}
                         {{ c.name }} |
                     {% endfor %}

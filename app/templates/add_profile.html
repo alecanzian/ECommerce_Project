@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='add_profile.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Add New Profile</h1>
+        <form method="POST">
+            <input type="text" id="name" name="name" placeholder="Nome" required><br>
+            <input type="text" id="surname" name="surname" placeholder="Cognome" required><br>
+            <input type="date" id="birth_date" name="birth_date" placeholder="Data di nascita" required><br>
+            <button type="submit">Add Profile</button>
+        </form>
+    </div>
+</body>
+</html>

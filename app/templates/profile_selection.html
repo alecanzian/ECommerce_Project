@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='profile_selection.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Select Your Profile</h1>
+        <div class="profiles">
+            {% for profile in profiles %}
+                <div class="profile">
+                    <a href="{{ url_for('profile.select_profile', profile_id=profile.id) }}">
+                        <h2>{{ profile.name }}</h2>
+                    </a>
+                </div>
+            {% endfor %}
+            <div class="profile add-profile">
+                <a href="{{ url_for('profile.add_profile') }}">
+                    <h2>+</h2>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

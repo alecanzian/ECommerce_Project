@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ product.name }} Details</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style_product.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='product.css') }}">
 </head>
 <body>
     <div class="product-details">
@@ -12,7 +12,7 @@
         <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image">
         <p><strong>Price:</strong> ${{ product.price }}</p>
         <p><strong>Description:</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-        <a href="{{ url_for('shop') }}">Back to Shop</a>
+        <a href="{{ url_for('auth.shop') }}">Back to Shop</a>
     </div>
 </body>
 </html>
