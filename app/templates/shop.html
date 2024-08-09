@@ -4,64 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='shop.css') }}">
 </head>
 <body>
-    <div class="navbar">
-        <div class="dropdown">
-            <a href="#" class="dropbtn">Menu</a>
-            <div class="dropdown-content">
-                <a href="{{ url_for('profile.profile') }}">Profile</a>
-                <a href="{{ url_for('shop.cart') }}">Cart</a>
-                {% if current_user.has_role('admin') %}
-                    <a href="{{ url_for('profile.info') }}">See Info</a>
-                {% endif %}
-                <a href="{{ url_for('auth.logout') }}">Logout</a>
-            </div>
-        </div>
-    </div>
+    <header>
+        <a href="{{ url_for('auth.home') }}">Dashboard</a>
+        <a href="{{ url_for('profile.profile') }}">Profile: {{ profile_name }}</a>
+        <a href="{{ url_for('shop.cart') }}">Cart</a>
+        {% if current_user.has_role('admin') %}
+            <a href="{{ url_for('profile.info') }}">See Info</a>
+        {% endif %}
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </header>
+    
     <h1>Shop</h1>
 
-   
-        <form action="{{ url_for('shop.filtered_results') }}" method="POST" id="filter-form">
-        <div class="search-bar">
-            <input type="text" name="query" placeholder="Search products...">
-            <button type="submit">Search</button>
+    <form action="{{ url_for('shop.filtered_results') }}" method="POST" id="filter-form">
+    <div class="search-bar">
+        <input type="text" name="query" placeholder="Search products...">
+        <button type="submit">Search</button>
+    </div>
+    <div class="container">
+        <div class="colonna">
+            {% for category in categories %}
+                <input type="checkbox" id="{{ category.name }}" name="selected_categories" value="{{ category.name }}" {% if category.name in session['selected_categories'] %} checked {% endif %}>
+                <label for="{{ category.name }}">{{ category.name }}</label><br>
+            {% endfor %}
+        
+            <label for="minPriceRange">Prezzo minimo: <span id="minPriceValue">{{ session['min_price'] }}</span> €</label><br>
+            <input type="range" id="minPriceRange" name="minPriceRange" min="0" max="1000" step="10" value="{{ session['min_price'] }}" oninput="updatePriceValues()"><br>
+            
+            <label for="maxPriceRange">Prezzo massimo: <span id="maxPriceValue">{{ session['max_price'] }}</span> €</label><br>
+            <input type="range" id="maxPriceRange" name="maxPriceRange" min="0" max="6000" step="100" value="{{ session['max_price'] }}" oninput="updatePriceValues()"><br>
+            <button type="submit">Applica</button>
         </div>
-        <div class="container">
-            <div class="colonna">
-                    {% for category in categories %}
-                        <input type="checkbox" id="{{ category.name }}" name="selected_categories" value="{{ category.name }}" {% if category.name in session['selected_categories'] %} checked {% endif %}>
-                        <label for="{{ category.name }}">{{ category.name }}</label><br>
-                    {% endfor %}
-                
-                    <label for="minPriceRange">Prezzo minimo: <span id="minPriceValue">{{ session['min_price'] }}</span> €</label><br>
-                    <input type="range" id="minPriceRange" name="minPriceRange" min="0" max="1000" step="10" value="{{ session['min_price'] }}" oninput="updatePriceValues()"><br>
-                    
-                    <label for="maxPriceRange">Prezzo massimo: <span id="maxPriceValue">{{ session['max_price'] }}</span> €</label><br>
-                    <input type="range" id="maxPriceRange" name="maxPriceRange" min="0" max="6000" step="100" value="{{ session['max_price'] }}" oninput="updatePriceValues()"><br>
-                    <button type="submit">Applica</button>
-
-            </div>
-        </div> 
-        </form>
-        <form action="{{ url_for('shop.reset_filters') }}" method="post" class="inline-form">
-            <button type="submit">Reset</button>
-        </form>
+    </div>
+    </form>
     
-        {% if current_user.has_role('admin') %}
-                <div class="colonna">
-                    <!-- Mostra i filtri selezionati -->
-                    <h3>Prodotti in sessione</h3>
-                    {% for p in products %}
-                        <p>{% if p.id in session['selected_products'] %} {{ p.name }}{% endif %}</p>
-                    {% endfor %}
-                    <h3>Categorie in sessione</h3>
-                    {% for p in session['selected_categories'] %}
-                        <p>{{ p }}</p>
-                    {% endfor %}
-                </div>
-        {% endif %}
+    <form action="{{ url_for('shop.reset_filters') }}" method="post" class="inline-form">
+        <button type="submit">Reset</button>
+    </form>
+    
+    {% if current_user.has_role('admin') %}
+        <div class="colonna">
+            <!-- Mostra i filtri selezionati -->
+            <h3>Prodotti in sessione</h3>
+            {% for p in products %}
+                <p>{% if p.id in session['selected_products'] %} {{ p.name }}{% endif %}</p>
+            {% endfor %}
+            <h3>Categorie in sessione</h3>
+            {% for p in session['selected_categories'] %}
+                <p>{{ p }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <ul class="product-list">
         {% for p in products %}
             <li class="product-item">
@@ -79,6 +77,7 @@
             </li>
         {% endfor %}
     </ul>
+
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <ul class="flashes">
@@ -88,6 +87,7 @@
             </ul>
         {% endif %}
     {% endwith %}
+    
     <script>
         // Funzione per aggiornare il valore visualizzato dei range input
         function updatePriceValues() {

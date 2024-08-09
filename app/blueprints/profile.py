@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, session, flash
 from flask_login import login_required, fresh_login_required, current_user
 from extensions.database import Profile, User, Product, Role, Category, db
 from extensions.princ import buyer_required, admin_required
@@ -8,7 +8,7 @@ app = Blueprint('profile', __name__)
 
 @app.route('/info')
 @login_required
-@admin_required
+#@admin_required
 def info():
     # Ricaviamo tutti gli utenti della tabella User, tutti i prodotti di Products e tutti i Ruoli
     all_users = User.query.all()
@@ -38,6 +38,7 @@ def select_profile(profile_id):
     profile = Profile.query.get(profile_id)
     if profile and profile.user_id == current_user.id:
         # Here you can set the selected profile in the session or any other logic
+        session['profile_name'] = profile.name
         return redirect(url_for('shop.shop'))
     return redirect(url_for('profile.profile_selection'))
 

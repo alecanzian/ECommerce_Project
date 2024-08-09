@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
 </head>
 <body>
@@ -12,7 +13,7 @@
         <a href="{{url_for('auth.register')}}">Register Page</a>
     </header>
     <main>
-        <h1>Login Authentication System in Flask</h1>
+        <h1>eCommerce Project</h1>
         <div class="images">
             <img src="{{ url_for('static', filename='img/product1.jpg') }}" alt="Product 1">
             <img src="{{ url_for('static', filename='img/product2.jpg') }}" alt="Product 2">

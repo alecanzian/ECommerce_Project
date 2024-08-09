@@ -8,7 +8,12 @@ app = Blueprint('shop', __name__)
 @app.route('/shop')
 @login_required
 def shop():
+    if 'profile_name' not in session:
+        return redirect(url_for('profile.profile_selection'))
+    
     # Inizializzazione di tutte le chiavi necessarie
+    profile_name = session['profile_name']
+    
     # Visto che ci sono tre controlli, ovvero la barra di ricerca, il checkbox e il range di prezzo, ho bisogno di salvarmi ciò che visualizza l'utente.
     if 'selected_products' not in session:
         session['selected_products'] = [p.id for p in Product.query.all()]
@@ -22,7 +27,7 @@ def shop():
     # I prodotti il cui id è presente nella sessione. Questo perchè potrebbe esserci una route che reindirizza a shop e session['selected_products'] potrebbe averedegli elementi
     products = Product.query.filter(Product.id.in_(session['selected_products'])).all()
 
-    return render_template('shop.html', products=products, categories = Category.query.all()) 
+    return render_template('shop.html', profile_name=profile_name, products=products, categories=Category.query.all()) 
 
 @app.route('/filtered_results', methods=['POST'])
 @login_required

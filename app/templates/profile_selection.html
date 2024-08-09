@@ -3,26 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select Profile</title>
+    <title>Select your profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='profile_selection.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Select Your Profile</h1>
-        <div class="profiles">
+    <header>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </header>
+    <main>
+        <h1>Select your profile</h1>
+        <div class="profile-selection">
             {% for profile in profiles %}
-                <div class="profile">
-                    <a href="{{ url_for('profile.select_profile', profile_id=profile.id) }}">
-                        <h2>{{ profile.name }}</h2>
-                    </a>
+                <div class="profile-card">
+                    <img src="{{ profile.avatar }}" alt="Avatar" class="profile-avatar">
+                    <p class="profile-name">{{ profile.name }}</p>
+                    <a href="{{ url_for('profile.select_profile', profile_id=profile.id) }}" class="profile-button">Select profile</a>
                 </div>
             {% endfor %}
-            <div class="profile add-profile">
-                <a href="{{ url_for('profile.add_profile') }}">
-                    <h2>+</h2>
-                </a>
+            <div class="profile-card">
+                <a href="{{ url_for('profile.add_profile') }}" class="profile-button">New profile</a>
             </div>
         </div>
-    </div>
+        <a href="{{url_for('auth.logout')}}">Back to dashboard</a> 
+    </main>
 </body>
 </html>

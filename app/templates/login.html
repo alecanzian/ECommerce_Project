@@ -4,22 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
-    <!--<scrip
-        window.onload = function() {
-            var errorMessage = document.getElementById("error-message").value;
-            if (errort>Message) {
-                alert(errorMessage);
-            }
-        };
-    </script>-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
 </head>
 <body>
+    <header>
+        <a href="{{ url_for('auth.home') }}">Dashboard</a>
+        <a href="{{ url_for('auth.register') }}">Register Page</a>
+    </header>
     <main>
         <h1>Login Page</h1>
         <form action="{{url_for('auth.login')}}" method="post">
-            <input type="email" id="email" name="email" placeholder="Email" required><br>
-            <input type="password" id="password" name="password" placeholder="Password" required><br>
+            <input type="email" id="email" name="email" placeholder="Email" required>
+            <input type="password" id="password" name="password" placeholder="Password" required>
             <button type="submit">Login</button>
         </form>
         <input type="hidden" id="error-message" value="{{ error_message }}">
