@@ -1,5 +1,0 @@
-<<<<<<< HEAD
-*.pyc
-=======
-app/dbms.db
->>>>>>> 14ed033 (Aggiungi dbms.db a .gitignore)
