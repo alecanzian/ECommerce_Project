@@ -4,12 +4,12 @@ from .database import User, db
 login_manager = LoginManager()
 
 # Settaggio del login_manager. Quando un utente anonimo accede a una ruote col decoratore @login_required, allora viene rimandato alla schermata di login_view con il messaggio login_message
-login_manager.login_view = "login"
+login_manager.login_view = "auth.login"
 login_manager.login_message = "To access, you have to log in."
 login_manager.login_message_category = "info"
 
 # Settaggio del login_manager. Quando un utente anonimo accede a una ruote col decoratore @login_required, allora viene rimandato alla schermata di refresh_view con il messaggio login_message
-login_manager.refresh_view = "login"
+login_manager.refresh_view = "auth.login"
 login_manager.needs_refresh_message = "To protect your account, please reauthenticate to access this page."
 login_manager.needs_refresh_message_category = "info"
 

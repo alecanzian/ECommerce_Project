@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modify Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+</head>
+<body>
+    <header>
+    </header>
+    <main>
+        <h1>Add New Profile</h1>
+        <form method="POST" action="{{ url_for('profile.change_profile') }}">
+            <input type="text" id="name" name="name" placeholder="Nome">
+            <input type="text" id="surname" name="surname" placeholder="Cognome">
+            <input type="date" id="birth_date" name="birth_date" placeholder="Data di nascita">
+            <button type="submit">Aggiungi modifiche</button>
+        </form>
+        <a href="{{ url_for('profile.profile') }}">Annulla</a>
+    </main>
+</body>
+</html>

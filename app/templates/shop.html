@@ -9,14 +9,31 @@
 </head>
 <body>
     <header>
-        <a href="{{ url_for('auth.home') }}">Dashboard</a>
-        <a href="{{ url_for('profile.profile') }}">Profile: {{ profile_name }}</a>
-        <a href="{{ url_for('shop.cart') }}">Cart</a>
-        {% if current_user.has_role('admin') %}
-            <a href="{{ url_for('profile.info') }}">See Info</a>
-        {% endif %}
-        <a href="{{ url_for('auth.logout') }}">Logout</a>
+        <div class="navbar">
+            <div class="dropdown">
+                <a href="{{ url_for('profile.profile') }}" class="dropbtn">
+                    {% for p in current_user.profiles %}
+                        {% if p.id == session['current_profile_id'] %}
+                            {{ p.name }} {{ p.surname }}
+                        {% endif %}
+                    {% endfor %}
+                </a>
+                <div class="dropdown-content">
+                    {% for p in current_user.profiles %}
+                        {% if p.id != session['current_profile_id'] %}
+                            <a href="{{ url_for('profile.select_profile', profile_id=p.id) }}">{{ p.name }} {{ p.surname }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <a href="{{ url_for('shop.cart') }}">Cart</a>
+            {% if current_user.has_role('buyer') %}
+                <a href="{{ url_for('profile.info') }}">See Info</a>
+            {% endif %}
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
+        </div>
     </header>
+    
     
     <h1>Shop</h1>
 
@@ -46,9 +63,8 @@
         <button type="submit">Reset</button>
     </form>
     
-    {% if current_user.has_role('admin') %}
+    <!--{% if current_user.has_role('admin') %}
         <div class="colonna">
-            <!-- Mostra i filtri selezionati -->
             <h3>Prodotti in sessione</h3>
             {% for p in products %}
                 <p>{% if p.id in session['selected_products'] %} {{ p.name }}{% endif %}</p>
@@ -59,6 +75,7 @@
             {% endfor %}
         </div>
     {% endif %}
+    -->
 
     <ul class="product-list">
         {% for p in products %}

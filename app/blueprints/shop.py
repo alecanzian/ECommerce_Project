@@ -7,16 +7,19 @@ app = Blueprint('shop', __name__)
 
 @app.route('/shop')
 @login_required
+@buyer_required
 def shop():
-    if 'profile_name' not in session:
+    if 'current_profile_id' not in session:
         return redirect(url_for('profile.profile_selection'))
-    
-    # Inizializzazione di tutte le chiavi necessarie
-    profile_name = session['profile_name']
     
     # Visto che ci sono tre controlli, ovvero la barra di ricerca, il checkbox e il range di prezzo, ho bisogno di salvarmi ciò che visualizza l'utente.
     if 'selected_products' not in session:
-        session['selected_products'] = [p.id for p in Product.query.all()]
+        # Se current_user è un seller, devo togliere tutti i prodotti venduti da lui dai prodotti visibili sullo shop
+        if current_user.has_role('seller'):
+            #user_profile_ids = [p.id for p in current_user.profiles]
+            session['selected_products'] = [p.id for p in Product.query.filter(Product.user_id != current_user.id).all()]
+        else:
+            session['selected_products'] = [p.id for p in Product.query.all()]
     if 'selected_categories' not in session:
         session['selected_categories'] = []
     if 'min_price' not in session:
@@ -27,10 +30,11 @@ def shop():
     # I prodotti il cui id è presente nella sessione. Questo perchè potrebbe esserci una route che reindirizza a shop e session['selected_products'] potrebbe averedegli elementi
     products = Product.query.filter(Product.id.in_(session['selected_products'])).all()
 
-    return render_template('shop.html', profile_name=profile_name, products=products, categories=Category.query.all()) 
+    return render_template('shop.html', products=products, categories=Category.query.all()) 
 
 @app.route('/filtered_results', methods=['POST'])
 @login_required
+@buyer_required
 def filtered_results():
     if request.method == 'POST':
         # Estrapolo tutte le informazioni necessarie dal form
@@ -46,6 +50,14 @@ def filtered_results():
 
         # Filtra i prodotti in base ai criteri
         products = Product.query
+
+        # Escludi i prodotti che appartengono ai profili di current_user, se current_user è un seller
+        if current_user.has_role('seller'):
+            #user_profile_ids = [p.id for p in current_user.profiles]
+            #products = products.filter(~Product.profile_id.in_(user_profile_ids))
+            products = products.filter(Product.user_id != current_user.id)
+
+
 
         # Se la query non è una stringa vuota
         if query:
@@ -75,11 +87,14 @@ def reset_filters():
         session['min_price'] = 0.0
         session['max_price'] = 6000.0
 
-        # Reimposta i prodotti visibili utilizzando i filtri di default
-        products = Product.query.all()
 
-        # Aggiorna la sessione con gli ID dei prodotti visibili
-        session['selected_products'] = [p.id for p in products]
+        # Aggiorna la sessione con gli ID dei prodotti visibili,tranne quelli che appartengono a current_user
+        if current_user.has_role('seller'):
+            #user_profile_ids = [p.id for p in current_user.profiles]
+            #session['selected_products'] = [p.id for p in Product.query.filter(~Product.profile_id.in_(user_profile_ids)).all()]
+            session['selected_products'] = [p.id for p in Product.query.filter(Product.user_id != current_user.id).all()]
+        else:
+            session['selected_products'] = [p.id for p in Product.query.all()]
 
         # Ritorna alla pagina shop con i prodotti e categorie aggiornati
         return redirect(url_for('shop.shop'))
@@ -92,6 +107,7 @@ def cart():
 
 @app.route('/product/<int:product_id>')
 @login_required
+@buyer_required
 def access_product(product_id):
     product = Product.query.get_or_404(product_id)
     return render_template('product.html', product=product)

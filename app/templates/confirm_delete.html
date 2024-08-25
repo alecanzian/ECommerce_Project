@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conferma Eliminazione Account</title>
+</head>
+<body>
+    <h1>Conferma Eliminazione Account</h1>
+    <p>Per favore, inserisci la tua password per confermare l'eliminazione del tuo account.</p>
+    <form action="{{ url_for('account.delete_account') }}" method="POST">
+        <input type="password" id="password" name="password" placeholder="password">
+        <button type="submit">Conferma Eliminazione</button>
+    </form>
+    <a href="{{ url_for('profile.profile') }}">Annulla</a>
+</body>
+</html>

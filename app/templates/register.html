@@ -7,10 +7,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
 </head>
 <body>
-    <header>
-        <a href="{{ url_for('auth.home') }}">Dashboard</a>
-        <a href="{{ url_for('auth.login') }}">Login Page</a>
-    </header>
     <main>
         <h1>Register Page</h1>
         <form action="{{ url_for('auth.register') }}" method="post">

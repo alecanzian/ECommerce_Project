@@ -31,7 +31,7 @@ def register():
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
             flash('Username already exists. Please login.', category='error')
-            return redirect(url_for('login.login'))
+            return redirect(url_for('auth.login'))
 
         if password != confirm_password:
             flash('Passwords do not match!', category='error')
@@ -94,6 +94,7 @@ def logout():
     session.pop('selected_categories', None)
     session.pop('min_price',None)
     session.pop('max_price',None)
+    session.pop('current_profile_id', None)
 
     # Tell Flask-Principal the user is anonymous
     identity_changed.send(app,identity=AnonymousIdentity())

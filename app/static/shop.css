@@ -73,3 +73,43 @@
     bottom: 10px;
     left: 10px;
 }
+
+/* Stili per la navbar */
+.navbar {
+    display: flex;
+    align-items: center;
+}
+
+/* Dropdown container */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Nasconde il contenuto del dropdown per default */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+/* Mostra il dropdown quando l'utente passa sopra il bottone */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Stili per i link nel dropdown */
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+/* Cambia colore al passaggio del mouse */
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}

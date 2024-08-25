@@ -25,6 +25,7 @@ class User(db.Model, UserMixin):
 
     roles = db.relationship('Role', secondary=user_roles, backref='users')
     profiles = db.relationship('Profile', backref='user', lazy=True)
+    products = db.relationship('Product', backref='user')
 
     def __init__(self, username, password):
         self.username = username
@@ -48,7 +49,7 @@ class Profile(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    products = db.relationship('Product', backref='profile')
+    #products = db.relationship('Product', backref='profile')
 
     def __init__(self, name, surname, birth_date, user_id, image_url='https://static.vecteezy.com/ti/vettori-gratis/p1/2318271-icona-profilo-utente-vettoriale.jpg'):
         self.name = name
@@ -65,19 +66,19 @@ class Product(db.Model):
     description = db.Column(db.String(255), nullable=False)
     availability = db.Column(db.Integer, nullable = False)
 
-    profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'), nullable=False) 
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
     categories = db.relationship('Category', secondary=product_categories, backref='products')
 
-    def __init__(self, name, price, profile_id, description, categories, availability = 1, image_url = 'https://img.freepik.com/vettori-premium/un-disegno-di-una-scarpa-con-sopra-la-parola-scarpa_410516-82664.jpg'):
-        profile = db.session.get(Profile, int(profile_id))
-        if not profile or not profile.user.has_role('seller'):
+    def __init__(self, name, price, user_id, description, categories, availability = 1, image_url = 'https://img.freepik.com/vettori-premium/un-disegno-di-una-scarpa-con-sopra-la-parola-scarpa_410516-82664.jpg'):
+        user = db.session.get(User, int(user_id))
+        if not user or not user.has_role('seller'):
                 raise ValueError("Il profilo non appartiene a un utente con il ruolo di seller.")
         self.name = name
         self.price = price
         self.image_url = image_url
         self.description = description
         self.availability = availability
-        self.profile_id = profile_id
+        self.user_id = user.id
         for c in categories:
             #existing_category = Category.query.filter_by(name=c).first()
             #if existing_category:
@@ -153,8 +154,8 @@ def add_users(user_list):
 def add_products(products_list):
     admin_user = User.query.filter(User.roles.any(Role.name=='admin')).first()
     if admin_user:
-        admin_profile_id = Profile.query.filter_by(user_id=admin_user.id).first().id
-        if admin_profile_id:
+        #admin_profile_id = Profile.query.filter_by(user_id=admin_user.id).first().id
+        #if admin_profile_id:
             for elem in products_list:
                 # Recupera o crea le categorie per il prodotto corrente
                 categories = elem.get('categories', [])  # Ottiene la lista delle categorie dal dizionario prodotto
@@ -171,7 +172,7 @@ def add_products(products_list):
                 prod = Product(
                     name=elem['name'],
                     price=elem['price'],
-                    profile_id=admin_profile_id,
+                    user_id=admin_user.id,
                     description=elem['description'],
                     availability=elem['availability'],
                     categories=category_objects  # Aggiunge le categorie al prodotto
