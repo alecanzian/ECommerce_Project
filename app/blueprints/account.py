@@ -23,12 +23,13 @@ def delete_account():
             return redirect(url_for('profile.profile'))
         # Procedura di eliminazione
         try:
-            # Elimina prima tutti i prodotti associati ai profili dell'utente
+            # Elimina prima tutti i prodotti associati all'utente
+            if current_user.has_role('seller'):
+                for product in current_user.products:
+                    db.session.delete(product)
+            # Elimina il profilo dopo aver eliminato i prodotti
             for profile in current_user.profiles:
-                if current_user.has_role('seller'):
-                    for product in profile.products:
-                        db.session.delete(product)
-                db.session.delete(profile)  # Elimina il profilo dopo aver eliminato i prodotti
+                db.session.delete(profile) 
             # Elimina l'utente
             db.session.delete(current_user)
             db.session.commit()

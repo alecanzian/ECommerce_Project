@@ -21,74 +21,18 @@ with app.app_context():
     
     #add_roles()  # Popola il database con ruoli di esempio
     #
+    #example_categories = ['Elettronica','Abbigliamento','Casa e Giardino','Sport e Tempo Libero','Giochi e Giocattoli','Alimentari','Libri e Riviste','Salute e Bellezza','Arredamento','Auto e Moto','Fai da te','Musica','Film e TV','Animali domestici','Strumenti Musicali','Telefonia','Arte e Collezionismo','Viaggi','Tecnologia','Orologi e Gioielli','Altro']
+    #add_categories(example_categories)
+    #
     #admin = User(username = 'alessandrocanzian2003@gmail.com', password = generate_password_hash('alex', method='pbkdf2:sha256') )
     #db.session.add(admin)
     #db.session.commit()
     #db.session.add(Profile(name = 'Alessandro', surname = 'Canzian', birth_date=datetime.strptime('2003-03-30', '%Y-%m-%d').date(), user_id=admin.id))
     #db.session.commit()
-    #example_users = [
-    #{
-    #        'name': 'Alessandro', 
-    #        'surname': 'Canzian', 
-    #        'birth_date': '2003-03-30', 
-    #        'username': 'alessandrocanzian2003@gmail.com', 
-    #        'password': 'alex'
-    #},
-    #{
-    #        'name': 'Paolo', 
-    #        'surname': 'Canzian', 
-    #        'birth_date': '1966-05-11', 
-    #        'username': 'paoletto66@gmail.com', 
-    #        'password': 'pp66'
-    #},
-    #{
-    #        'name': 'Giovanna', 
-    #        'surname': 'Zanatta', 
-    #        'birth_date': '1958-09-21', 
-    #        'username': 'giovanna10@gmail.com', 
-    #        'password': 'gg10'
-    #},
-    #{
-    #        'name': 'Irene', 
-    #        'surname': 'Canzian', 
-    #        'birth_date': '2003-04-21', 
-    #        'username': 'irene@gmail.com', 
-    #        'password': 'irene'
-    #}
-    #]
-    #add_users(example_users)
     #
     #set_user_with_role('alessandrocanzian2003@gmail.com', 'admin')  # Aggiungi un utente di esempio
     #set_user_with_role('alessandrocanzian2003@gmail.com', 'buyer')  # Aggiungi un utente di esempio
     #set_user_with_role('alessandrocanzian2003@gmail.com', 'seller')  # Aggiungi un utente di esempio
-    #set_user_with_role('paoletto66@gmail.com', 'buyer')  # Aggiungi un utente di esempio
-    #set_user_with_role('giovanna10@gmail.com', 'buyer')  # Aggiungi un utente di esempio
-    #set_user_with_role('irene@gmail.com', 'buyer')  # Aggiungi un utente di esempio
-    #
-    #example_categories = [
-    #    'Elettronica',
-    #    'Abbigliamento',
-    #    'Casa e Giardino',
-    #    'Sport e Tempo Libero',
-    #    'Giochi e Giocattoli',
-    #    'Alimentari',
-    #    'Libri e Riviste',
-    #    'Salute e Bellezza',
-    #    'Arredamento',
-    #    'Auto e Moto',
-    #    'Fai da te',
-    #    'Musica',
-    #    'Film e TV',
-    #    'Animali domestici',
-    #    'Strumenti Musicali',
-    #    'Telefonia',
-    #    'Arte e Collezionismo',
-    #    'Viaggi',
-    #    'Tecnologia',
-    #    'Orologi e Gioielli',
-    #    'Altro'
-    #]
-    #add_categories(example_categories)
     #
     #example_products = [
     #    {"name": "Scarpe Nike", "price": 10.99, "description": "gnegne", "availability": 10, "categories": ["Sport e Tempo Libero"]},
