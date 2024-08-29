@@ -92,12 +92,12 @@
         </div>
     -->
     {% if current_user.has_role('seller') %}
-    <h1>Products</h1><button type="button">Aggiungi</button>
+    <h1>Products</h1><form action="{{ url_for('shop.create_product') }}"><button type="submit" >Aggiungi</button></form>
         {% for p in current_user.products %}
             <table>
                 <tr>
-                    <th><button type="button" >Modifica</button>
-                        <button type="button" >Elimina</button></th>
+                    <th><form action="{{ url_for('shop.create_product') }}"><button type="submit" >Modifica</button></form>
+                        <form action="{{ url_for('shop.create_product') }}"><button type="submit" >Elimina</button></form></th>
                     <td>
                         <img src="{{ p.image_url }}" alt="Nome" width = "50" height = "50">
                     </td>
@@ -106,6 +106,13 @@
                 <tr>
                     <th>Name</th>
                     <td>{{ p.name }}</td>
+                </tr>
+                <tr>
+                    <th>Categories</th>
+                    <td>|{% for c in p.categories %}
+                        {{ c.name }} |
+                    {% endfor %}
+                    </td>
                 </tr>
                 <tr>
                     <th>Description</th>

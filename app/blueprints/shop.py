@@ -114,19 +114,36 @@ def access_product(product_id):
 
 # PARTE AGGIUNTIVA(ancora da fare)
 
-@app.route('/create_product', methods=['POST'])
+
+@app.route('/create_product')
+@login_required
 @seller_required
 def create_product():
+    return render_template('create_product.html', categories = Category.query.all())
+
+@app.route('/add_product', methods=['POST'])
+@login_required
+@seller_required
+def add_product():
     name = request.form.get('name')
     price = request.form.get('price')
-    profile_id = request.form.get('profile_id')
+    image_url = request.form.get('image-url')
+    description = request.form.get('description')
+    availability = request.form.get('availability')
+    list_categories = request.form.getlist('selected_categories_product')
+    category_objects = []
+    for category_name in list_categories:
+                    category = Category.query.filter_by(name=category_name).first()
+                    if not category:
+                        category = Category.query.filter_by(name='Altro').first()
+                    category_objects.append(category)
+    user_id = current_user.id
 
-    # Verifica se il profilo appartiene all'utente corrente
-    profile = Profile.query.get(profile_id)
-    if profile.user_id != current_user.id:
-        return "Non hai il permesso di utilizzare questo profilo", 403
-
-    new_product = Product(name=name, price=price, profile_id=profile_id)
+    
+    if image_url is None:
+        new_product = Product(name=name, price=price, user_id=user_id, description = description, availability = availability, categories = category_objects)
+    else:
+        new_product = Product(name=name, price=price, user_id=user_id, description = description, availability = availability, categories = category_objects, image_url = image_url)
     db.session.add(new_product)
     db.session.commit()
-    return "Prodotto creato con successo", 201
+    return redirect(url_for('profile.profile'))
