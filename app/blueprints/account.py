@@ -1,26 +1,34 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import logout_user, current_user, login_required, fresh_login_required
-from extensions.database import db
+from extensions.database import Role, db
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Blueprint('account', __name__)
 # Route che reindirizza l'utente verso il form per inserire la password e verificare che sia davvero l'utente
-@app.route('/account/confirm_delete', methods=['POST'])
-@login_required
-@fresh_login_required
-def confirm_delete():
-    if request.method == 'POST':
-        return render_template('confirm_delete.html')
 
-@app.route('/account/delete', methods=['POST'])
+@app.route('/delete_account', methods=['GET','POST'])
 @login_required
 @fresh_login_required
 def delete_account():
+    if request.method == 'POST':
         password = request.form.get('password')
-        # Se la password non corrisponde 
-        if current_user.password is None or not check_password_hash(current_user.password, password):
-            flash('Password errata. Impossibile eliminare l\'account.', 'error')
+
+        if not password:
+            print(f"ciao")
+            print(str(password))
+            flash('Inserisci la password per confermare la cancellazione dell\'account ')
             return redirect(url_for('profile.profile'))
+        
+        if current_user.password is None:
+            # Gestisci il caso in cui l'utente non ha una password
+            flash("Errore: l'utente non ha una password impostata.")
+            return redirect(url_for('auth.login'))
+
+        # Se la password è presente, controlla l'hash
+        if not check_password_hash(current_user.password, password):
+            flash("Password errata.")
+            return redirect(url_for('auth.login'))
+
         # Procedura di eliminazione
         try:
             # Elimina prima tutti i prodotti associati all'utente
@@ -42,27 +50,30 @@ def delete_account():
             db.session.rollback()
             flash(f'Errore durante l\'eliminazione dell\'account: {str(e)}', 'error')
             return redirect(url_for('profile.profile'))
+        
+    return render_template('confirm_password.html', action = 0)
 
-# Route che reindirizza l'utente verso il form per inserire la nuova password
-@app.route('/account/change_password', methods=['POST'])
+
+@app.route('/change_password', methods=['GET','POST'])
 @login_required
 @fresh_login_required
 def change_password():
     if request.method == 'POST':
-        return render_template('new_password.html')
-
-@app.route('/account/save_password', methods=['POST'])
-@login_required
-@fresh_login_required
-def save_password():
         old_password = request.form.get('old_password')
         new_password = request.form.get('new_password')
         confirm_new_password = request.form.get('confirm_new_password')
 
        # Se la vecchia password non corrisponde con la password corrente
-        if current_user.password is None or not check_password_hash(current_user.password, old_password):
-            flash('Password errata. Impossibile cambiare password.', 'error')
-            return redirect(url_for('profile.profile'))
+        if current_user.password is None:
+            # Gestisci il caso in cui l'utente non ha una password
+            flash("Errore: l'utente non ha una password impostata.")
+            return redirect(url_for('auth.login'))
+
+        # Se la password è presente, controlla l'hash
+        if not check_password_hash(current_user.password, old_password):
+            flash("Password errata.")
+            return redirect(url_for('auth.login'))
+
         # Se la nuova password non corrisponde con la sua conferma
         if new_password != confirm_new_password:
             flash('Passwords do not match!', category='error')
@@ -78,3 +89,32 @@ def save_password():
 
             flash('Password modificata con successo.', 'success')
             return redirect(url_for('profile.profile'))
+    return render_template('change_password.html')
+
+@app.route('/add_seller_role', methods=['GET','POST'])
+@login_required
+@fresh_login_required
+def add_seller_role():
+    if request.method == 'POST':
+        password = request.form.get('password')
+        # Se la password non corrisponde 
+        if current_user.password is None or not check_password_hash(current_user.password, password):
+            flash('Password errata. Impossibile eliminare l\'account.', 'error')
+            return redirect(url_for('profile.profile'))
+    
+        seller_role = Role.query.filter_by(name='seller').first()
+        if seller_role:
+            # Aggiungi il ruolo "seller" all'utente
+            if not current_user.has_role('seller'):
+                current_user.roles.append(seller_role)
+                db.session.commit()
+                flash('Ruolo di seller aggiunto con successo.', 'success')
+                return redirect(url_for('profile.profile'))
+            else:
+                flash('Ruolo di seller già presente con successo.', 'success')
+                return redirect(url_for('profile.profile'))
+        
+        else:
+            flash(f'Ruolo seller non esistente', 'error')
+            return redirect(url_for('profile.profile'))
+    return render_template('confirm_password.html', action = 1)

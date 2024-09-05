@@ -27,9 +27,7 @@
 <body>
     <a href="{{url_for('shop.shop')}}">Back to shop</a> 
     <h1>Account</h1>
-    <form id="profileForm" action="{{ url_for('account.confirm_delete') }}" method="POST">
-        <button type="submit">Elimina</button>
-    </form>
+    <a href="{{ url_for('account.delete_account') }}"">Elimina</a>
         <table>
             <tr>
                 <th>Username</th>
@@ -38,9 +36,7 @@
             <tr>
                 <th>Password</th>
                 <td>********  
-                    <form id="profileForm" action="{{ url_for('account.change_password') }}" method="POST">
-                        <button type="submit"> Modifica </button>
-                    </form>
+                    <a href="{{ url_for('account.change_password') }}"">Modifica</a>
                 </td>
                
             </tr>
@@ -56,14 +52,15 @@
             </tr>
         </table>
         <h1>Profiles</h1>
-        <form action="{{ url_for('profile.add_profile') }}"><button type="submit" >Aggiungi</button></form>
+        <a href="{{ url_for('profile.add_profile') }}"">Aggiungi</a>
         {% for p in current_user.profiles %}
             <p></p>
 
             <table>
                 <tr>
-                    <th><form action="{{ url_for('profile.preparing_profile_changes', profile_id = p.id) }}" method="GET"><button type="submit" >Modifica</button></form>
-                        <form action="{{ url_for('profile.delete_profile', profile_id = p.id) }}" method="GET"><button type="submit" >Elimina</button></form>
+                    <th>
+                        <a href="{{ url_for('profile.preparing_profile_changes', profile_id = p.id) }}">Modifica</a>
+                        <a href="{{ url_for('profile.delete_profile', profile_id = p.id) }}">Elimina</a>
                     </th>
                     <td>
                         <img src="{{ p.image_url }}" alt="Nome" width = "50" height = "50">
@@ -91,13 +88,15 @@
             <button type="button" id="saveButton" onclick="saveChanges()" style="display: none;">Salva</button>
         </div>
     -->
+    
+    <h1>Products</h1>
     {% if current_user.has_role('seller') %}
-    <h1>Products</h1><form action="{{ url_for('shop.create_product') }}"><button type="submit" >Aggiungi</button></form>
+    <a href="{{ url_for('shop.create_product') }}">Aggiungi</a>
         {% for p in current_user.products %}
             <table>
                 <tr>
-                    <th><form action="{{ url_for('shop.create_product') }}"><button type="submit" >Modifica</button></form>
-                        <form action="{{ url_for('shop.create_product') }}"><button type="submit" >Elimina</button></form></th>
+                    <th><a href="{{ url_for('shop.create_product') }}">Modifica</a>
+                        <a href="{{ url_for('shop.create_product') }}">Elimina</a></th>
                     <td>
                         <img src="{{ p.image_url }}" alt="Nome" width = "50" height = "50">
                     </td>
@@ -135,7 +134,10 @@
 
         
         {% endfor %}
-        
+    {% else %} 
+        <p>Non hai prodotti</p>
+        <a rel="stylesheet" href="{{ url_for('account.add_seller_role') }}">Diventa un Seller!!</a>
+
     {% endif %}
 
     {% with messages = get_flashed_messages(with_categories=true) %}

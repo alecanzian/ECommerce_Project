@@ -29,6 +29,11 @@ with app.app_context():
     #db.session.commit()
     #db.session.add(Profile(name = 'Alessandro', surname = 'Canzian', birth_date=datetime.strptime('2003-03-30', '%Y-%m-%d').date(), user_id=admin.id))
     #db.session.commit()
+    #example = User(username = 'canzianpaolo@gmail.com', password = generate_password_hash('pp66', method='pbkdf2:sha256') )
+    #db.session.add(example)
+    #db.session.commit()
+    #db.session.add(Profile(name = 'Paolo', surname = 'Canzian', birth_date=datetime.strptime('1966-05-11', '%Y-%m-%d').date(), user_id=example.id))
+    #db.session.commit()
     #
     #set_user_with_role('alessandrocanzian2003@gmail.com', 'admin')  # Aggiungi un utente di esempio
     #set_user_with_role('alessandrocanzian2003@gmail.com', 'buyer')  # Aggiungi un utente di esempio
