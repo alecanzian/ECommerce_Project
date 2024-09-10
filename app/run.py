@@ -55,6 +55,7 @@ with app.app_context():
     #    {"name": "Set di pentole", "price": 79.99, "description": "Set di pentole antiaderenti", "availability": 10, "categories": ["Casa e Giardino", "Altro"]}
     #]
     #add_products(example_products)
+    #ciao
 
 if __name__ == '__main__':
     app.run(debug=True)
