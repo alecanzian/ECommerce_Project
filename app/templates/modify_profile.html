@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cambio password</title>
+    <title>Modifca profilo</title>
 </head>
 <body>
-    <h1>Cambio password</h1>
-    <p>Per favore, conferma la tua vecchia password e inserisci la nuova password.</p>
-    <form action="{{ url_for('account.change_password') }}" method="POST">
-        <input type="password" id="old_password" name="old_password" placeholder="Old Password" required>
-        <input type="password" id="new_password" name="new_password" placeholder="New Password" required>
-        <input type="password" id="confirm_new_password" name="confirm_new_password" placeholder="Conferma Password" required>
+    <h1>Modifica profilo</h1>
+    <p>Inserire i nuovi dati</p>
+    <form action="{{ url_for('profile.modify_profile', profile_id = profile.id) }}" method="POST">
+        <input type="text" id="name" name="name" value="{{profile.name}}" required>
+        <input type="text" id="surname" name="surname" value="{{profile.surname}}" required>
+        <input type="text" id="image_url" name="image_url" value="{{profile.image_url}}" required>
+        <input type="date" id="birth_date" name="birth_date" value="{{profile.birth_date}}" required>
         <button type="submit">Conferma</button>
     </form>
     <a href="{{ url_for('profile.profile') }}">Annulla</a>

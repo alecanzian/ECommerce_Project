@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, redirect, request, url_for
+from flask import Blueprint, flash, render_template, session, redirect, request, url_for
 from flask_login import login_required, current_user
 from extensions.database import Profile, Product, Category, db
 from extensions.princ import buyer_required, seller_required
@@ -20,6 +20,7 @@ def shop():
             session['selected_products'] = [p.id for p in Product.query.filter(Product.user_id != current_user.id).all()]
         else:
             session['selected_products'] = [p.id for p in Product.query.all()]
+
     if 'selected_categories' not in session:
         session['selected_categories'] = []
     if 'min_price' not in session:
@@ -112,38 +113,102 @@ def access_product(product_id):
     product = Product.query.get_or_404(product_id)
     return render_template('product.html', product=product)
 
-# PARTE AGGIUNTIVA(ancora da fare)
 
-
-@app.route('/create_product')
-@login_required
-@seller_required
-def create_product():
-    return render_template('create_product.html', categories = Category.query.all())
-
-@app.route('/add_product', methods=['POST'])
+@app.route('/add_product', methods=['GET','POST'])
 @login_required
 @seller_required
 def add_product():
-    name = request.form.get('name')
-    price = request.form.get('price')
-    image_url = request.form.get('image-url')
-    description = request.form.get('description')
-    availability = request.form.get('availability')
-    list_categories = request.form.getlist('selected_categories_product')
-    category_objects = []
-    for category_name in list_categories:
-                    category = Category.query.filter_by(name=category_name).first()
-                    if not category:
-                        category = Category.query.filter_by(name='Altro').first()
-                    category_objects.append(category)
-    user_id = current_user.id
+    if request.method == 'POST':
+        name = request.form.get('name')
+        price = request.form.get('price')
+        image_url = request.form.get('image-url')
+        description = request.form.get('description')
+        availability = request.form.get('availability')
+        list_categories = request.form.getlist('selected_categories_product')
+        category_objects = []
+        for category_name in list_categories:
+                        category = Category.query.filter_by(name=category_name).first()
+                        if not category:
+                            category = Category.query.filter_by(name='Altro').first()
+                        category_objects.append(category)
+        if not category_objects:
+            category_objects.append(Category.query.filter_by(name='Altro').first())
+        user_id = current_user.id
 
+        
+        if image_url == "":
+            new_product = Product(name=name, price=price, user_id=user_id, description = description, availability = availability, categories = category_objects)
+        else:
+            new_product = Product(name=name, price=price, user_id=user_id, description = description, availability = availability, categories = category_objects, image_url = image_url)
+        db.session.add(new_product)
+        db.session.commit()
+        return redirect(url_for('profile.profile'))
     
-    if image_url is None:
-        new_product = Product(name=name, price=price, user_id=user_id, description = description, availability = availability, categories = category_objects)
+    return render_template('add_product.html', categories = Category.query.all())
+
+
+@app.route('/delete_product/<int:product_id>', methods = ['GET', 'POST'])
+@login_required
+@seller_required
+def delete_product(product_id):
+    product = next((p for p in current_user.products if p.id == product_id), None)
+   
+    if product:
+        db.session.delete(product)
+        db.session.commit()
+        flash('Prodotto eliminato correttamente', 'message')
+        return redirect(url_for('profile.profile'))
     else:
-        new_product = Product(name=name, price=price, user_id=user_id, description = description, availability = availability, categories = category_objects, image_url = image_url)
-    db.session.add(new_product)
-    db.session.commit()
-    return redirect(url_for('profile.profile'))
+        flash('il prodotto non è stato trovato', 'error')
+        return redirect(url_for('profile.profile'))
+    
+@app.route('/modify_product/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+def modify_product(product_id):
+    product = next((p for p in current_user.products if p.id == product_id), None)
+    if not product:
+        flash('il prodotto non è stato trovato', 'error')
+        return redirect(url_for('profile.profile'))
+
+    if request.method == 'POST':
+        # Leggi i dati inviati dal form
+        name = request.form.get('name')
+        price = request.form.get('price')
+        image_url = request.form.get('image_url')
+        description = request.form.get('description')
+        availability = request.form.get('availability')
+        list_categories = request.form.getlist('selected_categories_product')
+        categories = []
+        for category_name in list_categories:
+                        category = Category.query.filter_by(name=category_name).first()
+                        if not category:
+                            category = Category.query.filter_by(name='Altro').first()
+                        categories.append(category)
+        if not categories:
+            categories.append(Category.query.filter_by(name='Altro').first())
+        
+        if name:
+            for p in current_user.products:
+                if p.id != product.id and name == p.name:
+                    flash('Nome già utilizzato')
+                    return redirect(url_for('shop.modify_product', product_id=product.id))
+            product.name = name
+            
+        if price:
+            product.price = price
+
+        if description:
+            product.description = description
+            
+        if image_url:
+            product.image_url = image_url
+            
+        if availability:
+            product.availability = availability
+           
+        db.session.commit()
+        flash('Prodotto aggiornato con successo')
+        return redirect(url_for('profile.profile'))
+    
+    return render_template('modify_product.html', product=product, categories = Category.query.all())
+

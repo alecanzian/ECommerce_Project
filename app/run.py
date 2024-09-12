@@ -1,7 +1,7 @@
 from extensions.flask import app
 from extensions.login import login_manager
 from extensions.princ import princ
-from extensions.database import add_categories, add_roles, db, add_users, set_user_with_role, add_products, generate_password_hash, User, Profile
+from extensions.database import Address, add_categories, add_roles, db, add_users, set_user_with_role, add_products, generate_password_hash, User, Profile
 from datetime import datetime, timedelta
 import os
 
@@ -34,6 +34,9 @@ with app.app_context():
     #db.session.commit()
     #db.session.add(Profile(name = 'Paolo', surname = 'Canzian', birth_date=datetime.strptime('1966-05-11', '%Y-%m-%d').date(), user_id=example.id))
     #db.session.commit()
+    #db.session.add(Address(street = 'Via borgo san andrea 85', postal_code = 31050, city = 'Povegliano', province = 'TV', country = 'Italia', user_id = admin.id))
+    #db.session.add(Address(street = 'Via borgo san andrea 85', postal_code = 31050, city = 'Povegliano', province = 'TV', country = 'Italia', user_id = example.id))
+    #db.session.commit()
     #
     #set_user_with_role('alessandrocanzian2003@gmail.com', 'admin')  # Aggiungi un utente di esempio
     #set_user_with_role('alessandrocanzian2003@gmail.com', 'buyer')  # Aggiungi un utente di esempio
@@ -54,8 +57,6 @@ with app.app_context():
     #    {"name": "Cibo per cani", "price": 24.99, "description": "Alimento completo per cani", "availability": 50, "categories": ["Animali domestici", "Alimentari"]},
     #    {"name": "Set di pentole", "price": 79.99, "description": "Set di pentole antiaderenti", "availability": 10, "categories": ["Casa e Giardino", "Altro"]}
     #]
-    #add_products(example_products)
-    #ciao
-
+    #add_products(example_products)#
 if __name__ == '__main__':
     app.run(debug=True)

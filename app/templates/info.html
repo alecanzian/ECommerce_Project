@@ -44,7 +44,26 @@
             {% endfor %}
         </tbody>
     </table>
-    
+    <table>
+        <thead>
+            <tr>
+                <th>Street</th>
+                <th>Postal Code</th>
+                <th>City</th>
+                <th>Province</th>
+                <th>Country</th>
+            </tr>
+        </thead>
+    {% for address in addresses %}
+            <tr>
+                <td>{{ address.street }}</td>
+                <td>{{ address.postal_code }}</td>
+                <td>{{ address.city }}</td>
+                <td>{{ address.province }}</td>
+                <td>{{ address.country }}</td>
+            </tr>
+            {% endfor %}
+        </table>
     
     <table>
         <thead>
@@ -126,5 +145,15 @@
         </tbody>
     </table>
     <a href="{{ url_for('shop.shop') }}">Back to Shop</a>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
 </body>
 </html>

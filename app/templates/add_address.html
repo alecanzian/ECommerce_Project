@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Address</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+</head>
+<body>
+    <main>
+        <h1>Add New Address</h1>
+        <form method="POST" action="{{ url_for('account.add_address') }}">
+            <input type="text" id="street" name="street" placeholder="Street" required>
+            <input type="number" id="postal_code" name="postal_code" placeholder="Codice Postale" required 
+       minlength="5" maxlength="5" pattern="\d{5}" title="Il codice postale deve essere di 5 cifre">
+            <input type="text" id="city" name="city" placeholder="City" required>
+            <input type="text" id="province" name="province" placeholder="Province" required>
+            <input type="text" id="country" name="country" placeholder="Country" required>
+            <button type="submit">Add Address</button>
+        </form>
+        <a href="{{ url_for('profile.profile') }}">Annulla</a>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    </main>
+</body>
+</html>

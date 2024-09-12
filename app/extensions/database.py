@@ -26,6 +26,7 @@ class User(db.Model, UserMixin):
     roles = db.relationship('Role', secondary=user_roles, backref='users')
     profiles = db.relationship('Profile', backref='user', lazy=True)
     products = db.relationship('Product', backref='user')
+    addresses = db.relationship('Address', backref='user', lazy=True)
 
     def __init__(self, username, password):
         self.username = username
@@ -58,6 +59,25 @@ class Profile(db.Model):
         self.image_url = image_url
         self.user_id = user_id
 
+class Address(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    street = db.Column(db.String(100), nullable=False)
+    city = db.Column(db.String(50), nullable=False)
+    postal_code = db.Column(db.String(20), nullable=False)
+    province = db.Column(db.String(50), nullable=False)
+    country = db.Column(db.String(50), nullable=False)
+
+    # Chiave esterna per collegare l'indirizzo all'utente
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    def __init__(self, street, city, postal_code, province, country, user_id):
+        self.street = street
+        self.city = city
+        self.postal_code = postal_code
+        self.country = country
+        self.user_id = user_id
+        self.province = province
+
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
@@ -89,6 +109,44 @@ class Product(db.Model):
             #    altro_category = Category.query.filter_by(name='Altro').first()
             self.categories.append(c)
 
+#class OrderProduct(db.Model):
+#    __tablename__ = 'order_products'
+#    
+#    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), primary_key=True)
+#    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
+#    
+#    # Quantità di prodotto acquistato
+#    quantity = db.Column(db.Integer, nullable=False)
+#    
+#    # Relazioni
+#    order = db.relationship('Order', backref='order_products')
+#    product = db.relationship('Product', backref='order_products')
+#
+#    def __init__(self, order_id, product_id, quantity, total_price):
+#        self.order_id = order_id
+#        self.product_id = product_id
+#        self.quantity = quantity
+#        self.total_price = total_price
+#
+#class Order(db.Model):
+#    id = db.Column(db.Integer, primary_key=True)
+#    order_date = db.Column(db.Date, nullable=False)
+#    total_price = db.Column(db.Float, nullable=False)
+#
+#    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+#    address_id = db.Column(db.Integer, db.ForeignKey('address.id'), nullable=True)
+#
+#    # Relazione con la tabella intermedia 'OrderProduct'
+#    products = db.relationship('OrderProduct', backref='order')
+#
+#    def __init__(self, user_id, address_id):
+#        self.user_id = user_id
+#        self.address_id = address_id
+#
+#
+#
+#
+#
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)

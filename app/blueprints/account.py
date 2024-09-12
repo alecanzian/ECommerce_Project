@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import logout_user, current_user, login_required, fresh_login_required
-from extensions.database import Role, db
+from extensions.database import Address, Role, db
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Blueprint('account', __name__)
@@ -14,8 +14,6 @@ def delete_account():
         password = request.form.get('password')
 
         if not password:
-            print(f"ciao")
-            print(str(password))
             flash('Inserisci la password per confermare la cancellazione dell\'account ')
             return redirect(url_for('profile.profile'))
         
@@ -38,13 +36,18 @@ def delete_account():
             # Elimina il profilo dopo aver eliminato i prodotti
             for profile in current_user.profiles:
                 db.session.delete(profile) 
+            
+            # Elimina gli indirizzi dopo aver eliminato i profili
+            for address in current_user.addresses:
+                db.session.delete(address)
+
             # Elimina l'utente
             db.session.delete(current_user)
             db.session.commit()
 
             flash('Account eliminato con successo.', 'success')
-            logout_user()  # Disconnette l'utente
-            return redirect(url_for('auth.home'))
+            #logout_user()  # Disconnette l'utente
+            return redirect(url_for('auth.logout'))
 
         except Exception as e:
             db.session.rollback()
@@ -118,3 +121,74 @@ def add_seller_role():
             flash(f'Ruolo seller non esistente', 'error')
             return redirect(url_for('profile.profile'))
     return render_template('confirm_password.html', action = 1)
+
+@app.route('/add_address', methods = ['GET','POST'])
+@login_required
+@fresh_login_required
+def add_address():
+    if request.method == 'POST':
+        street = request.form.get('street')
+        postal_code = request.form.get('postal_code')
+        city = request.form.get('city')
+        province = request.form.get('province')
+        country = request.form.get('country')
+
+        user_id = current_user.id
+
+        for a in current_user.addresses:
+            if a.street.replace(" ", "").lower() == street.replace(" ", "").lower():
+                flash('Indirizzo già presente.', 'error')
+                return redirect(url_for('account.add_address'))
+        address = Address(street = street, postal_code = postal_code, city = city, province = province, country = country, user_id = user_id)
+        db.session.add(address)
+        current_user.addresses.append(address)
+        db.session.commit()
+        flash('Indirizzo aggiunto con successo.', 'message')
+        return redirect(url_for('profile.profile'))
+
+    return render_template('add_address.html')
+
+@app.route('/modify_address/<int:address_id>', methods = ['GET','POST'])
+@login_required
+@fresh_login_required
+def modify_address(address_id):
+    address = next((a for a in current_user.addresses if a.id == address_id), None)
+    if request.method == 'POST':
+        street = request.form.get('street')
+        postal_code = request.form.get('postal_code')
+        city = request.form.get('city')
+        province = request.form.get('province')
+        country = request.form.get('country')
+
+        print(address.street)
+        for a in current_user.addresses:
+            print(a.street)
+            if a.id != address.id and a.street.replace(" ", "").lower() == street.replace(" ", "").lower():
+                flash('Indirizzo già presente.', 'error')
+                return redirect(url_for('account.modify_address', address_id = address.id))
+            
+        address.street = street
+        address.postal_code = postal_code
+        address.city = city
+        address.province = province
+        address.country = country
+        
+        db.session.commit()
+        flash('Indirizzo modificato con successo.', 'message')
+        return redirect(url_for('profile.profile'))
+
+    return render_template('modify_address.html', address = address)
+
+@app.route('/delete_address/<int:address_id>', methods = ['GET','POST'])
+@login_required
+@fresh_login_required
+def delete_address(address_id):
+    address = next((a for a in current_user.addresses if a.id == address_id), None)
+    if address:
+        db.session.delete(address)
+        db.session.commit()
+        flash('Indirizzo eliminato con successo.', 'message')
+        return redirect(url_for('profile.profile'))
+
+    flash('Indirizzo non trovato', 'error')
+    return redirect(url_for('profile.profile'))

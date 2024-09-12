@@ -5,24 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='profile.css') }}">
-    <script>
-        function enableEditing() {
-            document.getElementById("username").removeAttribute("readonly");
-            document.getElementById("editButton").style.display = "none";
-            document.getElementById("saveButton").style.display = "inline-block";
-        }
-
-        function disableEditing() {
-            document.getElementById("username").setAttribute("readonly", "readonly");
-            document.getElementById("editButton").style.display = "inline-block";
-            document.getElementById("saveButton").style.display = "none";
-        }
-
-        function saveChanges() {
-            // Qui puoi aggiungere la logica per salvare le modifiche al server tramite AJAX o form submit
-            document.getElementById("profileForm").submit();
-        }
-    </script>
 </head>
 <body>
     <a href="{{url_for('shop.shop')}}">Back to shop</a> 
@@ -52,14 +34,14 @@
             </tr>
         </table>
         <h1>Profiles</h1>
-        <a href="{{ url_for('profile.add_profile') }}"">Aggiungi</a>
+        <a href="{{ url_for('profile.add_profile', action = 1) }}"">Aggiungi</a>
         {% for p in current_user.profiles %}
             <p></p>
 
             <table>
                 <tr>
                     <th>
-                        <a href="{{ url_for('profile.preparing_profile_changes', profile_id = p.id) }}">Modifica</a>
+                        <a href="{{ url_for('profile.modify_profile', profile_id = p.id) }}">Modifica</a>
                         <a href="{{ url_for('profile.delete_profile', profile_id = p.id) }}">Elimina</a>
                     </th>
                     <td>
@@ -82,21 +64,51 @@
             </table>
 
         {% endfor %}
-        
-        <!--<div class="buttons">
-            <button type="button" id="editButton" onclick="enableEditing()">Modifica</button>
-            <button type="button" id="saveButton" onclick="saveChanges()" style="display: none;">Salva</button>
-        </div>
-    -->
     
+    <h1>Addresses</h1>
+    <a href="{{ url_for('account.add_address') }}"">Aggiungi</a>
+    {% for address in current_user.addresses %}
+        <table>
+            <tr>
+                <th>
+                    <a href="{{ url_for('account.modify_address', address_id = address.id) }}">Modifica</a>
+                    <a href="{{ url_for('account.delete_address', address_id = address.id) }}">Elimina</a>
+                </th>
+                
+            </tr>
+            <tr>
+                <th>Street</th>
+                <td>{{ address.street }}</td>
+            </tr>
+            <tr>
+                <th>Postal Code</th>
+                <td>{{ address.postal_code }}</td>
+            </tr>
+            <tr>
+                <th>City</th>
+                <td>{{ address.city }}</td>
+            </tr>
+            <tr></tr>
+                <th>province</th>
+                <td>{{ address.province }}</td>
+            </tr>
+            <tr>
+                <th>Country</th>
+                <td>{{ address.country }}</td>
+            </tr>
+        </table>
+
+        <p></p>
+    {% endfor %}
+
     <h1>Products</h1>
     {% if current_user.has_role('seller') %}
-    <a href="{{ url_for('shop.create_product') }}">Aggiungi</a>
+    <a href="{{ url_for('shop.add_product') }}">Aggiungi</a>
         {% for p in current_user.products %}
             <table>
                 <tr>
-                    <th><a href="{{ url_for('shop.create_product') }}">Modifica</a>
-                        <a href="{{ url_for('shop.create_product') }}">Elimina</a></th>
+                    <th><a href="{{ url_for('shop.modify_product', product_id = p.id) }}">Modifica</a>
+                        <a href="{{ url_for('shop.delete_product', product_id = p.id) }}">Elimina</a></th>
                     <td>
                         <img src="{{ p.image_url }}" alt="Nome" width = "50" height = "50">
                     </td>

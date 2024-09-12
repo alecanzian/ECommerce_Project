@@ -80,7 +80,6 @@ def login():
     return render_template('login.html')
 
 @app.route('/logout')
-@login_required
 def logout():
     # Termino la sessione
     logout_user()
@@ -98,5 +97,5 @@ def logout():
 
     # Tell Flask-Principal the user is anonymous
     identity_changed.send(app,identity=AnonymousIdentity())
-    flash('Logout successful!', category='success')
+    flash('Logout successful!', 'success')
     return redirect(url_for('auth.home'))

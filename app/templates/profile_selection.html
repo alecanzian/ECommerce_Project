@@ -14,7 +14,7 @@
     <main>
         <h1>Select your profile</h1>
         <div class="profile-selection">
-            {% for profile in profiles %}
+            {% for profile in current_user.profiles %}
                 <div class="profile-card">
                     <img src="{{ profile.avatar }}" alt="Avatar" class="profile-avatar">
                     <p class="profile-name">{{ profile.name }}</p>
@@ -22,9 +22,19 @@
                 </div>
             {% endfor %}
             <div class="profile-card">
-                <a href="{{ url_for('profile.add_profile') }}" class="profile-button">New profile</a>
+                <a href="{{ url_for('profile.add_profile', action = 0) }}" class="profile-button">New profile</a>
             </div>
         </div>
     </main>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
 </body>
 </html>
