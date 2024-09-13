@@ -15,14 +15,17 @@
         <p><strong>Description:</strong> {{product.description}}</p>
         <a href="{{ url_for('shop.shop') }}">Back to Shop</a>
     </div>
-    <a href="url_for('shop.shop')">Aggiungi al carrello</a>
-    <a href="url_for('shop.shop')">Acquista</a>
-
+    {%if product.availability > 0%}
+    <a href="{{url_for('shop.add_to_cart', product_id = product.id)}}">Aggiungi al carrello</a>
+    <a href="{{url_for('shop.shop')}}">Acquista</a>
+    {%else%}
+    <p>Prodotto non disponibile</p>
+    {%endif%}
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <ul class="flashes">
                 {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
+                    <li class="{{ category }}">{{category}}:{{ message }}</li>
                 {% endfor %}
             </ul>
         {% endif %}

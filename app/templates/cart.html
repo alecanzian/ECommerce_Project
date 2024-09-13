@@ -12,12 +12,26 @@
         <a href="{{ url_for('auth.logout') }}">Logout</a>
     </header>
     <h1>Cart</h1>
+    {%if current_user.cart_items%}
+        <form action=="{{url_for('shop.shop')}}" method="POST">
+            {% for item in current_user.cart_items%}
+                <p>
+                    <a href="{{url_for('shop.access_product', product_id = item.product_id)}}"> {{get_product(item.product_id).name}}</a> -- ${{get_product(item.product_id).price}}
+                    <input type="number" value = "{{item.quantity}}" required min = "1" max = "{{get_product(item.product_id).availability}}">
+                    <a href="{{url_for('shop.delete_item_from_cart', item_id = item.id)}}">Elimina</a>
+                </p>
+            {%endfor%}
+            <button type = "submit"> Continua con l'ordine</button>
+        </form>
+    {%else%}
+        <p>Carrello vuoto</p>
+    {%endif%}
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <ul class="flashes">
                 {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
+                    <li class="{{ category }}">{{category}}:{{ message }}</li>
                 {% endfor %}
             </ul>
         {% endif %}

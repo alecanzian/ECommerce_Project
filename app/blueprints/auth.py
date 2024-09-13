@@ -14,6 +14,7 @@ def home():
     return render_template('home.html')
 
 @app.route('/register', methods=['GET', 'POST'])
+@anonymous_required
 def register():
     # Per potersi registrare, l'utente non deve essere loggato con alcun account
     if current_user.is_authenticated:
@@ -70,7 +71,7 @@ def login():
                 """
                 login_user(user, True, timedelta(minutes=5))
                 # Avvisa che l'identita dell'utente è cambiata(si passa da anonimo a un nuovo user.id)
-                identity_changed.send(app, identity=Identity(user.id))
+                identity_changed.send(app, identity=Identity(current_user.id))
                 flash('Login successful!', category='success')
                 return redirect(url_for('profile.profile_selection'))
             else:

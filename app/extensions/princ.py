@@ -1,6 +1,6 @@
 from flask import flash, redirect, url_for
 from flask_login import current_user
-from flask_principal import Principal, Permission, PermissionDenied, RoleNeed
+from flask_principal import Principal, Permission, RoleNeed, PermissionDenied
 from functools import wraps
 
 princ = Principal()
@@ -9,7 +9,7 @@ princ = Principal()
 admin_permission = Permission(RoleNeed('admin'))
 seller_permission = Permission(RoleNeed('seller'))
 buyer_permission = Permission(RoleNeed('buyer'))
-            
+
 # Decoratore personalizzato per gestire il caso in cui l'utente non ha l'autorizzazione(ovvero non possiede il ruolo) per eseguire una azione
 def anonymous_required(f):
     @wraps(f)
@@ -26,10 +26,10 @@ def anonymous_required(f):
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        #try:
-        #    admin_permission.test()
-        #except PermissionDenied:
-        if not current_user.has_role('admin'):
+        try:
+            admin_permission.test()
+        except PermissionDenied:
+        #if not current_user.has_role('admin'):
             flash('You do not have admin permission to access this page.', 'error')
             # Reindirizza alla pagina dello shop se l'utente non è admin
             return redirect(url_for('shop.shop'))  

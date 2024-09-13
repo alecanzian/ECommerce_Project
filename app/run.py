@@ -1,7 +1,7 @@
 from extensions.flask import app
-from extensions.login import login_manager
 from extensions.princ import princ
-from extensions.database import Address, add_categories, add_roles, db, add_users, set_user_with_role, add_products, generate_password_hash, User, Profile
+from extensions.login import login_manager
+from extensions.database import Address, Product, add_categories, add_roles, db, add_users, set_user_with_role, add_products, generate_password_hash, User, Profile
 from datetime import datetime, timedelta
 import os
 
@@ -10,7 +10,7 @@ app.config['SECRET_KEY'] = 'thisisasecretkey'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), 'dbms.db')
 app.config['SESSION_TYPE'] = 'sqlalchemy'
 app.config['SESSION_SQLALCHEMY'] = db
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=40)  # Imposta la durata della sessione a 20 minuti
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=40)  # Imposta la durata della sessione a 40 minuti
 
 login_manager.init_app(app)
 princ.init_app(app)
