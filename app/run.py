@@ -20,9 +20,7 @@ with app.app_context():
     db.create_all()  # Creazione delle tabelle nel database
     
     #add_roles()  # Popola il database con ruoli di esempio
-    #
-    #example_categories = ['Elettronica','Abbigliamento','Casa e Giardino','Sport e Tempo Libero','Giochi e Giocattoli','Alimentari','Libri e Riviste','Salute e Bellezza','Arredamento','Auto e Moto','Fai da te','Musica','Film e TV','Animali domestici','Strumenti Musicali','Telefonia','Arte e Collezionismo','Viaggi','Tecnologia','Orologi e Gioielli','Altro']
-    #add_categories(example_categories)
+    #add_categories()
     #
     #admin = User(username = 'alessandrocanzian2003@gmail.com', password = generate_password_hash('alex', method='pbkdf2:sha256') )
     #db.session.add(admin)

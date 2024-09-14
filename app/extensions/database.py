@@ -20,12 +20,12 @@ product_categories = db.Table('product_categories',
 # Definizione della classe User
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), nullable=False)
+    username = db.Column(db.String(20), unique = True, nullable=False)
     password = db.Column(db.String(80), nullable=False)
 
-    roles = db.relationship('Role', secondary=user_roles, backref='users')
+    roles = db.relationship('Role', secondary=user_roles, backref='users', lazy = True)
     profiles = db.relationship('Profile', backref='user', lazy=True)
-    products = db.relationship('Product', backref='user')
+    products = db.relationship('Product', backref='user', lazy = True)
     addresses = db.relationship('Address', backref='users', lazy=True)
     cart_items = db.relationship('Cart', backref='user', lazy=True)
 
@@ -47,11 +47,10 @@ class User(db.Model, UserMixin):
 
 class Profile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20), nullable=False)
+    name = db.Column(db.String(20), unique = True, nullable=False)
     surname = db.Column(db.String(20), nullable=False)
     birth_date = db.Column(db.Date, nullable=False)
     image_url = db.Column(db.String(255), nullable=False)
-    #address = db.Column(db.String(20), nullable=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
@@ -98,23 +97,13 @@ class Product(db.Model):
 
 
     def __init__(self, name, price, user_id, description, categories, availability = 1, image_url = 'https://img.freepik.com/vettori-premium/un-disegno-di-una-scarpa-con-sopra-la-parola-scarpa_410516-82664.jpg'):
-        user = db.session.get(User, int(user_id))
-        if not user or not user.has_role('seller'):
-                raise ValueError("Il profilo non appartiene a un utente con il ruolo di seller.")
         self.name = name
         self.price = price
         self.image_url = image_url
         self.description = description
         self.availability = availability
-        self.user_id = user.id
+        self.user_id = user_id
         for c in categories:
-            #existing_category = Category.query.filter_by(name=c).first()
-            #if existing_category:
-            #    # Se la categoria esiste, aggiungila al prodotto
-            #    self.categories.append(existing_category)
-            #else:
-            #    # Se la categoria non esiste, crea una nuova istanza di Category e aggiungila al prodotto
-            #    altro_category = Category.query.filter_by(name='Altro').first()
             self.categories.append(c)
 
 class Cart(db.Model):
@@ -124,9 +113,6 @@ class Cart(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable = False)
 
-    #__table_args__ = (
-    #    db.UniqueConstraint('user_id', 'product_id', name='unique_user_product'),
-    #)
     def __init__(self, quantity, user_id, product_id):
         self.quantity = quantity
         self.user_id = user_id
@@ -181,8 +167,10 @@ class Role(db.Model):
     name = db.Column(db.String(50), unique=True, nullable=False)  
 
     def __init__(self, name):
-            self.name = name
+        self.name = name
 
+
+#################### FUNZIONI DI POPOLAMENTO ##########################
 # Da chiamare solo quando serve popolare la tabella Role
 def add_roles():
     roles = ['admin', 'seller', 'buyer']
@@ -193,6 +181,15 @@ def add_roles():
             db.session.add(new_role)
     db.session.commit()
 
+# Funzione per popolare la tabella Category
+def add_categories():
+    categories_list = ['Elettronica','Abbigliamento','Casa e Giardino','Sport e Tempo Libero','Giochi e Giocattoli','Alimentari','Libri e Riviste','Salute e Bellezza','Arredamento','Auto e Moto','Fai da te','Musica','Film e TV','Animali domestici','Strumenti Musicali','Telefonia','Arte e Collezionismo','Viaggi','Tecnologia','Orologi e Gioielli','Altro']
+    for nome_categoria in categories_list:
+        categoria = Category(name=nome_categoria)
+        db.session.add(categoria)
+    db.session.commit()
+
+################Tutte le altre funzioni non sono necessarie###############
 # Dato un utente preesistente, aggiunge il ruolo passato come parametro(nel caso non sia presente in user.roles)
 def set_user_with_role(name, role_name):
     user = User.query.filter_by(username=name).first()
@@ -261,12 +258,7 @@ def add_products(products_list):
                 db.session.add(prod)
             db.session.commit()
 
-# Funzione per popolare la tabella Category
-def add_categories(categories_list):
-    for nome_categoria in categories_list:
-        categoria = Category(name=nome_categoria)
-        db.session.add(categoria)
-    db.session.commit()
+
 
 # Data una lista di interi, elimina i prodotti che hanno quegli id
 def delete_products_by_ids(ids):

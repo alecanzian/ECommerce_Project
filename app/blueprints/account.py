@@ -4,8 +4,8 @@ from extensions.database import Address, Role, db
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Blueprint('account', __name__)
-# Route che reindirizza l'utente verso il form per inserire la password e verificare che sia davvero l'utente
 
+# Route che reindirizza l'utente verso il form per inserire la password e verificare che sia davvero l'utente
 @app.route('/delete_account', methods=['GET','POST'])
 @login_required
 @fresh_login_required
@@ -17,17 +17,17 @@ def delete_account():
             flash('Inserisci la password per confermare la cancellazione dell\'account ')
             return redirect(url_for('profile.profile'))
         
-        if current_user.password is None:
-            # Gestisci il caso in cui l'utente non ha una password
-            flash("Errore: l'utente non ha una password impostata.")
-            return redirect(url_for('auth.login'))
+        if not current_user.password:
+                # Gestisci il caso in cui l'utente ha una password = None
+                flash('Lutente non ha una password impostata.', 'error')
+                return redirect(url_for('auth.login'))
 
         # Se la password è presente, controlla l'hash
         if not check_password_hash(current_user.password, password):
             flash("Password errata.")
             return redirect(url_for('auth.login'))
-
-        # Procedura di eliminazione
+        
+        db.session.begin()
         try:
             # Elimina prima tutti i prodotti associati all'utente
             if current_user.has_role('seller'):
@@ -52,9 +52,13 @@ def delete_account():
             db.session.commit()
 
             flash('Account eliminato con successo.', 'success')
-            #logout_user()  # Disconnette l'utente
             return redirect(url_for('auth.logout'))
-
+        
+        except AttributeError:
+            db.session.rollback()
+            flash('L\'utente non ha una password impostata.', 'error')
+            return redirect(url_for('profile.profile'))
+        
         except Exception as e:
             db.session.rollback()
             flash(f'Errore durante l\'eliminazione dell\'account: {str(e)}', 'error')
@@ -185,16 +189,22 @@ def modify_address(address_id):
 
     return render_template('modify_address.html', address = address)
 
-@app.route('/delete_address/<int:address_id>', methods = ['GET','POST'])
+@app.route('/delete_address/<int:address_id>', methods = ['GET'])
 @login_required
 @fresh_login_required
 def delete_address(address_id):
-    address = next((a for a in current_user.addresses if a.id == address_id), None)
-    if address:
+    try:
+        address = next((a for a in current_user.addresses if a.id == address_id), None)
+        
+        if not address:
+            flash('Indirizzo non trovato', 'error')
+            return redirect(url_for('profile.profile'))
+        
         db.session.delete(address)
         db.session.commit()
-        flash('Indirizzo eliminato con successo.', 'message')
-        return redirect(url_for('profile.profile'))
 
-    flash('Indirizzo non trovato', 'error')
-    return redirect(url_for('profile.profile'))
+        flash('Indirizzo eliminato con successo.', 'success')
+        return redirect(url_for('profile.profile'))
+    except Exception:
+        flash('Si è verificato un errore di database. Riprova più tardi.', 'error')
+        return redirect(url_for('profile.profile'))

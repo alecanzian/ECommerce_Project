@@ -1,3 +1,4 @@
+from sqlite3 import IntegrityError
 from flask import Blueprint, render_template, redirect, url_for, request, session, flash
 from flask_login import login_required, fresh_login_required, current_user, logout_user
 from extensions.database import Address, Cart, Profile, User, Product, Role, Category, db
@@ -7,44 +8,58 @@ from datetime import date
 
 app = Blueprint('profile', __name__)
 
-@app.route('/info')
+@app.route('/info', methods = ['GET'])
 @login_required
-#@admin_required
+@fresh_login_required
+@admin_required
 #@permission_required(buyer_permission)
 def info():
     # Ricaviamo tutti gli utenti della tabella User, tutti i prodotti di Products e tutti i Ruoli
-    all_users = User.query.all()
-    all_products = Product.query.all()
-    all_roles = Role.query.all()
-    all_categories = Category.query.all()
-    all_addresses = Address.query.all()
-    all_cart_items = Cart.query.all()
+    try:
+        all_users = User.query.all()
+        all_products = Product.query.all()
+        all_roles = Role.query.all()
+        all_categories = Category.query.all()
+        all_addresses = Address.query.all()
+        all_cart_items = Cart.query.all()
+    except Exception:
+        #flash('Si è verificato un errore di database. Riprova più tardi.', 'error')
+        flash('La pagina info.html non è stata caricata correttamente','error')
     return render_template('info.html', users=all_users, products=all_products, roles=all_roles, categories=all_categories, addresses = all_addresses, cart_items = all_cart_items) # Passo anche lo username dell'utente loggato(sarà sempre unico)
 
-@app.route('/profile')
+@app.route('/profile', methods = ['GET'])
 @login_required
 @fresh_login_required
-@buyer_required 
 def profile():
     return render_template('profile.html')
 
-@app.route('/profile_selection')
+@app.route('/profile_selection', methods = ['GET'])
 @login_required
 @fresh_login_required
 def profile_selection():
     return render_template('profile_selection.html')
 
-@app.route('/select_profile/<int:profile_id>')
+@app.route('/select_profile/<int:profile_id>', methods = ['GET'])
 @login_required
 @fresh_login_required
-@buyer_required
 def select_profile(profile_id):
-    profile = Profile.query.get(profile_id)
-    if profile and profile.user_id == current_user.id:
+    try:
+        profile = db.session.get(Profile, profile_id)
+
+        if not profile:
+            flash('Il profilo selezionato non esiste', 'error')
+            return redirect(url_for('profile_selection'))
+
+        if profile.user_id != current_user.id:
+            flash('Il profilo selezionato non appartiene a te', 'error')
+            return redirect(url_for('profile_selection'))
+
         # Here you can set the selected profile in the session or any other logic
         session['current_profile_id'] = profile.id
         return redirect(url_for('shop.shop'))
-    return redirect(url_for('profile.profile_selection'))
+    except Exception:
+        flash('Si è verificato un errore', 'error')
+        return redirect(url_for('profile_selection'))
 
 @app.route('/add_profile/<int:action>', methods=['GET', 'POST'])
 @login_required
@@ -54,51 +69,79 @@ def add_profile(action):
         name = request.form.get('name')
         surname = request.form.get('surname')
         birth_date = date.fromisoformat(request.form.get('birth_date'))
-        if name and surname and birth_date:
-            for p in current_user.profiles:
-                if p.name == name: #and p.surname == surname and p.birth_date == birth_date:
-                    flash('Profile already exists', 'error')
-                    return redirect(url_for('profile.profile_selection'))
+
+        if not name or not surname or not birth_date:
+            flash('Inserisci tutti i campi', 'fail')
+            return render_template('add_profile.html', action = action)
+        # Begin database session
+        db.session.begin()
+        try:
+            # Create new profile
             new_profile = Profile(name=name, surname=surname, birth_date=birth_date, user_id=current_user.id)
             db.session.add(new_profile)
             db.session.commit()
+
             if action == 0:
                 return redirect(url_for('profile.profile_selection'))
-            else:
+            elif action == 1:
                 return redirect(url_for('profile.profile'))
-    return render_template('add_profile.html', action = action)
+            
+        except IntegrityError:
+            # Handle unique constraint violation (e.g., duplicate profile name)
+            db.session.rollback()
+            flash('Un porfilo con lo stesso nome esiste già', 'error')
+            return render_template('add_profile.html', action=action)
+        except Exception:
+            # Catch other unexpected errors
+            db.session.rollback()
+            flash('Si è verificato un errore di database. Riprova più tardi.', 'error')
+            return redirect(url_for('profile.profile_selection'))
+        
+    return render_template('add_profile.html', action=action)
 
 
-@app.route('/delete_profile/<profile_id>', methods=['GET'])
+@app.route('/delete_profile/<int:profile_id>', methods=['GET'])
 @login_required
+@fresh_login_required
 def delete_profile(profile_id):
 
-    profile = next((p for p in current_user.profiles if p.id == profile_id), None)
+    # Begin database session
+    db.session.begin()
+    try:
+        profile = next((p for p in current_user.profiles if p.id == profile_id), None)
         
-    # Se è presente un solo profilo, allora non posso eliminarlo, altrimenti non avrei un profilo con cui navigare lo shop
-    if len(current_user.profiles) > 1:
-        if profile:
+        if not profile:
+            flash('Il profilo non è stato trovato', 'error')
+            return redirect(url_for('profile.profile'))
+        
+        # Se è presente un solo profilo, allora non posso eliminarlo, altrimenti non avrei un profilo con cui navigare lo shop
+        if len(current_user.profiles) > 1:
             db.session.delete(profile)
             db.session.commit()
             if profile.id == session['current_profile_id']:
                 session['current_profile_id'] = current_user.profiles[0].id
-            flash('Profilo eliminato correttamente', 'message')
-            return redirect(url_for('profile.profile'))
+            flash('Profilo eliminato correttamente', 'success')
+            return redirect(url_for('profile.profile')) 
         else:
-            flash('il profilo non è stato trovato', 'error')
+            flash("Non puoi eliminare l'unico profilo rimanente.", 'fail')
             return redirect(url_for('profile.profile'))
-    else:
-        flash("Non puoi eliminare l'unico profilo rimanente.", 'message')
+    except Exception:
+        db.session.rollback()
+        flash('Si è verificato un errore di database. Riprova più tardi.', 'error')
         return redirect(url_for('profile.profile'))
+        
+
 
 
 @app.route('/modify_profile/<int:profile_id>', methods=['GET', 'POST'])
 @login_required
+@fresh_login_required
 def modify_profile(profile_id):
+
     profile = next((p for p in current_user.profiles if p.id == profile_id), None)
 
     if not profile:
-        flash('Profilo non trovato', 'error')
+        flash('Il profilo non è stato trovato', 'error')
         return redirect(url_for('profile.profile'))
         
     if request.method == 'POST':
@@ -108,50 +151,45 @@ def modify_profile(profile_id):
         image_url = request.form.get('image_url')
         birth_date = (request.form.get('birth_date'))
 
+        if not name or not surname or not image_url or not birth_date:
+            flash('Inserisci tutti i dati richiesti', 'warning')
+            return redirect(url_for('modify_profile', profile_id=profile_id))
         
-        if name:
-            for p in current_user.profiles:
-                if p.id != profile.id and name == p.name:
-                    flash('Nome già utilizzato')
-                    return redirect(url_for('profile.modify_profile', profile_id=profile.id))
-            profile.name = name
-            
-        if surname:
-            profile.surname = surname
+        try:
+            # Ottieni la data corrente
+            current_date = date.today()
+            # Definisci l'intervallo massimo per la data di nascita (100 anni fa)
+            earliest_date = date(current_date.year - 100, 1, 1)
+            # Controllo della data di nascita
+            birth_date = date.fromisoformat(birth_date)
 
-        if image_url:
+            # Controlla se la data è nel futuro
+            if birth_date > current_date:
+                flash("La data di nascita non può essere nel futuro.")
+                return redirect(url_for('profile.modify_profile', profile_id=profile_id))
+
+            # Controlla se la data è troppo indietro (più di 100 anni fa)
+            if birth_date < earliest_date:
+                flash(f"L'anno di nascita deve essere compreso tra {earliest_date.year} e {current_date.year}.")
+                return redirect(url_for('profile.modify_profile', profile_id=profile_id))
+
+            profile.birth_date = birth_date
+            profile.name = name
+            profile.surname = surname
             profile.image_url = image_url
 
-        # Ottieni la data corrente
-        current_date = date.today()
-        # Definisci l'intervallo massimo per la data di nascita (100 anni fa)
-        earliest_date = date(current_date.year - 100, 1, 1)
+            db.session.commit()
+            
+            flash('Profilo aggiornato con successo')
+            return redirect(url_for('profile.profile'))
 
-        # Controllo della data di nascita
-        if birth_date:
-            try:
-                birth_date = date.fromisoformat(birth_date)
-
-                # Controlla se la data è nel futuro
-                if birth_date > current_date:
-                    flash("La data di nascita non può essere nel futuro.")
-                    return redirect(url_for('profile.modify_profile', profile_id=profile_id))
-
-                # Controlla se la data è troppo indietro (più di 100 anni fa)
-                if birth_date < earliest_date:
-                    flash(f"L'anno di nascita deve essere compreso tra {earliest_date.year} e {current_date.year}.")
-                    return redirect(url_for('profile.modify_profile', profile_id=profile_id))
-
-                profile.birth_date = birth_date
-            except ValueError:
-                flash("Formato data non valido.")
-                return redirect(url_for('profile.modify_profile', profile_id=profile_id))
-        else:
-            flash("data vuota non valida")   
-            return redirect(url_for('profile.modify_profile', profile_id=profile_id))     
-        db.session.commit()
-        flash('Profilo aggiornato con successo')
-        return redirect(url_for('profile.profile'))
+        except ValueError:
+            flash('Formato della data non valido.','error')
+            return redirect(url_for('profile.modify_profile', profile_id=profile_id))
+        except Exception:
+            db.session.rollback()
+            flash('Si è verificato un errore di database. Riprova più tardi.', 'error')
+            return redirect(url_for('profile.profile'))
     
     return render_template('modify_profile.html', profile=profile)
 

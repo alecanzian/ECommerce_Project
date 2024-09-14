@@ -8,7 +8,7 @@ from datetime import date, timedelta
 
 app = Blueprint('auth', __name__)
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 @anonymous_required
 def home():
     return render_template('home.html')
@@ -80,7 +80,7 @@ def login():
             flash('Login failed. Check your email and password.', category='error')
     return render_template('login.html')
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET'])
 def logout():
     # Termino la sessione
     logout_user()

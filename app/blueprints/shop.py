@@ -5,7 +5,7 @@ from extensions.princ import buyer_required, seller_required
 
 app = Blueprint('shop', __name__)
 
-@app.route('/shop')
+@app.route('/shop', methods = ['GET'])
 @login_required
 @buyer_required
 def shop():
