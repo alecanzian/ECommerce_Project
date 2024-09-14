@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, render_template, session, redirect, request, url_for
 from flask_login import login_required, current_user
-from extensions.database import Profile, Product, Category, db
+from extensions.database import db, Product, Category, get_user_orders#, Order
 from extensions.princ import buyer_required, seller_required
 
 app = Blueprint('shop', __name__)
@@ -58,8 +58,6 @@ def filtered_results():
             #products = products.filter(~Product.profile_id.in_(user_profile_ids))
             products = products.filter(Product.user_id != current_user.id)
 
-
-
         # Se la query non è una stringa vuota
         if query:
             products = products.filter(Product.name.ilike(f'%{query}%'))
@@ -87,7 +85,6 @@ def reset_filters():
         # Reimposta i valori di min_price e max_price nella sessione
         session['min_price'] = 0.0
         session['max_price'] = 6000.0
-
 
         # Aggiorna la sessione con gli ID dei prodotti visibili,tranne quelli che appartengono a current_user
         if current_user.has_role('seller'):
@@ -212,3 +209,19 @@ def modify_product(product_id):
     
     return render_template('modify_product.html', product=product, categories = Category.query.all())
 
+@app.route('/orders')
+def orders():
+    # Supponendo che tu voglia filtrare gli ordini per utente loggato
+    #orders = Order.query.all()  # Modifica per filtrare per utente se necessario
+    orders = get_user_orders(current_user.id)
+    
+    # Passa gli ordini al template
+    return render_template('orders.html', orders=orders)#, orders=orders)
+
+@app.route('/homepage')
+def homepage():
+    # Supponendo che tu voglia filtrare gli ordini per utente loggato
+    #orders = Order.query.all()  # Modifica per filtrare per utente se necessario
+    
+    # Passa gli ordini al template
+    return render_template('homepage.html')#, orders=orders)

@@ -21,7 +21,7 @@ product_categories = db.Table('product_categories',
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), nullable=False)
-    password = db.Column(db.String(80), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
 
     roles = db.relationship('Role', secondary=user_roles, backref='users')
     profiles = db.relationship('Profile', backref='user', lazy=True)
@@ -92,7 +92,7 @@ class Product(db.Model):
     def __init__(self, name, price, user_id, description, categories, availability = 1, image_url = 'https://img.freepik.com/vettori-premium/un-disegno-di-una-scarpa-con-sopra-la-parola-scarpa_410516-82664.jpg'):
         user = db.session.get(User, int(user_id))
         if not user or not user.has_role('seller'):
-                raise ValueError("Il profilo non appartiene a un utente con il ruolo di seller.")
+            raise ValueError("Il profilo non appartiene a un utente con il ruolo di seller.")
         self.name = name
         self.price = price
         self.image_url = image_url
@@ -109,44 +109,41 @@ class Product(db.Model):
             #    altro_category = Category.query.filter_by(name='Altro').first()
             self.categories.append(c)
 
-#class OrderProduct(db.Model):
-#    __tablename__ = 'order_products'
-#    
-#    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), primary_key=True)
-#    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
-#    
-#    # Quantità di prodotto acquistato
-#    quantity = db.Column(db.Integer, nullable=False)
-#    
-#    # Relazioni
-#    order = db.relationship('Order', backref='order_products')
-#    product = db.relationship('Product', backref='order_products')
-#
-#    def __init__(self, order_id, product_id, quantity, total_price):
-#        self.order_id = order_id
-#        self.product_id = product_id
-#        self.quantity = quantity
-#        self.total_price = total_price
-#
-#class Order(db.Model):
-#    id = db.Column(db.Integer, primary_key=True)
-#    order_date = db.Column(db.Date, nullable=False)
-#    total_price = db.Column(db.Float, nullable=False)
-#
-#    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-#    address_id = db.Column(db.Integer, db.ForeignKey('address.id'), nullable=True)
-#
-#    # Relazione con la tabella intermedia 'OrderProduct'
-#    products = db.relationship('OrderProduct', backref='order')
-#
-#    def __init__(self, user_id, address_id):
-#        self.user_id = user_id
-#        self.address_id = address_id
-#
-#
-#
-#
-#
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    order_date = db.Column(db.DateTime, default=datetime.now(), nullable=False)
+    #total_price = db.Column(db.Float, nullable=False)
+
+    # Relazione con user (chi ha fatto l'ordine)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref='order')
+    
+    # Relazione con l'indirizzo (dove spedire l'ordine)
+    address_id = db.Column(db.Integer, db.ForeignKey('address.id'), nullable=False)
+    address = db.relationship('Address', backref='order')
+
+    # Relazione con i prodotti attraverso tabella intermedia OrderProduct
+    products = db.relationship('OrderProduct', backref='order')
+
+    def __init__(self, user_id, address_id):
+        self.user_id = user_id
+        self.address_id = address_id
+        
+class OrderProduct(db.Model):
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
+    
+    # Quantità di prodotto acquistato
+    quantity = db.Column(db.Integer, nullable=False)
+    
+    # Relazioni
+    product = db.relationship('Product')
+
+    def __init__(self, order_id, product_id, quantity):
+        self.order_id = order_id
+        self.product_id = product_id
+        self.quantity = quantity
+
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
@@ -159,8 +156,33 @@ class Role(db.Model):
     name = db.Column(db.String(50), unique=True, nullable=False)  
 
     def __init__(self, name):
-            self.name = name
+        self.name = name
 
+def add_user(name, surname, birth_date, username, password):
+    # Crea l'utente
+        user = User(
+            name=name,
+            surname=surname,
+            birth_date=datetime.strptime(birth_date, '%Y-%m-%d').date(),
+            username=username,
+            password=generate_password_hash(password, method='pbkdf2:sha256')
+        )
+        
+        # Aggiungi l'utente alla sessione
+        db.session.add(user)
+        db.session.commit()
+
+        # Crea un profilo di default per l'utente appena creato
+        profile = Profile(
+            name=user.name,
+            surname=user.surname,
+            user_id=user.id
+        )
+        
+        # Aggiungi il profilo alla sessione
+        db.session.add(profile)
+        db.session.commit()
+        
 # Da chiamare solo quando serve popolare la tabella Role
 def add_roles():
     roles = ['admin', 'seller', 'buyer']
@@ -169,17 +191,16 @@ def add_roles():
         if not role:
             new_role = Role(name=role_name)
             db.session.add(new_role)
-    db.session.commit()
+            db.session.commit()
 
 # Dato un utente preesistente, aggiunge il ruolo passato come parametro(nel caso non sia presente in user.roles)
-def set_user_with_role(name, role_name):
-    user = User.query.filter_by(username=name).first()
+def set_user_with_role(user, role_name):
     role = Role.query.filter_by(name=role_name).first()
     if user and role and (role not in user.roles):
         user.roles.append(role)
-    db.session.commit()
+        db.session.commit()
 
-# Data una lista di utenti, popola la tabella User e  inizializza il profilo di default
+# Data una lista di utenti, popola la tabella User e inizializza il profilo di default
 def add_users(user_list):
     for user_data in user_list:
         # Crea l'utente
@@ -204,17 +225,16 @@ def add_users(user_list):
         
         # Aggiungi il profilo alla sessione
         db.session.add(profile)
-
-    # Salva tutte le modifiche nel database
-    db.session.commit()
+        db.session.commit()
 
 # Data una lista di prodotti, popola la tabella Products e collega i prodotti all'unico profilo collegato allo user che ha ruolo admin
 def add_products(products_list):
-    admin_user = User.query.filter(User.roles.any(Role.name=='admin')).first()
-    if admin_user:
-        #admin_profile_id = Profile.query.filter_by(user_id=admin_user.id).first().id
-        #if admin_profile_id:
-            for elem in products_list:
+    first_seller = User.query.filter(User.roles.any(Role.name == 'seller')).first()
+    if first_seller:
+        for elem in products_list:
+            existing_product = Product.query.filter_by(name=elem['name']).first()
+            # Controlla se il prodotto esiste già
+            if not existing_product:
                 # Recupera o crea le categorie per il prodotto corrente
                 categories = elem.get('categories', [])  # Ottiene la lista delle categorie dal dizionario prodotto
                 category_objects = []
@@ -230,21 +250,25 @@ def add_products(products_list):
                 prod = Product(
                     name=elem['name'],
                     price=elem['price'],
-                    user_id=admin_user.id,
+                    user_id=first_seller.id,
                     description=elem['description'],
                     availability=elem['availability'],
                     categories=category_objects  # Aggiunge le categorie al prodotto
                 )
                 
                 db.session.add(prod)
-            db.session.commit()
+                db.session.commit()
 
 # Funzione per popolare la tabella Category
 def add_categories(categories_list):
     for nome_categoria in categories_list:
-        categoria = Category(name=nome_categoria)
-        db.session.add(categoria)
-    db.session.commit()
+        categoria = Category.query.filter_by(name=nome_categoria).first()
+        # Controlla se la categoria esiste già nel database
+        if not categoria:
+            # Se la categoria non esiste, aggiungila
+            nuova_categoria = Category(name=nome_categoria)
+            db.session.add(nuova_categoria)
+            db.session.commit()
 
 # Data una lista di interi, elimina i prodotti che hanno quegli id
 def delete_products_by_ids(ids):
@@ -257,3 +281,46 @@ def delete_products_by_ids(ids):
     
     # Commit delle modifiche
     db.session.commit()
+    
+def create_order(user_id, address_id, cart_items):
+    order = Order(user_id=user_id, address_id=address_id)
+    db.session.add(order)
+    db.session.commit()
+    
+    for product_id, quantity in cart_items:
+        print(f'product_id:{product_id}')
+        print(f'quantity:{quantity}')
+        product = Product.query.get(product_id)
+        if product:
+            order_product = OrderProduct(
+                order_id=order.id,
+                product_id=product_id,
+                quantity=quantity
+            )
+            db.session.add(order_product)
+            db.session.commit()
+        
+    return order
+
+def get_user_orders(user_id):
+    orders = Order.query.filter_by(user_id=user_id).all()
+    result = []
+    
+    for order in orders:
+        products = []
+        
+        for order_product in order.products:
+            product = Product.query.get(order_product.product_id)
+            products.append({
+                'name': product.name,
+                'price': product.price,
+                'quantity': order_product.quantity
+            })
+            
+        result.append({
+            'id': order.id,
+            'date': order.order_date,
+            'products': products
+        })
+    
+    return result

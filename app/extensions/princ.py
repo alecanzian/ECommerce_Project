@@ -1,6 +1,6 @@
-from flask import flash, redirect, url_for
+from flask import flash, redirect, url_for, current_app
 from flask_login import current_user
-from flask_principal import Principal, Permission, PermissionDenied, RoleNeed
+from flask_principal import Principal, Permission, PermissionDenied, RoleNeed, UserNeed, identity_loaded, identity_changed, Identity
 from functools import wraps
 
 princ = Principal()
@@ -9,7 +9,33 @@ princ = Principal()
 admin_permission = Permission(RoleNeed('admin'))
 seller_permission = Permission(RoleNeed('seller'))
 buyer_permission = Permission(RoleNeed('buyer'))
+
+# The Identity represents the user, and is stored/loaded from various locations (eg session) for each request. The Identity is the user’s avatar to the system. It contains the access rights that the user has.
+# A Need is the smallest grain of access control, and represents a specific parameter for the situation.Whilst a Need is a permission to access a resource, an Identity should provide a set of Needs that it has access to.
+# A Permission is a set of requirements, any of which should be present for access to a resource.
+@identity_loaded.connect
+def on_identity_loaded(sender, identity):
+    print(sender)
+    print('carico identità')
+    # Set the identity user object
+    identity.user = current_user
+
+    # Add the UserNeed to the identity
+    if hasattr(current_user, 'id'):
+        identity.provides.add(UserNeed(current_user.id))
+
+    # Assuming the User model has a list of roles, update the
+    # identity with the roles that the user provides
+    if hasattr(current_user, 'roles'):
+        for role in current_user.roles:
+            identity.provides.add(RoleNeed(role.name))
+            print(f'aggiunto ruolo {role.name}')
             
+def update_identity(app, user_id):
+    # Invia il segnale per aggiornare l'identità
+    print('invio segnale per aggiornare identita')
+    identity_changed.send(current_app._get_current_object(), identity=Identity(user_id))
+    
 # Decoratore personalizzato per gestire il caso in cui l'utente non ha l'autorizzazione(ovvero non possiede il ruolo) per eseguire una azione
 def anonymous_required(f):
     @wraps(f)

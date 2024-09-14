@@ -1,8 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, session, flash
-from flask_login import login_required, fresh_login_required, current_user, logout_user
+from flask_login import login_required, fresh_login_required, current_user
 from extensions.database import Address, Profile, User, Product, Role, Category, db
 from extensions.princ import buyer_required, admin_required
-from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import date
 
 app = Blueprint('profile', __name__)

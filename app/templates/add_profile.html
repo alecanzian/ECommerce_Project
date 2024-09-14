@@ -8,8 +8,17 @@
 </head>
 <body>
     <header>
-        <a href="{{ url_for('auth.logout') }}">Logout</a>
+        <div class="header-left">
+            <!-- Logo -->
+            <a href="{{ url_for('auth.home') }}">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
+            </a>
+        </div>
+        <div class="header-right">
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
+        </div>
     </header>
+
     <main>
         <h1>Add New Profile</h1>
         <form method="POST" action="{{ url_for('profile.add_profile', action = action) }}">

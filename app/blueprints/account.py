@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from flask_login import logout_user, current_user, login_required, fresh_login_required
+from flask_login import current_user, login_required, fresh_login_required
 from extensions.database import Address, Role, db
 from werkzeug.security import check_password_hash, generate_password_hash
 
