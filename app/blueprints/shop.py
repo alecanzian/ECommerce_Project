@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, render_template, session, redirect, request, url_for
 from flask_login import login_required, current_user
-from extensions.database import Cart, db, Product, Category, get_user_orders#, Order
+from extensions.database import Cart, Order, OrderProduct, db, Product, Category, get_user_orders#, Order
 from extensions.princ import buyer_required, seller_required
 
 app = Blueprint('shop', __name__)
@@ -252,19 +252,88 @@ def delete_item_from_cart(item_id):
         return redirect(url_for('shop.cart'))
     flash('Prodotto non trovato nel carrello', 'error')
     return redirect(url_for('shop.cart'))
-@app.route('/orders')
-def orders():
-    # Supponendo che tu voglia filtrare gli ordini per utente loggato
-    #orders = Order.query.all()  # Modifica per filtrare per utente se necessario
-    orders = get_user_orders(current_user.id)
-    
-    # Passa gli ordini al template
-    return render_template('orders.html', orders=orders)#, orders=orders)
 
-@app.route('/homepage')
+
+@app.route('/orders', methods = ['GET'])
+@login_required
+def orders():
+    return render_template('orders.html')
+
+@app.route('/homepage', methods = ['GET'])
 def homepage():
-    # Supponendo che tu voglia filtrare gli ordini per utente loggato
-    #orders = Order.query.all()  # Modifica per filtrare per utente se necessario
-    
-    # Passa gli ordini al template
-    return render_template('homepage.html')#, orders=orders)
+    return render_template('homepage.html')
+
+@app.route('/order_product/<int:product_id>',methods = ['GET', 'POST'])
+@login_required
+def order_product(product_id):
+    if request.method == 'POST':
+        quantity = int(request.form.get('quantity'))
+        address_id = int(request.form.get('selected_address_id'))
+        # Verifica preliminare della quantità e indirizzo
+        if not quantity or not address_id:
+            flash('Inserisci la quantità e l\'indirizzo', 'fail')
+            return redirect(url_for('shop.order_product', product_id=product_id))
+        
+        try:
+            # Query per il prodotto
+            product = Product.query.filter_by(id=product_id).first()
+            if not product:
+                flash('Prodotto non trovato', 'fail')
+                return redirect(url_for('shop.access_product', product_id=product_id))
+            
+            # Query per l'indirizzo
+            address = next((a for a in current_user.addresses if a.id == address_id), None)
+            if not address:
+                flash('Indirizzo non valido', 'fail')
+                return redirect(url_for('shop.access_product', product_id=product_id))
+
+        except Exception:
+            flash('Si è verificato un errore di database. Riprova più tardi.', 'error')
+            return redirect(url_for('shop.access_product', product_id=product_id))
+
+        
+        # Operazioni critiche sul database in blocco try-except
+        try:
+            # Creazione del nuovo ordine
+            new_order = Order(user_id=current_user.id, address_id=address.id, total_price = (product.price * quantity))
+            db.session.add(new_order)
+            db.session.flush()  # Forza la generazione dell'ID per l'ordine
+
+            # Aggiungi il prodotto all'ordine
+            new_order_product = OrderProduct(order_id=new_order.id, product_id=product.id, quantity=quantity)
+            db.session.add(new_order_product)
+
+            db.session.commit()
+            flash('Ordine effettuato con successo', 'success')
+            return redirect(url_for('shop.orders'))
+
+        except Exception as e:
+            # In caso di errore, rollback e gestione dell'eccezione
+            db.session.rollback()
+            print(f"Errore durante l'operazione: {str(e)}")
+            flash('Si è verificato un errore di database2. Riprova più tardi.', 'error')
+            return redirect(url_for('shop.access_product', product_id=product_id))
+    elif request.method == 'GET':
+        try:
+            product = Product.query.filter_by(id=product_id).first()
+            if not product:
+                flash('Prodotto non trovato', 'fail')
+                return redirect(url_for('shop.access_product', product_id=product_id))
+            
+             # Verifica disponibilità prodotto
+            if product.availability == 0:
+                flash('Prodotto non disponibile', 'fail')
+                return redirect(url_for('shop.access_product', product_id=product_id))
+
+            for item in current_user.cart_items:
+                if item.product_id == product.id:
+                    flash('Prodotto già presente nel carrello', 'fail')
+                    return redirect(url_for('shop.access_product', product_id=product_id))
+        except Exception:
+            flash('Si è verificato un errore di database3. Riprova più tardi','error')
+            return redirect(url_for('shop.access_product', product_id=product_id))
+        
+        return render_template('order_product.html', product = product)
+
+
+        

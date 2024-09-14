@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_login import current_user
 from flask_principal import  RoleNeed, UserNeed, identity_loaded
@@ -12,8 +13,8 @@ from datetime import timedelta
 app = Flask(__name__, static_folder='../static', template_folder='../templates')
 
 app.secret_key = 'thisisasecretkey'
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), 'dbms.db')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:unive2024@ermen.ddns.net:5432/ermen'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), 'dbms.db')
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:unive2024@ermen.ddns.net:5432/ermen'
 app.config['SESSION_TYPE'] = 'sqlalchemy'
 app.config['SESSION_SQLALCHEMY'] = db
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=40)  # Imposta la durata della sessione a 40 minuti

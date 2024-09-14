@@ -52,10 +52,10 @@ def anonymous_required(f):
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        #try:
-        #    admin_permission.test()
-        #except PermissionDenied:
-        if not current_user.has_role('admin'):
+        try:
+            admin_permission.test()
+        except PermissionDenied:
+        #if not current_user.has_role('admin'):
             flash('You do not have admin permission to access this page.', 'error')
             # Reindirizza alla pagina dello shop se l'utente non è admin
             return redirect(url_for('shop.shop'))  

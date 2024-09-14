@@ -48,24 +48,27 @@
                 <tr>
                     <th>ID Ordine</th>
                     <th>Data Ordine</th>
-                    <!--<th>Prezzo Totale</th>-->
-                    <!--<th>Indirizzo Spedizione</th>-->
+                    <th>Indirizzo Spedizione</th>
                     <th>Prodotti</th>
+                    <th>Prezzo Totale</th>
+                    
                 </tr>
             </thead>
             <tbody>
-                {% for order in orders %}
+                {% for order in current_user.orders %}
                     <tr>
                         <td>{{ order.id }}</td>
-                        <td>{{ order.date.strftime('%d-%m-%Y') }}</td>
-
+                        <td>{{ order.order_date.strftime('%d-%m-%Y') }}</td>
+                        <td>{{ order.address.street }}</td>
                         <td>
                             <ul>
                                 {% for product in order.products %}
-                                    <li>{{ product.name }} (x{{ product.quantity }})</li>
+                                    <li>{{ product.product.name }} (x{{ product.quantity }})</li>
                                 {% endfor %}
+
                             </ul>
                         </td>
+                        <td>{{ order.total_price }}</td>
                     </tr>
                 {% else %}
                     <tr>
@@ -80,7 +83,7 @@
         {% if messages %}
             <ul class="flashes">
                 {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
+                    <li class="{{ category }}">{{category}}: {{ message }}</li>
                 {% endfor %}
             </ul>
         {% endif %}

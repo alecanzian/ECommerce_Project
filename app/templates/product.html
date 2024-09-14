@@ -15,7 +15,7 @@
             </a>
         </div>
         <div class="header-right">
-            <a href="{{ url_for('auth.logout') }}">Logout</a>
+            <!--<a href="{{ url_for('auth.logout') }}">Logout</a>-->
         </div>
     </header>
     <div class="product-details">
@@ -28,7 +28,7 @@
     </div>
     {%if product.availability > 0%}
     <a href="{{url_for('shop.add_to_cart', product_id = product.id)}}">Aggiungi al carrello</a>
-    <a href="{{url_for('shop.shop')}}">Acquista</a>
+    <a href="{{url_for('shop.order_product', product_id = product.id)}}">Acquista</a>
     {%else%}
     <p>Prodotto non disponibile</p>
     {%endif%}

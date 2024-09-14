@@ -28,6 +28,7 @@ class User(db.Model, UserMixin):
     products = db.relationship('Product', backref='user', lazy = True)
     addresses = db.relationship('Address', backref='users', lazy=True)
     cart_items = db.relationship('Cart', backref='user', lazy=True)
+    orders = db.relationship('Order', lazy = True)
 
     def __init__(self, username, password):
         self.username = username
@@ -161,22 +162,22 @@ class Cart(db.Model):
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_date = db.Column(db.DateTime, default=datetime.now(), nullable=False)
-    #total_price = db.Column(db.Float, nullable=False)
+    total_price = db.Column(db.Float, nullable=False)
 
-    # Relazione con user (chi ha fatto l'ordine)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', backref='order')
+    address_id = db.Column(db.Integer, db.ForeignKey('address.id'), nullable=False)
+    
     
     # Relazione con l'indirizzo (dove spedire l'ordine)
-    address_id = db.Column(db.Integer, db.ForeignKey('address.id'), nullable=False)
-    address = db.relationship('Address', backref='order')
+    address = db.relationship('Address', backref='order', lazy = True)
 
     # Relazione con i prodotti attraverso tabella intermedia OrderProduct
-    products = db.relationship('OrderProduct', backref='order')
+    products = db.relationship('OrderProduct', backref='order', lazy = True)
 
-    def __init__(self, user_id, address_id):
+    def __init__(self, user_id, address_id, total_price):
         self.user_id = user_id
         self.address_id = address_id
+        self.total_price = total_price
         
 class OrderProduct(db.Model):
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), primary_key=True)
@@ -186,7 +187,7 @@ class OrderProduct(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     
     # Relazioni
-    product = db.relationship('Product')
+    product = db.relationship('Product', lazy = True)
 
     def __init__(self, order_id, product_id, quantity):
         self.order_id = order_id
