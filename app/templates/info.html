@@ -79,6 +79,23 @@
     <table>
         <thead>
             <tr>
+                <th>Product_id</th>
+                <th>Quantity</th>
+                <th>User_id</th>
+            </tr>
+            {%for item in cart_items%}
+                <tr>
+                    <th>{{item.product_id}}</th>
+                    <th>{{item.quantity}}</th>
+                    <th>{{item.user_id}}</th>
+                </tr>
+            {%endfor%}
+        </thead>
+    </table>
+
+    <table>
+        <thead>
+            <tr>
                 <th>ID</th>
                 <th>Name</th>
                 <th>Price</th>

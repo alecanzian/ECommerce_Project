@@ -26,7 +26,8 @@ class User(db.Model, UserMixin):
     roles = db.relationship('Role', secondary=user_roles, backref='users')
     profiles = db.relationship('Profile', backref='user', lazy=True)
     products = db.relationship('Product', backref='user')
-    addresses = db.relationship('Address', backref='user', lazy=True)
+    addresses = db.relationship('Address', backref='users', lazy=True)
+    cart_items = db.relationship('Cart', backref='user', lazy=True)
 
     def __init__(self, username, password):
         self.username = username
@@ -34,8 +35,12 @@ class User(db.Model, UserMixin):
 
         # Aggiunge il ruolo 'buyer' di default
         buyer_role = Role.query.filter_by(name='buyer').first()
-        if buyer_role:
-            self.roles.append(buyer_role)
+        if not buyer_role:
+            buyer_role = Role(name='buyer')
+            db.session.add(buyer_role)
+            db.session.commit()
+        self.roles.append(buyer_role)
+
 
     def has_role(self, role_name):
         return any(role.name == role_name for role in self.roles)
@@ -87,7 +92,10 @@ class Product(db.Model):
     availability = db.Column(db.Integer, nullable = False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
+
     categories = db.relationship('Category', secondary=product_categories, backref='products')
+    in_carts = db.relationship('Cart', backref='product', lazy = True)
+
 
     def __init__(self, name, price, user_id, description, categories, availability = 1, image_url = 'https://img.freepik.com/vettori-premium/un-disegno-di-una-scarpa-con-sopra-la-parola-scarpa_410516-82664.jpg'):
         user = db.session.get(User, int(user_id))
@@ -109,6 +117,58 @@ class Product(db.Model):
             #    altro_category = Category.query.filter_by(name='Altro').first()
             self.categories.append(c)
 
+class Cart(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    quantity = db.Column(db.Integer, nullable = False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable = False)
+
+    #__table_args__ = (
+    #    db.UniqueConstraint('user_id', 'product_id', name='unique_user_product'),
+    #)
+    def __init__(self, quantity, user_id, product_id):
+        self.quantity = quantity
+        self.user_id = user_id
+        self.product_id = product_id
+
+#class OrderProduct(db.Model):
+#    __tablename__ = 'order_products'
+#    
+#    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), primary_key=True)
+#    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
+#    
+#    # Quantità di prodotto acquistato
+#    quantity = db.Column(db.Integer, nullable=False)
+#    
+#    # Relazioni
+#    order = db.relationship('Order', backref='order_products')
+#    product = db.relationship('Product', backref='order_products')
+#
+#    def __init__(self, order_id, product_id, quantity):
+#        self.order_id = order_id
+#        self.product_id = product_id
+#        self.quantity = quantity
+#
+#class Order(db.Model):
+#    id = db.Column(db.Integer, primary_key=True)
+#    order_date = db.Column(db.Date, nullable=False)
+#    total_price = db.Column(db.Float, nullable=False)
+#
+#    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+#    address_id = db.Column(db.Integer, db.ForeignKey('address.id'), nullable=True)
+#
+#    # Relazione con la tabella intermedia 'OrderProduct'
+#    products = db.relationship('OrderProduct', backref='order')
+#
+#    def __init__(self, user_id, address_id):
+#        self.user_id = user_id
+#        self.address_id = address_id
+#
+#
+#
+#
+#
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_date = db.Column(db.DateTime, default=datetime.now(), nullable=False)

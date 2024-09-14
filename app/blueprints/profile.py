@@ -1,14 +1,16 @@
 from flask import Blueprint, render_template, redirect, url_for, request, session, flash
-from flask_login import login_required, fresh_login_required, current_user
-from extensions.database import Address, Profile, User, Product, Role, Category, db
-from extensions.princ import buyer_required, admin_required
+from flask_login import login_required, fresh_login_required, current_user, logout_user
+from extensions.database import Address, Cart, Profile, User, Product, Role, Category, db
+from extensions.princ import buyer_required, admin_required, admin_permission, buyer_permission
+from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import date
 
 app = Blueprint('profile', __name__)
 
 @app.route('/info')
-#@login_required
+@login_required
 #@admin_required
+#@permission_required(buyer_permission)
 def info():
     # Ricaviamo tutti gli utenti della tabella User, tutti i prodotti di Products e tutti i Ruoli
     all_users = User.query.all()
@@ -16,7 +18,8 @@ def info():
     all_roles = Role.query.all()
     all_categories = Category.query.all()
     all_addresses = Address.query.all()
-    return render_template('info.html', users=all_users, products=all_products, roles=all_roles, categories=all_categories, addresses = all_addresses) # Passo anche lo username dell'utente loggato(sarà sempre unico)
+    all_cart_items = Cart.query.all()
+    return render_template('info.html', users=all_users, products=all_products, roles=all_roles, categories=all_categories, addresses = all_addresses, cart_items = all_cart_items) # Passo anche lo username dell'utente loggato(sarà sempre unico)
 
 @app.route('/profile')
 @login_required

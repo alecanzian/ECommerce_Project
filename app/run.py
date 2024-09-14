@@ -1,8 +1,7 @@
 from extensions.flask import app
-from extensions.login import login_manager
 from extensions.princ import princ
-from extensions.database import db
-#from extensions.database import Address, add_categories, add_roles, set_user_with_role, add_products, generate_password_hash, User, Profile
+from extensions.login import login_manager
+#from extensions.database import db, Address, Product, add_categories, add_roles, set_user_with_role, add_products, generate_password_hash, User, Profile
 from extensions.database import *
 from datetime import datetime
 import os

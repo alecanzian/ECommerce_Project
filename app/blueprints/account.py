@@ -32,6 +32,8 @@ def delete_account():
             # Elimina prima tutti i prodotti associati all'utente
             if current_user.has_role('seller'):
                 for product in current_user.products:
+                    for item in product.in_carts:
+                        db.session.delete(item)
                     db.session.delete(product)
             # Elimina il profilo dopo aver eliminato i prodotti
             for profile in current_user.profiles:
@@ -40,6 +42,10 @@ def delete_account():
             # Elimina gli indirizzi dopo aver eliminato i profili
             for address in current_user.addresses:
                 db.session.delete(address)
+
+            # Elimina tutti i prodotti sul carrello
+            for item in current_user.cart_items:
+                db.session.delete(item)
 
             # Elimina l'utente
             db.session.delete(current_user)

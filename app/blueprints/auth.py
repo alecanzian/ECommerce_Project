@@ -14,6 +14,7 @@ def home():
     return render_template('home.html')
 
 @app.route('/register', methods=['GET', 'POST'])
+@anonymous_required
 def register():
     # Per potersi registrare, l'utente non deve essere loggato con alcun account
     if current_user.is_authenticated:

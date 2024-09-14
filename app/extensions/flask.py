@@ -1,4 +1,6 @@
 from flask import Flask
+from flask_login import current_user
+from flask_principal import  RoleNeed, UserNeed, identity_loaded
 from extensions.database import db
 from blueprints.auth import app as auth_bp
 from blueprints.profile import app as profile_bp

@@ -97,7 +97,7 @@
                     </p>
                     <p>price: ${{ p.price }}</p>
                     <p>Description: {{ p.description }}</p>
-                    <p>Availability: {{ p.availability }}</p>
+                    <p>Availability: {%if p.availability > 0%}{{ p.availability }}{%else%}Non Disponibile{%endif%}</p>
                 </div>
             </li>
         {% endfor %}

@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, render_template, session, redirect, request, url_for
 from flask_login import login_required, current_user
-from extensions.database import db, Product, Category, get_user_orders#, Order
+from extensions.database import Cart, db, Product, Category, get_user_orders#, Order
 from extensions.princ import buyer_required, seller_required
 
 app = Blueprint('shop', __name__)
@@ -101,7 +101,14 @@ def reset_filters():
 @login_required
 @buyer_required
 def cart():
-    return render_template('cart.html')
+    cart_items = Cart.query.all()
+    products = []
+    for item in cart_items:
+        product = Product.query.get(item.product_id)
+        tripla = [item.id, product, item.quantity]
+        products.append(tripla)
+    get_product = Product.query.get
+    return render_template('cart.html', products = products, get_product = get_product)
 
 @app.route('/product/<int:product_id>')
 @login_required
@@ -151,6 +158,9 @@ def delete_product(product_id):
     product = next((p for p in current_user.products if p.id == product_id), None)
    
     if product:
+        # Elimino tutte le tuple del carrello che si riferiscono a quell'oggetto
+        for item in product.in_carts:
+            db.session.delete(item)
         db.session.delete(product)
         db.session.commit()
         flash('Prodotto eliminato correttamente', 'message')
@@ -202,6 +212,11 @@ def modify_product(product_id):
             
         if availability:
             product.availability = availability
+            print("prodotto ha disponibilità aggiornata")
+            if int(availability) == 0:
+                for item in product.in_carts:
+                    db.session.delete(item)
+                print("prodotto ha disponibilità 0")
            
         db.session.commit()
         flash('Prodotto aggiornato con successo')
@@ -209,6 +224,34 @@ def modify_product(product_id):
     
     return render_template('modify_product.html', product=product, categories = Category.query.all())
 
+@app.route('/add_to_cart/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+def add_to_cart(product_id):
+    product = Product.query.filter_by(id = product_id).first()
+    for item in current_user.cart_items:
+        if item.product_id == product.id:
+            flash('Prodotto già nel carrello', 'fail')
+            return redirect(url_for('shop.access_product', product_id=product_id))
+    if product.availability == 0:
+        flash('Prodotto non disponibile', 'fail')
+        return redirect(url_for('shop.access_product', product_id=product_id))
+    item = Cart(user_id = current_user.id, product_id = product.id, quantity=1)
+    db.session.add(item)
+    db.session.commit()
+    flash('Prodotto aggiunto correttamente al carrello', 'success')
+    return redirect(url_for('shop.access_product', product_id=product_id))
+
+@app.route('/delete_item_from_cart/<int:item_id>', methods = ['GET','POST'])
+@login_required
+def delete_item_from_cart(item_id):
+    item = next((item for item in current_user.cart_items if item.id == item_id), None)
+    if item:
+        db.session.delete(item)
+        db.session.commit()
+        flash('Prodotto rimosso correttamente dal carrello', 'success')
+        return redirect(url_for('shop.cart'))
+    flash('Prodotto non trovato nel carrello', 'error')
+    return redirect(url_for('shop.cart'))
 @app.route('/orders')
 def orders():
     # Supponendo che tu voglia filtrare gli ordini per utente loggato
