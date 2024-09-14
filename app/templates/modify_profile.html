@@ -6,6 +6,17 @@
     <title>Modifca profilo</title>
 </head>
 <body>
+    <header>
+        <div class="header-left">
+            <!-- Logo -->
+            <a href="{{ url_for('auth.home') }}">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
+            </a>
+        </div>
+        <div class="header-right">
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
+        </div>
+    </header>
     <h1>Modifica profilo</h1>
     <p>Inserire i nuovi dati</p>
     <form action="{{ url_for('profile.modify_profile', profile_id = profile.id) }}" method="POST">

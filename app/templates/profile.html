@@ -7,6 +7,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='profile.css') }}">
 </head>
 <body>
+    <header>
+        <div class="header-left">
+            <!-- Logo -->
+            <a href="{{ url_for('auth.home') }}">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
+            </a>
+        </div>
+    </header>
     <a href="{{url_for('shop.shop')}}">Back to shop</a> 
     <h1>Account</h1>
     <a href="{{ url_for('account.delete_account') }}"">Elimina</a>

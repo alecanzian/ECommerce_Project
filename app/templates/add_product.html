@@ -8,6 +8,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='shop.css') }}">
 </head>
 <body>
+    <header>
+        <div class="header-left">
+            <!-- Logo -->
+            <a href="{{ url_for('auth.home') }}">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
+            </a>
+        </div>
+    </header>
     
     <h1>Create new product</h1>
 

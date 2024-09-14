@@ -9,8 +9,16 @@
 </head>
 <body>
     <header>
-        <a href="{{url_for('auth.login')}}">Login Page</a>
-        <a href="{{url_for('auth.register')}}">Register Page</a>
+        <div class="header-left">
+            <!-- Logo -->
+            <a href="{{ url_for('auth.home') }}">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
+            </a>
+        </div>
+        <div class="header-right">
+            <a href="{{url_for('auth.login')}}">Login Page</a>
+            <a href="{{url_for('auth.register')}}">Register Page</a>
+        </div>
     </header>
     <main>
         <h1>eCommerce Project</h1>

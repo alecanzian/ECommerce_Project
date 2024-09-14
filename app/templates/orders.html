@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordini</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='orders.css') }}">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <!-- Logo -->
+            <a href="{{ url_for('auth.home') }}">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
+            </a>
+        </div>
+        <div class="header-right">
+            <div class="navbar">
+                <div class="dropdown">
+                    <a href="{{ url_for('profile.profile') }}" class="dropbtn">
+                        {% for p in current_user.profiles %}
+                            {% if p.id == session['current_profile_id'] %}
+                                {{ p.name }} {{ p.surname }}
+                            {% endif %}
+                        {% endfor %}
+                    </a>
+                    <div class="dropdown-content">
+                        {% for p in current_user.profiles %}
+                            {% if p.id != session['current_profile_id'] %}
+                                <a href="{{ url_for('profile.select_profile', profile_id=p.id) }}">{{ p.name }} {{ p.surname }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <a href="{{ url_for('shop.cart') }}">Cart</a>
+                {% if current_user.has_role('buyer') %}
+                    <a href="{{ url_for('profile.info') }}">See Info</a>
+                {% endif %}
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
+            </div>
+        </div>
+    </header>
+    <main>
+        <h1>Lista Ordini</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Ordine</th>
+                    <th>Data Ordine</th>
+                    <!--<th>Prezzo Totale</th>-->
+                    <!--<th>Indirizzo Spedizione</th>-->
+                    <th>Prodotti</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.date.strftime('%d-%m-%Y') }}</td>
+
+                        <td>
+                            <ul>
+                                {% for product in order.products %}
+                                    <li>{{ product.name }} (x{{ product.quantity }})</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5">Nessun ordine trovato</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

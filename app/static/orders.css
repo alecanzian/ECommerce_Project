@@ -1,0 +1,38 @@
+main {
+    justify-content: flex-start; /* Cambia da center a flex-start */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 1em;
+    text-align: left;
+}
+
+table thead {
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+table th, table td {
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+}
+
+table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+table tbody tr:hover {
+    background-color: #ddd;
+}
+
+table ul {
+    padding-left: 20px;
+    margin: 0;
+}
+
+table ul li {
+    list-style-type: disc;
+}

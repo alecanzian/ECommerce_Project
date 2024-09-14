@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, request, session, flash, redirect, url_for
-from flask_login import login_user, logout_user, current_user, login_required
+from flask import Blueprint, render_template, request, session, flash, redirect, url_for, current_app
+from flask_login import login_user, logout_user, current_user
 from flask_principal import AnonymousIdentity, Identity, identity_changed
 from extensions.database import User, Profile, db
 from extensions.princ import anonymous_required
@@ -69,9 +69,12 @@ def login():
                 By default, when the user closes their browser the Flask Session is deleted and the user is logged out. “Remember Me” prevents the user from accidentally being logged out when they close their browser. This does NOT mean remembering or pre-filling the user’s username or password in a login form after the user has logged out.
                 Thanks to Flask-Login, just pass remember=True to the login_user call. A cookie will be saved on the user’s computer, and then Flask-Login will automatically restore the user ID from that cookie if it is not in the session. The amount of time before the cookie expires can be set with the REMEMBER_COOKIE_DURATION configuration or it can be passed to login_user. The cookie is tamper-proof, so if the user tampers with it (i.e. inserts someone else’s user ID in place of their own), the cookie will merely be rejected, as if it was not there.
                 """
+                print('login')
                 login_user(user, True, timedelta(minutes=5))
                 # Avvisa che l'identita dell'utente è cambiata(si passa da anonimo a un nuovo user.id)
-                identity_changed.send(app, identity=Identity(current_user.id))
+                print('invio segnale identity changed')
+                print(identity_changed.send(current_app._get_current_object(), identity=Identity(user.id)))
+                print(Identity(user.id))
                 flash('Login successful!', category='success')
                 return redirect(url_for('profile.profile_selection'))
             else:

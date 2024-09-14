@@ -7,6 +7,17 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
 </head>
 <body>
+    <header>
+        <div class="header-left">
+            <!-- Logo -->
+            <a href="{{ url_for('auth.home') }}">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
+            </a>
+        </div>
+        <div class="header-right">
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
+        </div>
+    </header>
     <main>
         <h1>Modify Address</h1>
         <p>Inserire i nuovi dati</p>
