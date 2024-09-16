@@ -90,7 +90,7 @@
             <li class="product-item">
                 <img src="{{ p.image_url }}" alt="{{ p.name }}" class="product-image">
                 <div class="product-details">
-                    <a href="{{ url_for('shop.access_product', product_id=p.id) }}" class="product-link"><h2>{{ p.name }}</h2></a>
+                    <a href="{{ url_for('product.access_product', product_id=p.id) }}" class="product-link"><h2>{{ p.name }}</h2></a>
                     <p>|{% for c in p.categories %}
                         {{ c.name }} |
                     {% endfor %}

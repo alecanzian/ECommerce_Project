@@ -19,7 +19,7 @@
     </header>
     <h1>Modifica prodotto</h1>
     <p>Inserire i nuovi dati</p>
-    <form action="{{ url_for('shop.modify_product', product_id = product.id) }}" method="POST">
+    <form action="{{ url_for('product.modify_product', product_id = product.id) }}" method="POST">
         <div class="colonna">
             {% for category in categories %}
                 <input type="checkbox" id="{{ category.name }}" name="selected_categories_product" value="{{ category.name }}" {% if category in product.categories %} checked {% endif %}>

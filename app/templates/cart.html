@@ -25,7 +25,7 @@
 
     {% for item in current_user.cart_items%}
                 <p>
-                    <a href="{{url_for('shop.access_product', product_id = item.product_id)}}"> {{item.product.name}}</a> -- ${{item.product.price}}
+                    <a href="{{url_for('product.access_product', product_id = item.product_id)}}"> {{item.product.name}}</a> -- ${{item.product.price}}
                     <form action="{{url_for('shop.change_quantity_cart_item',item_id = item.id)}}" method = "POST">
                         <input type="number" name = "quantity" value = "{{item.quantity}}" required min = "1" max = "{{item.product.availability}}">
                         <button type = "submit"> Applica </button>

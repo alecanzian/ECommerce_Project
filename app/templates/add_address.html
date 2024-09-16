@@ -17,7 +17,7 @@
     </header>
     <main>
         <h1>Add New Address</h1>
-        <form method="POST" action="{{ url_for('account.add_address', action = action) }}">
+        <form method="POST" action="{{ url_for('address.add_address', action = action) }}">
             <input type="text" id="street" name="street" placeholder="Street" required>
             <input type="number" id="postal_code" name="postal_code" placeholder="Codice Postale" required minlength="5" maxlength="5" pattern="\d{5}" title="Il codice postale deve essere di 5 cifre">
             <input type="text" id="city" name="city" placeholder="City" required>

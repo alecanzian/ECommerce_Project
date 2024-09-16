@@ -74,13 +74,13 @@
         {% endfor %}
     
     <h1>Addresses</h1>
-    <a href="{{ url_for('account.add_address', action = 0) }}"">Aggiungi</a>
+    <a href="{{ url_for('address.add_address', action = 0) }}"">Aggiungi</a>
     {% for address in current_user.addresses %}
         <table>
             <tr>
                 <th>
-                    <a href="{{ url_for('account.modify_address', address_id = address.id) }}">Modifica</a>
-                    <a href="{{ url_for('account.delete_address', address_id = address.id) }}">Elimina</a>
+                    <a href="{{ url_for('address.modify_address', address_id = address.id) }}">Modifica</a>
+                    <a href="{{ url_for('address.delete_address', address_id = address.id) }}">Elimina</a>
                 </th>
                 
             </tr>
@@ -111,12 +111,12 @@
 
     <h1>Products</h1>
     {% if current_user.has_role('seller') %}
-    <a href="{{ url_for('shop.add_product') }}">Aggiungi</a>
+    <a href="{{ url_for('product.add_product') }}">Aggiungi</a>
         {% for p in current_user.products %}
             <table>
                 <tr>
-                    <th><a href="{{ url_for('shop.modify_product', product_id = p.id) }}">Modifica</a>
-                        <a href="{{ url_for('shop.delete_product', product_id = p.id) }}">Elimina</a></th>
+                    <th><a href="{{ url_for('product.modify_product', product_id = p.id) }}">Modifica</a>
+                        <a href="{{ url_for('product.delete_product', product_id = p.id) }}">Elimina</a></th>
                     <td>
                         <img src="{{ p.image_url }}" alt="Nome" width = "50" height = "50">
                     </td>

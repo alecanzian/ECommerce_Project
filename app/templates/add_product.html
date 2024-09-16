@@ -19,7 +19,7 @@
     
     <h1>Create new product</h1>
 
-    <form action="{{ url_for('shop.add_product') }}" method="POST" id="create_product-form">
+    <form action="{{ url_for('product.add_product') }}" method="POST" id="create_product-form">
         <div class="colonna">
             {% for category in categories %}
                 <input type="checkbox" id="{{ category.name }}" name="selected_categories_product" value="{{ category.name }}">
