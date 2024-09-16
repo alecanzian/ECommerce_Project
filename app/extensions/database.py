@@ -122,43 +122,6 @@ class Cart(db.Model):
         self.user_id = user_id
         self.product_id = product_id
 
-#class OrderProduct(db.Model):
-#    __tablename__ = 'order_products'
-#    
-#    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), primary_key=True)
-#    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
-#    
-#    # Quantità di prodotto acquistato
-#    quantity = db.Column(db.Integer, nullable=False)
-#    
-#    # Relazioni
-#    order = db.relationship('Order', backref='order_products')
-#    product = db.relationship('Product', backref='order_products')
-#
-#    def __init__(self, order_id, product_id, quantity):
-#        self.order_id = order_id
-#        self.product_id = product_id
-#        self.quantity = quantity
-#
-#class Order(db.Model):
-#    id = db.Column(db.Integer, primary_key=True)
-#    order_date = db.Column(db.Date, nullable=False)
-#    total_price = db.Column(db.Float, nullable=False)
-#
-#    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-#    address_id = db.Column(db.Integer, db.ForeignKey('address.id'), nullable=True)
-#
-#    # Relazione con la tabella intermedia 'OrderProduct'
-#    products = db.relationship('OrderProduct', backref='order')
-#
-#    def __init__(self, user_id, address_id):
-#        self.user_id = user_id
-#        self.address_id = address_id
-#
-#
-#
-#
-#
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_date = db.Column(db.DateTime, default=datetime.now(), nullable=False)

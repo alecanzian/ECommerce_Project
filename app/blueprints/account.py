@@ -47,6 +47,9 @@ def delete_account():
             for item in current_user.cart_items:
                 db.session.delete(item)
 
+            for order in current_user:
+                db.session.delete(order)
+
             # Elimina l'utente
             db.session.delete(current_user)
             db.session.commit()
