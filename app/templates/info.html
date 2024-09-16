@@ -19,7 +19,9 @@
             <a href="{{ url_for('auth.logout') }}">Logout</a>
         </div>
     </header>
+
     <h1>All Info</h1>
+
     <table>
         <thead>
             <tr>
@@ -55,6 +57,7 @@
             {% endfor %}
         </tbody>
     </table>
+
     <table>
         <thead>
             <tr>
@@ -66,17 +69,17 @@
                 <th>Country</th>
             </tr>
         </thead>
-    {% for address in addresses %}
-            <tr>
-                <td>{{ address.id }}</td>
-                <td>{{ address.street }}</td>
-                <td>{{ address.postal_code }}</td>
-                <td>{{ address.city }}</td>
-                <td>{{ address.province }}</td>
-                <td>{{ address.country }}</td>
-            </tr>
-            {% endfor %}
-        </table>
+        {% for address in addresses %}
+        <tr>
+            <td>{{ address.id }}</td>
+            <td>{{ address.street }}</td>
+            <td>{{ address.postal_code }}</td>
+            <td>{{ address.city }}</td>
+            <td>{{ address.province }}</td>
+            <td>{{ address.country }}</td>
+        </tr>
+        {% endfor %}
+    </table>
     
     <table>
         <thead>
@@ -129,6 +132,7 @@
             {% endfor %}
         </tbody>
     </table>
+
     <table>
         <thead>
             <tr>
@@ -145,6 +149,7 @@
             {% endfor %}
         </tbody>
     </table>
+
     <table>
         <thead>
             <tr>
@@ -161,6 +166,7 @@
             {% endfor %}
         </tbody>
     </table>
+
     <table>
         <thead>
             <tr>
@@ -174,6 +180,7 @@
             </tr>
         </tbody>
     </table>
+    
     <a href="{{ url_for('shop.shop') }}">Back to Shop</a>
 
     {% with messages = get_flashed_messages(with_categories=true) %}

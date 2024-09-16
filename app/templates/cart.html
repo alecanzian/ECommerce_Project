@@ -22,7 +22,6 @@
 
     <h1>Cart</h1>
     {%if current_user.cart_items%}
-
     {% for item in current_user.cart_items%}
                 <p>
                     <a href="{{url_for('product.access_product', product_id = item.product_id)}}"> {{item.product.name}}</a> -- ${{item.product.price}}

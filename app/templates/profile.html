@@ -34,9 +34,13 @@
                 <th>Roles</th>
                 <td>
                     <ul>
+                        {%if current_user.roles%}
                         {% for role in current_user.roles %}
                             <li>{{ role.name }}</li>
                         {% endfor %}
+                        {%else%}
+                            <li>Non ci sono ruoli</li>
+                        {%endif%}
                     </ul>
                 </td>
             </tr>

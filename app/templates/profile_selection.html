@@ -22,6 +22,7 @@
     <main>
         <h1>Select your profile</h1>
         <div class="profile-selection">
+            {%if current_user.profiles%}
             {% for profile in current_user.profiles %}
                 <div class="profile-card">
                     <img src="{{ profile.avatar }}" alt="Avatar" class="profile-avatar">
@@ -29,6 +30,9 @@
                     <a href="{{ url_for('profile.select_profile', profile_id=profile.id) }}" class="profile-button">Select profile</a>
                 </div>
             {% endfor %}
+            {%else%}
+                <p>Non ci sono profili</p>
+            {%endif%}
             <div class="profile-card">
                 <a href="{{ url_for('profile.add_profile', action = 0) }}" class="profile-button">New profile</a>
             </div>
