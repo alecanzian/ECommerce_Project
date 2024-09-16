@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import current_user, login_required, fresh_login_required
-from extensions.database import Address, Role, db
+from extensions.database import Address, Product, Role, db
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Blueprint('account', __name__)
@@ -132,10 +132,10 @@ def add_seller_role():
             return redirect(url_for('profile.profile'))
     return render_template('confirm_password.html', action = 1)
 
-@app.route('/add_address', methods = ['GET','POST'])
+@app.route('/add_address/<int:action>', methods = ['GET','POST'])
 @login_required
 @fresh_login_required
-def add_address():
+def add_address(action):
     if request.method == 'POST':
         street = request.form.get('street')
         postal_code = request.form.get('postal_code')
@@ -148,15 +148,25 @@ def add_address():
         for a in current_user.addresses:
             if a.street.replace(" ", "").lower() == street.replace(" ", "").lower():
                 flash('Indirizzo già presente.', 'error')
-                return redirect(url_for('account.add_address'))
+                if action == -1:
+                    return redirect(url_for('profile.profile'))
+                elif action == -2:
+                    return redirect(url_for('shop.order_cart_items'))
+                elif action > 0:
+                    return redirect(url_for('shop.order_product', product_id = action))
         address = Address(street = street, postal_code = postal_code, city = city, province = province, country = country, user_id = user_id)
         db.session.add(address)
         current_user.addresses.append(address)
         db.session.commit()
         flash('Indirizzo aggiunto con successo.', 'message')
-        return redirect(url_for('profile.profile'))
+        if action == -1:
+            return redirect(url_for('profile.profile'))
+        elif action == -2:
+            return redirect(url_for('shop.order_cart_items'))
+        elif action > 0:
+            return redirect(url_for('shop.order_product', product_id = action))
 
-    return render_template('add_address.html')
+    return render_template('add_address.html', action = action)
 
 @app.route('/modify_address/<int:address_id>', methods = ['GET','POST'])
 @login_required
@@ -205,6 +215,8 @@ def delete_address(address_id):
 
         flash('Indirizzo eliminato con successo.', 'success')
         return redirect(url_for('profile.profile'))
-    except Exception:
+    except Exception as e:
+        db.session.rollback()
+        print(f"Errore durante l'operazione: {str(e)}")
         flash('Si è verificato un errore di database. Riprova più tardi.', 'error')
         return redirect(url_for('profile.profile'))

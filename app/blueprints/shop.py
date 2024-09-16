@@ -97,18 +97,11 @@ def reset_filters():
         # Ritorna alla pagina shop con i prodotti e categorie aggiornati
         return redirect(url_for('shop.shop'))
     
-@app.route('/cart')
+@app.route('/cart', methods = ['GET'])
 @login_required
 @buyer_required
 def cart():
-    cart_items = Cart.query.all()
-    products = []
-    for item in cart_items:
-        product = Product.query.get(item.product_id)
-        tripla = [item.id, product, item.quantity]
-        products.append(tripla)
-    get_product = Product.query.get
-    return render_template('cart.html', products = products, get_product = get_product)
+    return render_template('cart.html')
 
 @app.route('/product/<int:product_id>')
 @login_required
@@ -241,7 +234,7 @@ def add_to_cart(product_id):
     flash('Prodotto aggiunto correttamente al carrello', 'success')
     return redirect(url_for('shop.access_product', product_id=product_id))
 
-@app.route('/delete_item_from_cart/<int:item_id>', methods = ['GET','POST'])
+@app.route('/delete_item_from_cart/<int:item_id>', methods = ['GET'])
 @login_required
 def delete_item_from_cart(item_id):
     item = next((item for item in current_user.cart_items if item.id == item_id), None)
@@ -302,7 +295,7 @@ def order_product(product_id):
             # Aggiungi il prodotto all'ordine
             new_order_product = OrderProduct(order_id=new_order.id, product_id=product.id, quantity=quantity)
             db.session.add(new_order_product)
-
+            product.availability-=quantity
             db.session.commit()
             flash('Ordine effettuato con successo', 'success')
             return redirect(url_for('shop.orders'))
@@ -313,6 +306,7 @@ def order_product(product_id):
             print(f"Errore durante l'operazione: {str(e)}")
             flash('Si è verificato un errore di database2. Riprova più tardi.', 'error')
             return redirect(url_for('shop.access_product', product_id=product_id))
+        
     elif request.method == 'GET':
         try:
             product = Product.query.filter_by(id=product_id).first()
@@ -336,4 +330,65 @@ def order_product(product_id):
         return render_template('order_product.html', product = product)
 
 
-        
+@app.route('/order_cart_items', methods = ['GET', 'POST'])
+@login_required
+def order_cart_items():
+    if request.method == 'POST':
+        address_id = int(request.form.get('selected_address_id'))
+        if not address_id:
+            flash('Indirizzo non valido', 'fail')
+            return redirect(url_for('shop.order_cart_items'))
+        try:
+            address = next((address for address in current_user.addresses if address.id == address_id),None)
+            if not address:
+                flash('Indirizzo non trovato', 'fail')
+                #return redirect(url_for('shop.order_cart_items'))
+            items = current_user.cart_items
+            if not items:
+                flash('Carrello vuoto', 'fail')
+                return redirect(url_for('shop.shop'))
+            new_order = Order(user_id = current_user.id, address_id = address.id, total_price = 0.0)
+            db.session.add(new_order)
+            db.session.flush()
+
+            total_price = 0.0
+            for item in items:
+                total_price += item.product.price * item.quantity
+                new_order_product = OrderProduct(order_id = new_order.id, product_id = item.product_id, quantity = item.quantity)
+                db.session.add(new_order_product)
+                item.product.availability-=item.quantity
+                db.session.delete(item)
+            new_order.total_price = total_price
+
+            db.session.commit()
+            flash('Ordine avvenuto correttamente','success')
+            return redirect(url_for('shop.orders'))
+        except Exception:
+            db.session.rollback()
+            flash('Si è verificato un errore di database4. Riprova più tardi','error')
+            return redirect(url_for('shop.order_cart_items'))
+    return render_template('order_cart_items.html')
+
+
+
+@app.route('/change_quantity_cart_item/<int:item_id>', methods = ['POST'])
+@login_required
+def change_quantity_cart_item(item_id):
+    quantity = int(request.form.get('quantity'))
+    if not quantity:
+        flash('Inserisci la quantità ptima di premere Applica', 'fail')
+        return redirect(url_for('shop.cart'))
+    try:
+        item = next((i for i in current_user.cart_items if i.id == item_id), None)
+        if not item:
+            flash('Prodotto non trovato', 'error')
+            return redirect(url_for('shop.cart'))
+        item.quantity = quantity
+        db.session.commit()
+        flash('La quantità è stata aggiornata correttamente', 'success')
+        return redirect(url_for('shop.cart'))
+    except Exception as e:
+        db.session.rollback()
+        print(f"Errore durante l'operazione: {str(e)}")
+        flash('Si è verificato un errore di database4. Riprova più tardi','error')
+        return redirect(url_for('shop.cart'))

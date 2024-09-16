@@ -11,7 +11,7 @@ app = Blueprint('profile', __name__)
 @app.route('/info', methods = ['GET'])
 @login_required
 @fresh_login_required
-@admin_required
+#@admin_required
 #@permission_required(buyer_permission)
 def info():
     # Ricaviamo tutti gli utenti della tabella User, tutti i prodotti di Products e tutti i Ruoli

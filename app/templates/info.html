@@ -58,6 +58,7 @@
     <table>
         <thead>
             <tr>
+                <th>ID</th>
                 <th>Street</th>
                 <th>Postal Code</th>
                 <th>City</th>
@@ -67,6 +68,7 @@
         </thead>
     {% for address in addresses %}
             <tr>
+                <td>{{ address.id }}</td>
                 <td>{{ address.street }}</td>
                 <td>{{ address.postal_code }}</td>
                 <td>{{ address.city }}</td>

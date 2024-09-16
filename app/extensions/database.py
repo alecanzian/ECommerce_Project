@@ -165,7 +165,7 @@ class Order(db.Model):
     total_price = db.Column(db.Float, nullable=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    address_id = db.Column(db.Integer, db.ForeignKey('address.id'), nullable=False)
+    address_id = db.Column(db.Integer, db.ForeignKey('address.id'), nullable=True)
     
     
     # Relazione con l'indirizzo (dove spedire l'ordine)
