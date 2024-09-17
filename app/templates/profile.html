@@ -159,6 +159,29 @@
         <a rel="stylesheet" href="{{ url_for('account.add_seller_role') }}">Diventa un Seller!!</a>
 
     {% endif %}
+    <h1>Ordini dei prorpi prodotti</h1>
+    {% if current_user.has_role('seller') %}
+        {% for p in current_user.products %}
+           
+            {% for order_product in p.order_product_of_product %}
+            <table>
+                <tr>
+                    <th>Name</th>
+                    <td>{{ order_product.product_name }}</td>
+                </tr>
+                <tr>
+                    
+                    <td>Stato</td>
+                    <th>{{order_product.state.name}} <a href="{{ url_for('shop.modify_order_state', order_product_id = order_product.id) }}">Modifica</a>
+                </tr>
+                    
+            </table>
+            {%endfor%}
+            <p></p>
+
+        
+        {% endfor %}
+    {% endif %}
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

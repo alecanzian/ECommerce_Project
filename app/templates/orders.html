@@ -59,12 +59,18 @@
                     <tr>
                         <td>{{ order.id }}</td>
                         <td>{{ order.order_date.strftime('%d-%m-%Y') }}</td>
-                        <td>{{ order.address.street }}</td>
+                        <td>{{ order.address }}</td>
                         <td>
                             <ul>
                                 {% for product in order.products %}
-                                    <li>{{ product.product.name }} (x{{ product.quantity }})</li>
+                                    {% if product.product_id is not none %}
+                                        <li><a href="{{url_for('product.access_product', product_id=product.product_id)}}">{{product.product_name}}</a> (x{{ product.quantity }}) {{product.state.name}}</li>
+                                    {% else %}
+                                        <li>{{ product.product_name }} (x{{ product.quantity }}) {{product.state}}</li>
+                                    {% endif %}
                                 {% endfor %}
+
+                                
 
                             </ul>
                         </td>

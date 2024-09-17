@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Order State</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+</head>
+<body>
+    
+    <h1>Change Order State</h1>
+
+    <form action="{{ url_for('shop.modify_order_state', order_product_id = order_product.id) }}" method="POST">
+    <div class="colonna">
+        {% for state in states %}
+            <input type="radio" id="{{ state.id }}" name="selected_state_id" value="{{ state.id }}" 
+                   {% if order_product.state and state.id == order_product.state.id %}checked{% endif %} required>
+            <label for="{{ state.id }}">{{ state.name }}</label><br>
+        {% endfor %}
+    <button type="submit">Applica</button>
+</form>
+
+    
+    <a href="{{ url_for('profile.profile')}}">Annulla</a>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                <li class="{{ category }}">{{category }}: {{ message }}</li>                
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

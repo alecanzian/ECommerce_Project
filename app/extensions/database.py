@@ -126,36 +126,39 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_date = db.Column(db.DateTime, default=datetime.now(), nullable=False)
     total_price = db.Column(db.Float, nullable=False)
-
+    address = db.Column(db.String(255),nullable = False)
+    
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    address_id = db.Column(db.Integer, db.ForeignKey('address.id'), nullable=True)
     
-    
-    # Relazione con l'indirizzo (dove spedire l'ordine)
-    address = db.relationship('Address', backref='order', lazy = True)
-
     # Relazione con i prodotti attraverso tabella intermedia OrderProduct
     products = db.relationship('OrderProduct', backref='order', lazy = True)
 
-    def __init__(self, user_id, address_id, total_price):
+    def __init__(self, user_id, address, total_price):
         self.user_id = user_id
-        self.address_id = address_id
         self.total_price = total_price
+        self.address = address
         
 class OrderProduct(db.Model):
-    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
-    
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable = False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'),nullable = True )
+    product_name = db.Column(db.String(50),nullable = False)
+    state_id = db.Column(db.String(50), db.ForeignKey('state.id'),nullable = False)
+
+
     # Quantità di prodotto acquistato
     quantity = db.Column(db.Integer, nullable=False)
     
     # Relazioni
-    product = db.relationship('Product', lazy = True)
+    product = db.relationship('Product', backref = 'order_product_of_product', lazy = True)
+    state = db.relationship('State', lazy = True)
 
-    def __init__(self, order_id, product_id, quantity):
+    def __init__(self, order_id, product_id, product_name, quantity):
         self.order_id = order_id
         self.product_id = product_id
+        self.product_name = product_name
         self.quantity = quantity
+        self.state = State.query.filter_by(name = 'Ordinato').first()
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -167,6 +170,13 @@ class Category(db.Model):
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)  
+
+    def __init__(self, name):
+        self.name = name
+
+class State(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True,nullable = False)
 
     def __init__(self, name):
         self.name = name
@@ -346,3 +356,10 @@ def get_user_orders(user_id):
         })
     
     return result
+
+def add_states():
+    states = ['Ordinato', 'Preso in carico', 'Spedito', 'Consegnato']
+    for state in states:
+        db.session.add(State(name=state))
+    db.session.commit()
+

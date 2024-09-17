@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, render_template, session, redirect, request, url_for
 from flask_login import login_required, current_user
-from extensions.database import Cart, Order, OrderProduct, db, Product, Category, get_user_orders#, Order
+from extensions.database import Cart, Order, OrderProduct, State, db, Product, Category, get_user_orders#, Order
 from extensions.princ import buyer_required, seller_required
 
 app = Blueprint('shop', __name__)
@@ -254,6 +254,27 @@ def delete_item_from_cart(item_id):
 def orders():
     return render_template('orders.html')
 
+@app.route('/modify_order_state/<int:order_product_id>', methods = ['GET', 'POST'])
+@login_required
+def modify_order_state(order_product_id):
+    order_product = OrderProduct.query.filter_by(id = order_product_id).first()
+    if request.method == 'POST':
+        state_id = request.form.get('selected_state_id')
+        state = State.query.filter_by(id = state_id).first()
+        if not state:
+            flash('Stato non trovato','error')
+            return redirect(url_for('profile.profile'))
+        order_product.state_id = state_id#mancano i controlli se esiste lo state_id
+        db.session.commit()
+        flash('Stato dell\'ordine modificato con successo', 'success')
+        return redirect(url_for('profile.profile'))
+    consegnato_state = State.query.filter_by(name = 'Consegnato').first()
+    if order_product.state_id != consegnato_state.id:
+        flash('non puoi cambiare lo stato dopo che è stato consegnato','fail')
+        return redirect(url_for('profile.profile'))
+    all_states = State.query.all()
+    return render_template('modify_order_state.html', order_product = order_product, states = all_states)
+
 @app.route('/homepage', methods = ['GET'])
 def homepage():
     return render_template('homepage.html')
@@ -275,14 +296,15 @@ def order_cart_items():
             if not items:
                 flash('Carrello vuoto', 'fail')
                 return redirect(url_for('shop.shop'))
-            new_order = Order(user_id = current_user.id, address_id = address.id, total_price = 0.0)
+            address = address.street + ", " + str(address.postal_code) +", " + address.city + ", " + address.province + ", " + address.country
+            new_order = Order(user_id = current_user.id, address = address, total_price = 0.0)
             db.session.add(new_order)
             db.session.flush()
 
             total_price = 0.0
             for item in items:
                 total_price += item.product.price * item.quantity
-                new_order_product = OrderProduct(order_id = new_order.id, product_id = item.product_id, quantity = item.quantity)
+                new_order_product = OrderProduct(order_id = new_order.id, product_id = item.product_id, product_name = item.product.name, quantity = item.quantity)
                 db.session.add(new_order_product)
                 item.product.availability-=item.quantity
                 db.session.delete(item)

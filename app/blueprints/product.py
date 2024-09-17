@@ -149,15 +149,19 @@ def order_product(product_id):
         # Operazioni critiche sul database in blocco try-except
         try:
             # Creazione del nuovo ordine
-            new_order = Order(user_id=current_user.id, address_id=address.id, total_price = (product.price * quantity))
+            address_name = address.street + ", " + str(address.postal_code) +", " + address.city + ", " + address.province + ", " + address.country
+            new_order = Order(user_id=current_user.id, address = address_name, total_price = (product.price * quantity))
             db.session.add(new_order)
             db.session.flush()  # Forza la generazione dell'ID per l'ordine
 
             # Aggiungi il prodotto all'ordine
-            new_order_product = OrderProduct(order_id=new_order.id, product_id=product.id, quantity=quantity)
+            new_order_product = OrderProduct(order_id=new_order.id, product_id=product.id, product_name = product.name, quantity=quantity)
+            
             db.session.add(new_order_product)
             product.availability-=quantity
             db.session.commit()
+            print("product.name")
+            print(new_order_product.product_name)
             flash('Ordine effettuato con successo', 'success')
             return redirect(url_for('shop.orders'))
 

@@ -81,18 +81,24 @@
     <table>
         <thead>
             <tr>
-                <th>Product_id</th>
+                <th>Product</th>
                 <th>Quantity</th>
-                <th>User_id</th>
+                <th>User</th>
             </tr>
-            {%for item in cart_items%}
-                <tr>
-                    <th>{{item.product_id}}</th>
-                    <th>{{item.quantity}}</th>
-                    <th>{{item.user_id}}</th>
-                </tr>
-            {%endfor%}
         </thead>
+        <tbody>
+            <tr>
+            {%for item in cart_items%}
+            {%if item%}
+                <p>ciao</p>
+                    <th>{{item.product.name}}</th>
+                    <th>{{item.quantity}}</th>
+                    <th>{{item.user.username}}</th>
+        
+            {%endif%}
+            {%endfor%}
+        </tr>
+        </tbody>
     </table>
 
     <table>

@@ -16,6 +16,7 @@ if __name__ == '__main__':
         #db.drop_all() # Elimina tutte le tabelle nel database
         db.create_all()  # Crea tutte le tabelle nel database
         #add_roles()  # Popola il database con ruoli di esempio
+        #add_states()
         #
         #example_categories = ['Elettronica','Abbigliamento','Casa e Giardino','Sport e Tempo Libero','Giochi e Giocattoli','Alimentari','Libri e Riviste','Salute e Bellezza','Arredamento','Auto e Moto','Fai da te','Musica','Film e TV','Animali domestici','Strumenti Musicali','Telefonia','Arte e Collezionismo','Viaggi','Tecnologia','Orologi e Gioielli','Altro']
         #add_categories(example_categories)
