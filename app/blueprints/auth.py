@@ -11,7 +11,7 @@ app = Blueprint('auth', __name__)
 @app.route('/', methods=['GET'])
 @anonymous_required
 def home():
-    return render_template('home.html')
+    return redirect(url_for('shop.shop'))
 
 @app.route('/register', methods=['GET', 'POST'])
 @anonymous_required

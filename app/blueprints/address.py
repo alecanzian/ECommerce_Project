@@ -4,7 +4,7 @@ from extensions.database import Address, db
 
 app = Blueprint('address', __name__)
 
-@app.route('/add_address/<int:action>', methods = ['GET','POST'])
+@app.route('/add_address/<string:action>', methods = ['GET','POST'])
 @login_required
 @fresh_login_required
 def add_address(action):
@@ -20,22 +20,24 @@ def add_address(action):
         for a in current_user.addresses:
             if a.street.replace(" ", "").lower() == street.replace(" ", "").lower():
                 flash('Indirizzo già presente.', 'error')
-                if action == -1:
+                print(action)
+                if action == 'profile':
                     return redirect(url_for('profile.profile'))
-                elif action == -2:
+                elif action == 'order_cart_items':
                     return redirect(url_for('shop.order_cart_items'))
-                elif action > 0:
+                else:
                     return redirect(url_for('product.order_product', product_id = action))
         address = Address(street = street, postal_code = postal_code, city = city, province = province, country = country, user_id = user_id)
         db.session.add(address)
         current_user.addresses.append(address)
         db.session.commit()
-        flash('Indirizzo aggiunto con successo.', 'message')
-        if action == -1:
+        flash('Indirizzo aggiunto con successo.', 'success')
+        print(action)
+        if action == 'profile':
             return redirect(url_for('profile.profile'))
-        elif action == -2:
+        elif action == 'order_cart_items':
             return redirect(url_for('shop.order_cart_items'))
-        elif action > 0:
+        else:
             return redirect(url_for('product.order_product', product_id = action))
 
     return render_template('add_address.html', action = action)

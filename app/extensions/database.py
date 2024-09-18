@@ -27,8 +27,8 @@ class User(db.Model, UserMixin):
     profiles = db.relationship('Profile', backref='user', lazy=True)
     products = db.relationship('Product', backref='user', lazy = True)
     addresses = db.relationship('Address', backref='users', lazy=True)
+    orders = db.relationship('Order', backref = 'user', lazy = True)
     cart_items = db.relationship('Cart', backref='user', lazy=True)
-    orders = db.relationship('Order', lazy = True)
 
     def __init__(self, username, password):
         self.username = username
@@ -55,7 +55,7 @@ class Profile(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    #products = db.relationship('Product', backref='profile')
+    cart_items = db.relationship('Cart', backref='profile', lazy=True)
 
     def __init__(self, name, surname, birth_date, user_id, image_url='https://static.vecteezy.com/ti/vettori-gratis/p1/2318271-icona-profilo-utente-vettoriale.jpg'):
         self.name = name
@@ -114,44 +114,48 @@ class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     quantity = db.Column(db.Integer, nullable = False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable = False)
+    profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'),nullable = False)
 
-    def __init__(self, quantity, user_id, product_id):
+    def __init__(self, quantity, user_id, product_id, profile_id):
         self.quantity = quantity
         self.user_id = user_id
         self.product_id = product_id
+        self.profile_id = profile_id
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_date = db.Column(db.DateTime, default=datetime.now(), nullable=False)
     total_price = db.Column(db.Float, nullable=False)
     address = db.Column(db.String(255),nullable = False)
+    profile_name = db.Column(db.String(50),nullable = False)
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    
+    profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'),nullable = True)
     # Relazione con i prodotti attraverso tabella intermedia OrderProduct
     products = db.relationship('OrderProduct', backref='order', lazy = True)
+    profile = db.relationship('Profile',backref = 'orders', lazy = True)
 
-    def __init__(self, user_id, address, total_price):
+    def __init__(self, user_id, address, total_price, profile_name, profile_id):
         self.user_id = user_id
         self.total_price = total_price
         self.address = address
+        self.profile_name = profile_name
+        self.profile_id = profile_id
         
 class OrderProduct(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable = False)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'),nullable = True )
     product_name = db.Column(db.String(50),nullable = False)
-    state_id = db.Column(db.String(50), db.ForeignKey('state.id'),nullable = False)
-
-
-    # Quantità di prodotto acquistato
     quantity = db.Column(db.Integer, nullable=False)
     
-    # Relazioni
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable = False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'),nullable = True )
+    state_id = db.Column(db.Integer, db.ForeignKey('state.id'),nullable = False)
+
     product = db.relationship('Product', backref = 'order_product_of_product', lazy = True)
     state = db.relationship('State', lazy = True)
+   
 
     def __init__(self, order_id, product_id, product_name, quantity):
         self.order_id = order_id

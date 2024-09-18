@@ -11,33 +11,15 @@
     <header>
         <div class="header-left">
             <!-- Logo -->
-            <a href="{{ url_for('auth.home') }}">
+            <a href="{{ url_for('shop.homepage') }}">
                 <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
             </a>
         </div>
         <div class="header-right">
             <div class="navbar">
-                <div class="dropdown">
-                    <a href="{{ url_for('profile.profile') }}" class="dropbtn">
-                        {% for p in current_user.profiles %}
-                            {% if p.id == session['current_profile_id'] %}
-                                {{ p.name }} {{ p.surname }}
-                            {% endif %}
-                        {% endfor %}
-                    </a>
-                    <div class="dropdown-content">
-                        {% for p in current_user.profiles %}
-                            {% if p.id != session['current_profile_id'] %}
-                                <a href="{{ url_for('profile.select_profile', profile_id=p.id) }}">{{ p.name }} {{ p.surname }}</a>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-                <a href="{{ url_for('shop.cart') }}">Cart</a>
-                {% if current_user.has_role('buyer') %}
-                    <a href="{{ url_for('profile.info') }}">See Info</a>
-                {% endif %}
-                <a href="{{ url_for('auth.logout') }}">Logout</a>
+                
+                <a href="{{ url_for('shop.shop') }}">Back to shop</a>
+                
             </div>
         </div>
     </header>
@@ -51,6 +33,7 @@
                     <th>Indirizzo Spedizione</th>
                     <th>Prodotti</th>
                     <th>Prezzo Totale</th>
+                    <th>Profilo</th>
                     
                 </tr>
             </thead>
@@ -75,6 +58,7 @@
                             </ul>
                         </td>
                         <td>{{ order.total_price }}</td>
+                        <td>{{order.profile_name}}</td>
                     </tr>
                 {% else %}
                     <tr>

@@ -16,6 +16,8 @@
             </a>
         </div>
         <div class="header-right">
+            <a href="{{ url_for('shop.shop') }}">Back to Shop</a>
+
             <a href="{{ url_for('auth.logout') }}">Logout</a>
         </div>
     </header>
@@ -180,7 +182,6 @@
             </tr>
         </tbody>
     </table>
-    <a href="{{ url_for('shop.shop') }}">Back to Shop</a>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

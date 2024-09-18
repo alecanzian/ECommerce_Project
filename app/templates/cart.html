@@ -16,7 +16,6 @@
         </div>
         <div class="header-right">
             <a href="{{ url_for('shop.shop') }}">Back to shop</a>
-            <a href="{{ url_for('auth.logout') }}">Logout</a>
         </div>
     </header>
 
@@ -24,6 +23,7 @@
     {%if current_user.cart_items%}
 
     {% for item in current_user.cart_items%}
+        {%if item.profile_id == session['current_profile_id']%}
                 <p>
                     <a href="{{url_for('product.access_product', product_id = item.product_id)}}"> {{item.product.name}}</a> -- ${{item.product.price}}
                     <form action="{{url_for('shop.change_quantity_cart_item',item_id = item.id)}}" method = "POST">
@@ -32,7 +32,8 @@
                     </form>
                     <a href="{{url_for('shop.delete_item_from_cart', item_id = item.id)}}">Elimina</a>
                 </p>
-            {%endfor%}
+                {%endif%}
+    {%endfor%}
             <a href = "{{url_for('shop.order_cart_items')}}">Continua con l'ordine</a>
     {%else%}
         <p>Carrello vuoto</p>

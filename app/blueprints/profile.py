@@ -74,7 +74,7 @@ def add_profile(action):
             flash('Inserisci tutti i campi', 'fail')
             return render_template('add_profile.html', action = action)
         # Begin database session
-        db.session.begin()
+        #db.session.begin()
         try:
             # Create new profile
             new_profile = Profile(name=name, surname=surname, birth_date=birth_date, user_id=current_user.id)
@@ -117,6 +117,10 @@ def delete_profile(profile_id):
         # Se è presente un solo profilo, allora non posso eliminarlo, altrimenti non avrei un profilo con cui navigare lo shop
         if len(current_user.profiles) > 1:
             db.session.delete(profile)
+
+            for item in profile.cart_items:
+                db.session.delete(item)
+
             db.session.commit()
             if profile.id == session['current_profile_id']:
                 session['current_profile_id'] = current_user.profiles[0].id
@@ -178,6 +182,9 @@ def modify_profile(profile_id):
             profile.surname = surname
             profile.image_url = image_url
 
+            for p in profile.orders:
+                p.profile_name = name
+
             db.session.commit()
             
             flash('Profilo aggiornato con successo')
@@ -186,7 +193,8 @@ def modify_profile(profile_id):
         except ValueError:
             flash('Formato della data non valido.','error')
             return redirect(url_for('profile.modify_profile', profile_id=profile_id))
-        except Exception:
+        except Exception as e:
+            print(f"Errore durante l'operazione: {str(e)}")
             db.session.rollback()
             flash('Si è verificato un errore di database. Riprova più tardi.', 'error')
             return redirect(url_for('profile.profile'))

@@ -74,7 +74,7 @@
         {% endfor %}
     
     <h1>Addresses</h1>
-    <a href="{{ url_for('address.add_address', action = 0) }}"">Aggiungi</a>
+    <a href="{{ url_for('address.add_address', action = 'profile') }}"">Aggiungi</a>
     {% for address in current_user.addresses %}
         <table>
             <tr>

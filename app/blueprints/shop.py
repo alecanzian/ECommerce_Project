@@ -1,23 +1,27 @@
 from flask import Blueprint, flash, render_template, session, redirect, request, url_for
 from flask_login import login_required, current_user
-from extensions.database import Cart, Order, OrderProduct, State, db, Product, Category, get_user_orders#, Order
+from extensions.database import Cart, Order, OrderProduct, Profile, State, db, Product, Category, get_user_orders#, Order
 from extensions.princ import buyer_required, seller_required
 
 app = Blueprint('shop', __name__)
 
 @app.route('/shop', methods = ['GET'])
-@login_required
-@buyer_required
+#@login_required
+#@buyer_required
 def shop():
-    if 'current_profile_id' not in session:
-        return redirect(url_for('profile.profile_selection'))
+    if current_user.is_authenticated:
+        if 'current_profile_id' not in session:
+            return redirect(url_for('profile.profile_selection'))
     
     # Visto che ci sono tre controlli, ovvero la barra di ricerca, il checkbox e il range di prezzo, ho bisogno di salvarmi ciò che visualizza l'utente.
     if 'selected_products' not in session:
         # Se current_user è un seller, devo togliere tutti i prodotti venduti da lui dai prodotti visibili sullo shop
-        if current_user.has_role('seller'):
-            #user_profile_ids = [p.id for p in current_user.profiles]
-            session['selected_products'] = [p.id for p in Product.query.filter(Product.user_id != current_user.id).all()]
+        if current_user.is_authenticated:
+            if current_user.has_role('seller'):
+                #user_profile_ids = [p.id for p in current_user.profiles]
+                session['selected_products'] = [p.id for p in Product.query.filter(Product.user_id != current_user.id).all()]
+            else:
+                session['selected_products'] = [p.id for p in Product.query.all()]
         else:
             session['selected_products'] = [p.id for p in Product.query.all()]
 
@@ -31,11 +35,11 @@ def shop():
     # I prodotti il cui id è presente nella sessione. Questo perchè potrebbe esserci una route che reindirizza a shop e session['selected_products'] potrebbe averedegli elementi
     products = Product.query.filter(Product.id.in_(session['selected_products'])).all()
 
-    return render_template('shop.html', products=products, categories=Category.query.all()) 
+    return render_template('homepage.html', products=products, categories=Category.query.all()) 
 
 @app.route('/filtered_results', methods=['POST'])
-@login_required
-@buyer_required
+#@login_required
+#@buyer_required
 def filtered_results():
     if request.method == 'POST':
         # Estrapolo tutte le informazioni necessarie dal form
@@ -53,10 +57,11 @@ def filtered_results():
         products = Product.query
 
         # Escludi i prodotti che appartengono ai profili di current_user, se current_user è un seller
-        if current_user.has_role('seller'):
-            #user_profile_ids = [p.id for p in current_user.profiles]
-            #products = products.filter(~Product.profile_id.in_(user_profile_ids))
-            products = products.filter(Product.user_id != current_user.id)
+        if current_user.is_authenticated:
+            if current_user.has_role('seller'):
+                #user_profile_ids = [p.id for p in current_user.profiles]
+                #products = products.filter(~Product.profile_id.in_(user_profile_ids))
+                products = products.filter(Product.user_id != current_user.id)
 
         # Se la query non è una stringa vuota
         if query:
@@ -72,11 +77,11 @@ def filtered_results():
         # Aggiorno gli id dei prodotti
         session['selected_products'] = [p.id for p in products]
 
-        return render_template('shop.html', products=products, categories=Category.query.all())
+        return render_template('homepage.html', products=products, categories=Category.query.all())
 
 @app.route('/reset_filters', methods=['POST'])
-@login_required
-@buyer_required
+#@login_required
+#@buyer_required
 def reset_filters():
     if request.method == 'POST':
         # Rimuovi tutte le categorie selezionate dalla sessione
@@ -87,10 +92,13 @@ def reset_filters():
         session['max_price'] = 6000.0
 
         # Aggiorna la sessione con gli ID dei prodotti visibili,tranne quelli che appartengono a current_user
-        if current_user.has_role('seller'):
-            #user_profile_ids = [p.id for p in current_user.profiles]
-            #session['selected_products'] = [p.id for p in Product.query.filter(~Product.profile_id.in_(user_profile_ids)).all()]
-            session['selected_products'] = [p.id for p in Product.query.filter(Product.user_id != current_user.id).all()]
+        if current_user.is_authenticated:
+            if current_user.has_role('seller'):
+                #user_profile_ids = [p.id for p in current_user.profiles]
+                #session['selected_products'] = [p.id for p in Product.query.filter(~Product.profile_id.in_(user_profile_ids)).all()]
+                session['selected_products'] = [p.id for p in Product.query.filter(Product.user_id != current_user.id).all()]
+            else:
+                session['selected_products'] = [p.id for p in Product.query.all()]
         else:
             session['selected_products'] = [p.id for p in Product.query.all()]
 
@@ -230,7 +238,7 @@ def add_to_cart(product_id):
     if product.availability == 0:
         flash('Prodotto non disponibile', 'fail')
         return redirect(url_for('product.access_product', product_id=product_id))
-    item = Cart(user_id = current_user.id, product_id = product.id, quantity=1)
+    item = Cart(profile_id = session['current_profile_id'], user_id = current_user.id, product_id = product.id, quantity=1)
     db.session.add(item)
     db.session.commit()
     flash('Prodotto aggiunto correttamente al carrello', 'success')
@@ -258,8 +266,11 @@ def orders():
 @login_required
 def modify_order_state(order_product_id):
     order_product = OrderProduct.query.filter_by(id = order_product_id).first()
+    if not order_product:
+        flash('order_product non trovato','error')
+        return redirect(url_for('profile.profile'))
     if request.method == 'POST':
-        state_id = request.form.get('selected_state_id')
+        state_id = int(request.form.get('selected_state_id'))
         state = State.query.filter_by(id = state_id).first()
         if not state:
             flash('Stato non trovato','error')
@@ -268,8 +279,18 @@ def modify_order_state(order_product_id):
         db.session.commit()
         flash('Stato dell\'ordine modificato con successo', 'success')
         return redirect(url_for('profile.profile'))
+    
     consegnato_state = State.query.filter_by(name = 'Consegnato').first()
+    if not consegnato_state:
+        flash('Stato non trovato','error')
+        return redirect(url_for('profile.profile'))
+    
     if order_product.state_id != consegnato_state.id:
+        print(order_product.product_name)
+        print(order_product.state_id)
+        print(order_product.state.name)
+        print(consegnato_state.id)
+        print(consegnato_state.name)
         flash('non puoi cambiare lo stato dopo che è stato consegnato','fail')
         return redirect(url_for('profile.profile'))
     all_states = State.query.all()
@@ -291,13 +312,18 @@ def order_cart_items():
             address = next((address for address in current_user.addresses if address.id == address_id),None)
             if not address:
                 flash('Indirizzo non trovato', 'fail')
-                #return redirect(url_for('shop.order_cart_items'))
+                return redirect(url_for('shop.order_cart_items'))
             items = current_user.cart_items
             if not items:
                 flash('Carrello vuoto', 'fail')
                 return redirect(url_for('shop.shop'))
+            
+            profile = Profile.query.filter_by(id = session['current_profile_id']).first()
+            if not profile:
+                 flash('Profilo non trovato', 'fail')
+                 return redirect(url_for('shop.cart'))
             address = address.street + ", " + str(address.postal_code) +", " + address.city + ", " + address.province + ", " + address.country
-            new_order = Order(user_id = current_user.id, address = address, total_price = 0.0)
+            new_order = Order(user_id = current_user.id, profile_id = profile.id, profile_name = profile.name, address = address, total_price = 0.0)
             db.session.add(new_order)
             db.session.flush()
 
@@ -313,10 +339,11 @@ def order_cart_items():
             db.session.commit()
             flash('Ordine avvenuto correttamente','success')
             return redirect(url_for('shop.orders'))
-        except Exception:
+        except Exception as e:
+            print(f"Errore durante l'operazione: {str(e)}")
             db.session.rollback()
             flash('Si è verificato un errore di database4. Riprova più tardi','error')
-            return redirect(url_for('shop.order_cart_items'))
+            return redirect(url_for('shop.cart'))
     return render_template('order_cart_items.html')
 
 @app.route('/change_quantity_cart_item/<int:item_id>', methods = ['POST'])
@@ -324,7 +351,7 @@ def order_cart_items():
 def change_quantity_cart_item(item_id):
     quantity = int(request.form.get('quantity'))
     if not quantity:
-        flash('Inserisci la quantità ptima di premere Applica', 'fail')
+        flash('Inserisci la quantità prima di premere Applica', 'fail')
         return redirect(url_for('shop.cart'))
     try:
         item = next((i for i in current_user.cart_items if i.id == item_id), None)
@@ -338,5 +365,5 @@ def change_quantity_cart_item(item_id):
     except Exception as e:
         db.session.rollback()
         print(f"Errore durante l'operazione: {str(e)}")
-        flash('Si è verificato un errore di database4. Riprova più tardi','error')
+        flash('Si è verificato un errore di database5. Riprova più tardi','error')
         return redirect(url_for('shop.cart'))

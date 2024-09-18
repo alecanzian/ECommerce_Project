@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, render_template, session, redirect, request, url_for
 from flask_login import login_required, current_user
-from extensions.database import Cart, Order, OrderProduct, db, Product, Category, get_user_orders#, Order
+from extensions.database import Cart, Order, OrderProduct, Profile, db, Product, Category, get_user_orders#, Order
 from extensions.princ import buyer_required, seller_required
 
 app = Blueprint('product', __name__)
@@ -142,15 +142,19 @@ def order_product(product_id):
                 return redirect(url_for('product.access_product', product_id=product_id))
 
         except Exception:
-            flash('Si è verificato un errore di database. Riprova più tardi.', 'error')
+            flash('Si è verificato un errore di database1. Riprova più tardi.', 'error')
             return redirect(url_for('product.access_product', product_id=product_id))
 
         
         # Operazioni critiche sul database in blocco try-except
         try:
+            profile = Profile.query.filter_by(id = session['current_profile_id']).first()
+            if not profile:
+                 flash('Profilo non trovato', 'fail')
+                 return redirect(url_for('product.access_product', product_id=product_id))
             # Creazione del nuovo ordine
             address_name = address.street + ", " + str(address.postal_code) +", " + address.city + ", " + address.province + ", " + address.country
-            new_order = Order(user_id=current_user.id, address = address_name, total_price = (product.price * quantity))
+            new_order = Order(user_id = current_user.id, profile_id = profile.id, profile_name = profile.name, address = address_name, total_price = (product.price * quantity))
             db.session.add(new_order)
             db.session.flush()  # Forza la generazione dell'ID per l'ordine
 
@@ -160,8 +164,6 @@ def order_product(product_id):
             db.session.add(new_order_product)
             product.availability-=quantity
             db.session.commit()
-            print("product.name")
-            print(new_order_product.product_name)
             flash('Ordine effettuato con successo', 'success')
             return redirect(url_for('shop.orders'))
 
@@ -188,7 +190,8 @@ def order_product(product_id):
                 if item.product_id == product.id:
                     flash('Prodotto già presente nel carrello', 'fail')
                     return redirect(url_for('product.access_product', product_id=product_id))
-        except Exception:
+        except Exception as e:
+            print(f"Errore durante l'operazione: {str(e)}")
             flash('Si è verificato un errore di database3. Riprova più tardi','error')
             return redirect(url_for('product.access_product', product_id=product_id))
         
