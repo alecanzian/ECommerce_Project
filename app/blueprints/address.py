@@ -25,7 +25,7 @@ def add_address(action):
                 if action == 'profile':
                     return redirect(url_for('profile.profile'))
                 elif action == 'order_cart_items':
-                    return redirect(url_for('shop.order_cart_items'))
+                    return redirect(url_for('cart.order_cart_items'))
                 else:
                     return redirect(url_for('product.order_product', product_id = int(action)))
         address = Address(street = street, postal_code = postal_code, city = city, province = province, country = country, user_id = user_id)
@@ -38,7 +38,7 @@ def add_address(action):
         if action == 'profile':
             return redirect(url_for('profile.profile'))
         elif action == 'order_cart_items':
-            return redirect(url_for('shop.order_cart_items'))
+            return redirect(url_for('cart.order_cart_items'))
         else:
             print("ACTION")
             print(action)

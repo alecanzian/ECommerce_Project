@@ -38,7 +38,7 @@
                     </div>
                 </div>
                 <a href="{{ url_for('shop.orders') }}">Orders</a>
-                <a href="{{ url_for('shop.cart') }}">Cart</a>
+                <a href="{{ url_for('cart.cart') }}">Cart</a>
                 {%if current_user.is_authenticated%}
                     {% if current_user.has_role('buyer') %}
                         <a href="{{ url_for('profile.info') }}">See Info</a>

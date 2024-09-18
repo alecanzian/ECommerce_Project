@@ -63,7 +63,7 @@ def select_profile(profile_id, action):
         elif action == 2:
             return redirect(url_for('shop.orders'))
         elif action == 3:
-            return redirect(url_for('shop.cart'))
+            return redirect(url_for('cart.cart'))
     except Exception:
         flash('Si è verificato un errore', 'error')
         if action == 0:
@@ -73,7 +73,7 @@ def select_profile(profile_id, action):
         elif action == 2:
             return redirect(url_for('shop.orders'))
         elif action == 3:
-            return redirect(url_for('shop.cart'))
+            return redirect(url_for('cart.cart'))
 
 @app.route('/add_profile/<int:action>', methods=['GET', 'POST'])
 @login_required

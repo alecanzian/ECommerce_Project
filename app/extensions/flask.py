@@ -9,6 +9,7 @@ from blueprints.shop import app as shop_bp
 from blueprints.account import app as account_bp
 from blueprints.address import app as address_bp
 from blueprints.product import app as product_bp
+from blueprints.cart import app as cart_bp
 from datetime import timedelta
 
 # Configurazione Flask
@@ -28,3 +29,4 @@ app.register_blueprint(shop_bp)
 app.register_blueprint(account_bp)
 app.register_blueprint(address_bp)
 app.register_blueprint(product_bp)
+app.register_blueprint(cart_bp)

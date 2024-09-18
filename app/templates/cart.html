@@ -31,14 +31,14 @@
                     {%for item in profile.cart_items%}
                     <p>
                         <a href="{{url_for('product.access_product', product_id = item.product_id)}}"> {{item.product.name}}</a> -- ${{item.product.price}}
-                        <form action="{{url_for('shop.change_quantity_cart_item',item_id = item.id)}}" method = "POST">
+                        <form action="{{url_for('cart.change_quantity_cart_item',item_id = item.id)}}" method = "POST">
                             <input type="number" name = "quantity" value = "{{item.quantity}}" required min = "1" max = "{{item.product.availability}}">
                             <button type = "submit"> Applica </button>
                         </form>
-                        <a href="{{url_for('shop.delete_item_from_cart', item_id = item.id)}}">Elimina</a>
+                        <a href="{{url_for('cart.delete_item_from_cart', item_id = item.id)}}">Elimina</a>
                     </p>
                     {%endfor%}
-                    <a href = "{{url_for('shop.order_cart_items')}}">Continua con l'ordine</a>
+                    <a href = "{{url_for('cart.order_cart_items')}}">Continua con l'ordine</a>
                 {%else%}
                     <p>Carrello vuoto</p>
                 {%endif%}
