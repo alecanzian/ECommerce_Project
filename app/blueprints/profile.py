@@ -11,7 +11,7 @@ app = Blueprint('profile', __name__)
 @app.route('/info', methods = ['GET'])
 @login_required
 @fresh_login_required
-#@admin_required
+@admin_required
 #@permission_required(buyer_permission)
 def info():
     # Ricaviamo tutti gli utenti della tabella User, tutti i prodotti di Products e tutti i Ruoli
@@ -39,14 +39,14 @@ def profile():
 def profile_selection():
     return render_template('profile_selection.html')
 
-@app.route('/select_profile/<int:profile_id>', methods = ['GET'])
+@app.route('/select_profile/<int:profile_id>/<int:action>', methods = ['GET'])
 @login_required
 @fresh_login_required
-def select_profile(profile_id):
+def select_profile(profile_id, action):
     try:
         profile = db.session.get(Profile, profile_id)
 
-        if not profile:
+        if not profile:                
             flash('Il profilo selezionato non esiste', 'error')
             return redirect(url_for('profile_selection'))
 
@@ -56,10 +56,24 @@ def select_profile(profile_id):
 
         # Here you can set the selected profile in the session or any other logic
         session['current_profile_id'] = profile.id
-        return redirect(url_for('shop.shop'))
+        if action == 0:
+            return redirect(url_for('shop.shop'))
+        elif action == 1:
+            return redirect(url_for('shop.shop'))
+        elif action == 2:
+            return redirect(url_for('shop.orders'))
+        elif action == 3:
+            return redirect(url_for('shop.cart'))
     except Exception:
         flash('Si è verificato un errore', 'error')
-        return redirect(url_for('profile_selection'))
+        if action == 0:
+            return redirect(url_for('profile_selection'))
+        elif action == 1:
+            return redirect(url_for('shop.shop'))
+        elif action == 2:
+            return redirect(url_for('shop.orders'))
+        elif action == 3:
+            return redirect(url_for('shop.cart'))
 
 @app.route('/add_profile/<int:action>', methods=['GET', 'POST'])
 @login_required
@@ -106,7 +120,7 @@ def add_profile(action):
 def delete_profile(profile_id):
 
     # Begin database session
-    db.session.begin()
+    #db.session.begin()
     try:
         profile = next((p for p in current_user.profiles if p.id == profile_id), None)
         

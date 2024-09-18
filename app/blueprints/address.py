@@ -20,25 +20,29 @@ def add_address(action):
         for a in current_user.addresses:
             if a.street.replace(" ", "").lower() == street.replace(" ", "").lower():
                 flash('Indirizzo già presente.', 'error')
+                print("ACTION")
                 print(action)
                 if action == 'profile':
                     return redirect(url_for('profile.profile'))
                 elif action == 'order_cart_items':
                     return redirect(url_for('shop.order_cart_items'))
                 else:
-                    return redirect(url_for('product.order_product', product_id = action))
+                    return redirect(url_for('product.order_product', product_id = int(action)))
         address = Address(street = street, postal_code = postal_code, city = city, province = province, country = country, user_id = user_id)
         db.session.add(address)
         current_user.addresses.append(address)
         db.session.commit()
         flash('Indirizzo aggiunto con successo.', 'success')
+        print("ACTION")
         print(action)
         if action == 'profile':
             return redirect(url_for('profile.profile'))
         elif action == 'order_cart_items':
             return redirect(url_for('shop.order_cart_items'))
         else:
-            return redirect(url_for('product.order_product', product_id = action))
+            print("ACTION")
+            print(action)
+            return redirect(url_for('product.order_product', product_id = int(action)))
 
     return render_template('add_address.html', action = action)
 

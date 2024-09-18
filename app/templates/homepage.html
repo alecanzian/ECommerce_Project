@@ -62,7 +62,7 @@
                 </a>
                     {% for p in current_user.profiles %}
                         {% if p.id != session['current_profile_id'] %}
-                            <a href="{{ url_for('profile.select_profile', profile_id=p.id) }}" class="header-button">{{ p.name }} {{ p.surname }}</a>
+                            <a href="{{ url_for('profile.select_profile', profile_id=p.id, action = 1) }}" class="header-button">{{ p.name }} {{ p.surname }}</a>
                         {% endif %}
                     {% endfor %}
                     {%else%}
@@ -77,7 +77,7 @@
                 
             
             {%if current_user.is_authenticated%}
-                    {% if current_user.has_role('buyer') %}
+                    {% if current_user.has_role('admin') %}
                         <a href="{{ url_for('profile.info') }}" class="header-button">See Info</a>
                     {% endif %}
                     <a href="{{ url_for('auth.logout') }}" class="header-button">Logout</a>
@@ -112,6 +112,7 @@
             <!-- Aggiungi altri prodotti -->
         </div>
 
+        {%if current_user.is_authenticated%}
         <ul class="product-list">
             <style>
                 table {
@@ -143,6 +144,7 @@
                 {% endfor %}
               </table>
         </ul>
+        {% endif %}
     </main>
 
     {% with messages = get_flashed_messages(with_categories=true) %}

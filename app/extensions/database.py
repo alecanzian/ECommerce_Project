@@ -132,7 +132,7 @@ class Order(db.Model):
     profile_name = db.Column(db.String(50),nullable = False)
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'),nullable = True)
+    profile_id = db.Column(db.Integer, db.ForeignKey('profile.id', ondelete = 'SET NULL'))
     # Relazione con i prodotti attraverso tabella intermedia OrderProduct
     products = db.relationship('OrderProduct', backref='order', lazy = True)
     profile = db.relationship('Profile',backref = 'orders', lazy = True)
@@ -150,11 +150,11 @@ class OrderProduct(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable = False)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'),nullable = True )
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete = 'SET NULL'))
     state_id = db.Column(db.Integer, db.ForeignKey('state.id'),nullable = False)
 
     product = db.relationship('Product', backref = 'order_product_of_product', lazy = True)
-    state = db.relationship('State', lazy = True)
+    state = db.relationship('State',backref = 'prder_product', lazy = True)
    
 
     def __init__(self, order_id, product_id, product_name, quantity):

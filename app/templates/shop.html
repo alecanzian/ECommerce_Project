@@ -31,7 +31,7 @@
                         {%if current_user.is_authenticated%}
                         {% for p in current_user.profiles %}
                             {% if p.id != session['current_profile_id'] %}
-                                <a href="{{ url_for('profile.select_profile', profile_id=p.id) }}">{{ p.name }} {{ p.surname }}</a>
+                                <a href="{{ url_for('profile.select_profile', profile_id=p.id, action = 1) }}">{{ p.name }} {{ p.surname }}</a>
                             {% endif %}
                         {% endfor %}
                         {%endif%}

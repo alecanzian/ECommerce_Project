@@ -41,7 +41,7 @@ def anonymous_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if current_user.is_authenticated:
-            flash('Devi prima eseguire il log out', 'error')
+            flash('Devi prima eseguire il log out', 'FAIL')
             return redirect(url_for('auth.logout'))  # Redirige alla home se l'utente è loggato
         return f(*args, **kwargs)
     return decorated_function
@@ -55,9 +55,7 @@ def admin_required(f):
         try:
             admin_permission.test()
         except PermissionDenied:
-        #if not current_user.has_role('admin'):
-            flash('You do not have admin permission to access this page.', 'error')
-            # Reindirizza alla pagina dello shop se l'utente non è admin
+            flash('You do not have admin permission to access this page.', 'FAIL')
             return redirect(url_for('shop.shop'))  
         return f(*args, **kwargs)
     return decorated_function
@@ -65,25 +63,21 @@ def admin_required(f):
 def seller_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        #try:
-        #    seller_permission.test()
-        #except PermissionDenied:
-        if not current_user.has_role('seller'):
-            flash('You do not have seller permission to access this page.', 'error')
-            # Reindirizza alla pagina dello shop se l'utente non è admin
-            return redirect(url_for('auth.logout'))  
+        try:
+            seller_permission.test()
+        except PermissionDenied:
+            flash('You do not have seller permission to access this page.', 'FAIL')
+            return redirect(url_for('shop.shop')) 
         return f(*args, **kwargs)
     return decorated_function
 
 def buyer_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs): 
-        #try:
-        #    buyer_permission.test()
-        #except PermissionDenied:
-        if not current_user.has_role('buyer'):
-            flash('You do not have buyer permission to access this page.', 'error')
-            # Reindirizza alla pagina dello shop se l'utente non è admin
-            return redirect(url_for('auth.logout'))  
+        try:
+            buyer_permission.test()
+        except PermissionDenied:
+            flash('You do not have buyer permission to access this page.', 'FAIL')
+            return redirect(url_for('shop.shop')) 
         return f(*args, **kwargs)
     return decorated_function

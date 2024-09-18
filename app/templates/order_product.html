@@ -17,9 +17,9 @@
                 <input type="radio" id="{{ address.id }}" name="selected_address_id" value="{{ address.id }}" required>
                 <label for="{{ address.id }}">{{ address.street }},{{address.city}},{{address.postal_code}},{{address.province}},{{address.country}}</label><br>
             {% endfor %}
-            <a href="{{url_for('address.add_address', action = '{{product.id}}')}}">Aggiungi indirizzo</a>
+            <a href="{{url_for('address.add_address', action = product.id)}}">Aggiungi indirizzo</a>
             {%else%}
-            <a href="{{url_for('address.add_address', action = '{{product.id}}')}}">Non hai indirizzi. Aggiungine uno</a>
+            <a href="{{url_for('address.add_address', action = product.id)}}">Non hai indirizzi. Aggiungine uno</a>
             {%endif%}
         </div>
         <input type="number" value = "1" name = "quantity" required min = "1" max = "{{product.availability}}">

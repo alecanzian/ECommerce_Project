@@ -18,8 +18,10 @@
         <div class="header-right">
             <div class="navbar">
                 
+                {%for profile in current_user.profiles%}
+                <a href="{{ url_for('profile.select_profile', profile_id = profile.id, action = 2) }}"">{{profile.name}}</a>
+                {%endfor%}
                 <a href="{{ url_for('shop.shop') }}">Back to shop</a>
-                
             </div>
         </div>
     </header>
@@ -38,33 +40,50 @@
                 </tr>
             </thead>
             <tbody>
-                {% for order in current_user.orders %}
-                    <tr>
-                        <td>{{ order.id }}</td>
-                        <td>{{ order.order_date.strftime('%d-%m-%Y') }}</td>
-                        <td>{{ order.address }}</td>
-                        <td>
-                            <ul>
-                                {% for product in order.products %}
-                                    {% if product.product_id is not none %}
-                                        <li><a href="{{url_for('product.access_product', product_id=product.product_id)}}">{{product.product_name}}</a> (x{{ product.quantity }}) {{product.state.name}}</li>
-                                    {% else %}
-                                        <li>{{ product.product_name }} (x{{ product.quantity }}) {{product.state}}</li>
-                                    {% endif %}
-                                {% endfor %}
+                {%if current_user.profiles%}
+                    {% for profile in current_user.profiles%}
+                        {%if profile.id == session['current_profile_id']%}
+                            {%if profile.orders%}
+                                {%for order in profile.orders%}
+                                <tr>
+                                    <td>{{ order.id }}</td>
+                                    <td>{{ order.order_date.strftime('%d-%m-%Y') }}</td>
+                                    <td>{{ order.address }}</td>
+                                    <td>
+                                        <ul>
+                                        {%if order.products%}
+                                            {% for product in order.products %}
+                                                {% if product.product_id %}
+                                                    <li><a href="{{url_for('product.access_product', product_id=product.product_id)}}">{{product.product_name}}</a> (x{{ product.quantity }}) {{product.state.name}}</li>
+                                                {% else %}
+                                                    <li>{{ product.product_name }} (x{{ product.quantity }}) {{product.state.name}}</li>
+                                                {% endif %}
+                                            {% endfor %}
+            
+                                        {%endif%}
+            
+                                            
+            
+                                        </ul>
+                                    </td>
+                                    <td>{{ order.total_price }}</td>
+                                    {%if order.profile_id%}
+                                    <td><a href="{{url_for('profile.profile')}}">{{order.profile_name}}</a></td>
+                                    {%else%}
+                                        <td>Profilo inesistente. Ultimo nome:{{order.profile_name}}</td>
+                                    {%endif%}
+                                </tr>
+                                {%endfor%}
+                        {%else%}
+                        <tr>
+                            <td colspan="5">Nessun ordine trovato</td>
+                        </tr>
+                        {%endif%}
+                    {%endif%}
+                {%endfor%}
+            {%endif%}
 
-                                
-
-                            </ul>
-                        </td>
-                        <td>{{ order.total_price }}</td>
-                        <td>{{order.profile_name}}</td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="5">Nessun ordine trovato</td>
-                    </tr>
-                {% endfor %}
+                
             </tbody>
         </table>
     </main>

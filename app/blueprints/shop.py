@@ -113,7 +113,7 @@ def cart():
 
 
 
-@app.route('/product/<int:product_id>')
+@app.route('/product/<int:product_id>', methods = ['GET'])
 @login_required
 @buyer_required
 def access_product(product_id):
