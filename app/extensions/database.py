@@ -91,6 +91,7 @@ class Product(db.Model):
     description = db.Column(db.String(255), nullable=False)
     availability = db.Column(db.Integer, nullable = False)
 
+    #profile_id = db.Column(db.Integer, db.ForeignKey('profile.id', ondelete = 'SET NULL'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
 
     categories = db.relationship('Category', secondary=product_categories, backref='products')
