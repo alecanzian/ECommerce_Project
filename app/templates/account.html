@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='profile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='account.css') }}">
 </head>
 <body>
     <header>
@@ -17,7 +17,7 @@
     </header>
     <a href="{{url_for('shop.shop')}}">Back to shop</a> 
     <h1>Account</h1>
-    <a href="{{ url_for('account.delete_account') }}"">Elimina</a>
+    <a href="{{ url_for('account.delete') }}"">Elimina</a>
         <table>
             <tr>
                 <th>Username</th>
@@ -42,15 +42,15 @@
             </tr>
         </table>
         <h1>Profiles</h1>
-        <a href="{{ url_for('profile.add_profile', action = 1) }}"">Aggiungi</a>
+        <a href="{{ url_for('profile.add', action = 1) }}"">Aggiungi</a>
         {% for p in current_user.profiles %}
             <p></p>
 
             <table>
                 <tr>
                     <th>
-                        <a href="{{ url_for('profile.modify_profile', profile_id = p.id) }}">Modifica</a>
-                        <a href="{{ url_for('profile.delete_profile', profile_id = p.id) }}">Elimina</a>
+                        <a href="{{ url_for('profile.modify', profile_id = p.id) }}">Modifica</a>
+                        <a href="{{ url_for('profile.delete', profile_id = p.id) }}">Elimina</a>
                     </th>
                     <td>
                         <img src="{{ p.image_url }}" alt="Nome" width = "50" height = "50">
@@ -74,13 +74,13 @@
         {% endfor %}
     
     <h1>Addresses</h1>
-    <a href="{{ url_for('address.add_address', action = 'profile') }}"">Aggiungi</a>
+    <a href="{{ url_for('address.add', action = 'profile') }}"">Aggiungi</a>
     {% for address in current_user.addresses %}
         <table>
             <tr>
                 <th>
-                    <a href="{{ url_for('address.modify_address', address_id = address.id) }}">Modifica</a>
-                    <a href="{{ url_for('address.delete_address', address_id = address.id) }}">Elimina</a>
+                    <a href="{{ url_for('address.modify', address_id = address.id) }}">Modifica</a>
+                    <a href="{{ url_for('address.delete', address_id = address.id) }}">Elimina</a>
                 </th>
                 
             </tr>
@@ -156,7 +156,7 @@
         {% endfor %}
     {% else %} 
         <p>Non hai prodotti</p>
-        <a rel="stylesheet" href="{{ url_for('account.add_seller_role') }}">Diventa un Seller!!</a>
+        <a rel="stylesheet" href="{{ url_for('account.become_seller') }}">Diventa un Seller!</a>
 
     {% endif %}
     <h1>Ordini dei prorpi prodotti</h1>

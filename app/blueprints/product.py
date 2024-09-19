@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, render_template, session, redirect, request, url_for
 from flask_login import login_required, current_user
-from extensions.database import Cart, Order, OrderProduct, Profile, db, Product, Category, get_user_orders#, Order
+from extensions.database import Cart, Order, OrderProduct, Profile, db, Product, Category, Notification, get_user_orders#, Order
 from extensions.princ import buyer_required, seller_required
 
 app = Blueprint('product', __name__)
@@ -39,13 +39,13 @@ def add_product():
                         category = Category.query.filter_by(name=category_name).first()
                         if not category:
                             flash('Categoria non trovata', 'ERROR')
-                            return redirect(url_for('profile.profile'))
+                            return redirect(url_for('account.view'))
                         category_objects.append(category)
             else:
                 category = Category.query.filter_by(name='Altro').first()
                 if not category:
                     flash('Errore nel database. Riprova più tardi', 'ERROR')
-                    return redirect(url_for('profile.profile'))
+                    return redirect(url_for('account.view'))
                 category_objects.append(category)
 
             user_id = current_user.id
@@ -64,7 +64,7 @@ def add_product():
             return redirect(url_for('shop.shop'))
         
         flash('Prodotto aggiunto correttamente', 'SUCCESS')
-        return redirect(url_for('profile.profile'))
+        return redirect(url_for('account.view'))
     
     return render_template('add_product.html', categories = Category.query.all())
 
@@ -77,7 +77,7 @@ def delete_product(product_id):
         product = next((p for p in current_user.products if p.id == product_id), None)
         if not product:
             flash('il prodotto non è stato trovato', 'ERROR')
-            return redirect(url_for('profile.profile'))
+            return redirect(url_for('account.view'))
         # Elimino tutte le tuple del carrello che si riferiscono a quell'oggetto
         for item in product.in_carts:
             db.session.delete(item)
@@ -88,7 +88,7 @@ def delete_product(product_id):
         flash('Si è verificato un errore di database. Riprova più tardi','ERROR')
         return redirect(url_for('shop.shop'))
     flash('Prodotto eliminato correttamente', 'SUCCESS')
-    return redirect(url_for('profile.profile'))
+    return redirect(url_for('account.view'))
     
 @app.route('/modify_product/<int:product_id>', methods=['GET'])
 @login_required
@@ -97,7 +97,7 @@ def modify_product(product_id):
         product = next((p for p in current_user.products if p.id == product_id), None)
         if not product:
             flash('il prodotto non è stato trovato', 'ERROR')
-            return redirect(url_for('profile.profile'))
+            return redirect(url_for('account.view'))
     except Exception:
             flash('Si è verificato un errore di database. Riprova più tardi','ERROR')
             return redirect(url_for('shop.shop'))
@@ -126,13 +126,13 @@ def modify_product(product_id):
                             category = Category.query.filter_by(name=category_name).first()
                             if not category:
                                 flash('Categoria non trovata', 'ERROR')
-                                return redirect(url_for('profile.profile'))
+                                return redirect(url_for('account.view'))
                             categories.append(category)
             else:
                 category = Category.query.filter_by(name='Altro').first()
                 if not category:
                     flash('Errore nel database. Riprova più tardi', 'ERROR')
-                    return redirect(url_for('profile.profile'))
+                    return redirect(url_for('account.view'))
                 categories.append(category)
             
             product.name = name
@@ -152,12 +152,9 @@ def modify_product(product_id):
             return redirect(url_for('shop.shop'))
         
         flash('Prodotto aggiornato con successo')
-        return redirect(url_for('profile.profile'))
+        return redirect(url_for('account.view'))
     
     return render_template('modify_product.html', product=product, categories = Category.query.all())
-
-
-
 
 @app.route('/order_product/<int:product_id>',methods = ['GET', 'POST'])
 @login_required
@@ -205,6 +202,16 @@ def order_product(product_id):
             
             db.session.add(new_order_product)
             product.availability-=quantity
+            
+            notification = Notification(
+                sender_id=current_user.id,  # The user who changed the state
+                receiver_id=product.user_id,  # The user who placed the order
+                type='Nuovo ordine',
+                product_name=product.name,
+                order_id=new_order.id
+            )
+
+            db.session.add(notification)
             db.session.commit()
             flash('Ordine effettuato con successo', 'success')
             return redirect(url_for('shop.orders'))

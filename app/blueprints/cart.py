@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, render_template, session, redirect, request, url_for
 from flask_login import login_required, current_user
-from extensions.database import Cart, Order, OrderProduct, Profile, db, Product
+from extensions.database import Cart, Order, OrderProduct, Profile, db, Product, Notification
 from extensions.princ import buyer_required
 
 app = Blueprint('cart', __name__)
@@ -63,7 +63,7 @@ def order_cart_items():
                  flash('Profilo non trovato', 'fail')
                  return redirect(url_for('cart.cart'))
             address = address.street + ", " + str(address.postal_code) +", " + address.city + ", " + address.province + ", " + address.country
-            new_order = Order(user_id = current_user.id, profile_id = profile.id, profile_name = profile.name, address = address, total_price = 0.0)
+            new_order = Order(user_id = current_user.id, profile_name = profile.name, address = address, total_price = 0.0)
             db.session.add(new_order)
             db.session.flush()
 
@@ -74,8 +74,17 @@ def order_cart_items():
                 db.session.add(new_order_product)
                 item.product.availability-=item.quantity
                 db.session.delete(item)
+                
+                notification = Notification(
+                    sender_id=current_user.id,  # The user who changed the state
+                    receiver_id=item.product.user_id,  # The user who placed the order
+                    type='Nuovo ordine',
+                    product_name=item.product.name,
+                    order_id=new_order.id
+                )
+                db.session.add(notification)
+                
             new_order.total_price = total_price
-
             db.session.commit()
             flash('Ordine avvenuto correttamente','success')
             return redirect(url_for('shop.orders'))

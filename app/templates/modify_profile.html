@@ -19,14 +19,14 @@
     </header>
     <h1>Modifica profilo</h1>
     <p>Inserire i nuovi dati</p>
-    <form action="{{ url_for('profile.modify_profile', profile_id = profile.id) }}" method="POST">
+    <form action="{{ url_for('profile.modify', profile_id = profile.id) }}" method="POST">
         <input type="text" id="name" name="name" value="{{profile.name}}" required>
         <input type="text" id="surname" name="surname" value="{{profile.surname}}" required>
         <input type="text" id="image_url" name="image_url" value="{{profile.image_url}}" required>
         <input type="date" id="birth_date" name="birth_date" value="{{profile.birth_date}}" required>
         <button type="submit">Conferma</button>
     </form>
-    <a href="{{ url_for('profile.profile') }}">Annulla</a>
+    <a href="{{ url_for('account.view') }}">Annulla</a>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

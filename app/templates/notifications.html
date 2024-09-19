@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifiche</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='notifications.css') }}">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <a href="{{ url_for('shop.homepage') }}">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
+            </a>
+        </div>
+        <div class="header-right">
+            <div class="navbar">
+                <a href="{{ url_for('shop.shop') }}">Back to shop</a>
+            </div>
+        </div>
+    </header>
+    <main>
+        <h1>Lista Notifiche</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Notifica</th>
+                    <th>Mittente</th>
+                    <th>Destinatario</th>
+                    <th>Prodotto</th>
+                    <th>Tipo</th>
+                    <th>Data</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if notifications %}
+                    {% for notification in notifications %}
+                        <tr>
+                            <td>{{ notification.id }}</td>
+                            <td>{{ notification.sender.username }}</td>
+                            <td>{{ notification.receiver.username }}</td>
+                            <td>{{ notification.product_name }}</td>
+                            <td>{{ notification.type }}</td>
+                            <td>{{ notification.timestamp.strftime('%d-%m-%Y %H:%M') }}</td>
+                            <td>
+                                <form action="{{ url_for('notifications.delete', notification_id=notification.id) }}" method="POST">
+                                    <button type="submit">Cancella</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7">Nessuna notifica disponibile</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <form action="{{ url_for('notifications.delete_all') }}" method="POST">
+            <button type="submit" class="delete-all">Cancella tutte le notifiche</button>
+        </form>
+    </main>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{category}}: {{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

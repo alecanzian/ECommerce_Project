@@ -17,9 +17,9 @@
                 <input type="radio" id="{{ address.id }}" name="selected_address_id" value="{{ address.id }}" required>
                 <label for="{{ address.id }}">{{ address.street }},{{address.city}},{{address.postal_code}},{{address.province}},{{address.country}}</label><br>
             {% endfor %}
-            <a href="{{url_for('address.add_address', action = 'order_cart_items')}}">Aggiungi indirizzo</a>
+            <a href="{{url_for('address.add', action = 'order_cart_items')}}">Aggiungi indirizzo</a>
             {%else%}
-            <a href="{{url_for('address.add_address', action = 'order_cart_items')}}">Non hai indirizzi. Aggiungine uno</a>
+            <a href="{{url_for('address.add', action = 'order_cart_items')}}">Non hai indirizzi. Aggiungine uno</a>
             {%endif%}
         </div>
         <button type="submit">Add</button>

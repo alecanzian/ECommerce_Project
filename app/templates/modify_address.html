@@ -21,7 +21,7 @@
     <main>
         <h1>Modify Address</h1>
         <p>Inserire i nuovi dati</p>
-        <form method="POST" action="{{ url_for('address.modify_address', address_id = address.id) }}">
+        <form method="POST" action="{{ url_for('address.modify', address_id = address.id) }}">
             <input type="text" id="street" name="street" placeholder="Street" value = "{{address.street}}" required>
             <input type="number" id="postal_code" name="postal_code" placeholder="Codice Postale"  value = "{{address.postal_code}}"required 
        minlength="5" maxlength="5" pattern="\d{5}" title="Il codice postale deve essere di 5 cifre" >
@@ -30,7 +30,7 @@
             <input type="text" id="country" name="country" placeholder="Country"  value = "{{address.country}}" required>
             <button type="submit">Modify Address</button>
         </form>
-        <a href="{{ url_for('profile.profile') }}">Annulla</a>
+        <a href="{{ url_for('account.view') }}">Annulla</a>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

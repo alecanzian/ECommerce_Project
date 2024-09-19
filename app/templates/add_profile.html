@@ -21,13 +21,13 @@
 
     <main>
         <h1>Add New Profile</h1>
-        <form method="POST" action="{{ url_for('profile.add_profile', action = action) }}">
+        <form method="POST" action="{{ url_for('profile.add', action = action) }}">
             <input type="text" id="name" name="name" placeholder="Nome" required>
             <input type="text" id="surname" name="surname" placeholder="Cognome" required>
             <input type="date" id="birth_date" name="birth_date" placeholder="Data di nascita" required>
             <button type="submit">Add Profile</button>
         </form>
-        <a href="{{ url_for('profile.profile_selection') }}">Back to profile selection</a>
+        <a href="{{ url_for('profile.select') }}">Back to profile selection</a>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

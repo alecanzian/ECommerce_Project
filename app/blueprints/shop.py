@@ -11,7 +11,7 @@ app = Blueprint('shop', __name__)
 def shop():
     if current_user.is_authenticated:
         if 'current_profile_id' not in session:
-            return redirect(url_for('profile.profile_selection'))
+            return redirect(url_for('profile.select'))
     try:
         # Visto che ci sono tre controlli, ovvero la barra di ricerca, il checkbox e il range di prezzo, ho bisogno di salvarmi ciò che visualizza l'utente.
         if 'selected_products' not in session:
@@ -121,22 +121,22 @@ def modify_order_state(order_product_id):
     order_product = OrderProduct.query.filter_by(id = order_product_id).first()
     if not order_product:
         flash('order_product non trovato','error')
-        return redirect(url_for('profile.profile'))
+        return redirect(url_for('account.view'))
     if request.method == 'POST':
         state_id = int(request.form.get('selected_state_id'))
         state = State.query.filter_by(id = state_id).first()
         if not state:
             flash('Stato non trovato','error')
-            return redirect(url_for('profile.profile'))
+            return redirect(url_for('account.view'))
         order_product.state_id = state_id#mancano i controlli se esiste lo state_id
         db.session.commit()
         flash('Stato dell\'ordine modificato con successo', 'success')
-        return redirect(url_for('profile.profile'))
+        return redirect(url_for('account.view'))
     
     consegnato_state = State.query.filter_by(name = 'Consegnato').first()
     if not consegnato_state:
         flash('Stato non trovato','error')
-        return redirect(url_for('profile.profile'))
+        return redirect(url_for('account.view'))
     
     if order_product.state_id != consegnato_state.id:
         print(order_product.product_name)
@@ -145,7 +145,7 @@ def modify_order_state(order_product_id):
         print(consegnato_state.id)
         print(consegnato_state.name)
         flash('non puoi cambiare lo stato dopo che è stato consegnato','fail')
-        return redirect(url_for('profile.profile'))
+        return redirect(url_for('account.view'))
     all_states = State.query.all()
     return render_template('modify_order_state.html', order_product = order_product, states = all_states)
 

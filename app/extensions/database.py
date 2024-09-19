@@ -116,7 +116,7 @@ class Cart(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable = False)
-    profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'),nullable = False)
+    profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'), nullable = False)
 
     def __init__(self, quantity, user_id, product_id, profile_id):
         self.quantity = quantity
@@ -129,21 +129,17 @@ class Order(db.Model):
     order_date = db.Column(db.DateTime, default=datetime.now(), nullable=False)
     total_price = db.Column(db.Float, nullable=False)
     address = db.Column(db.String(255),nullable = False)
-    profile_name = db.Column(db.String(50),nullable = False)
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    profile_id = db.Column(db.Integer, db.ForeignKey('profile.id', ondelete = 'SET NULL'))
     # Relazione con i prodotti attraverso tabella intermedia OrderProduct
     products = db.relationship('OrderProduct', backref='order', lazy = True)
-    profile = db.relationship('Profile',backref = 'orders', lazy = True)
 
-    def __init__(self, user_id, address, total_price, profile_name, profile_id):
+    def __init__(self, user_id, address, total_price, profile_name):
         self.user_id = user_id
         self.total_price = total_price
         self.address = address
         self.profile_name = profile_name
-        self.profile_id = profile_id
-        
+
 class OrderProduct(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_name = db.Column(db.String(50),nullable = False)
@@ -154,7 +150,7 @@ class OrderProduct(db.Model):
     state_id = db.Column(db.Integer, db.ForeignKey('state.id'),nullable = False)
 
     product = db.relationship('Product', backref = 'order_product_of_product', lazy = True)
-    state = db.relationship('State',backref = 'prder_product', lazy = True)
+    state = db.relationship('State', backref = 'prder_product', lazy = True)
    
 
     def __init__(self, order_id, product_id, product_name, quantity):
@@ -184,7 +180,19 @@ class State(db.Model):
 
     def __init__(self, name):
         self.name = name
-
+        
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    type = db.Column(db.String(50), nullable=False)
+    product_name = db.Column(db.String(50),nullable = False)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.now(), nullable=False)
+    
+    sender = db.relationship('User', foreign_keys=[sender_id])
+    receiver = db.relationship('User', foreign_keys=[receiver_id])
+    
 def add_user(name, surname, birth_date, username, password):
     # Crea l'utente
         user = User(

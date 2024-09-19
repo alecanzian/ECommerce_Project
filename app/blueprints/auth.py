@@ -76,7 +76,7 @@ def login():
                 print(identity_changed.send(current_app._get_current_object(), identity=Identity(user.id)))
                 print(Identity(user.id))
                 flash('Login successful!', category='success')
-                return redirect(url_for('profile.profile_selection'))
+                return redirect(url_for('profile.select'))
             else:
                 flash('Incorrect password.', category='error')
         else:

@@ -51,7 +51,7 @@
         <div class="header-right">
            
                 {%if current_user.is_authenticated%}
-                <a href="{{ url_for('profile.profile') }}" class="header-button">
+                <a href="{{ url_for('account.view') }}" class="header-button">
                     {% for p in current_user.profiles %}
                         {% if p.id == session['current_profile_id'] %}
                             {{ p.name }} {{ p.surname }}
@@ -60,13 +60,14 @@
                 </a>
                     {% for p in current_user.profiles %}
                         {% if p.id != session['current_profile_id'] %}
-                            <a href="{{ url_for('profile.select_profile', profile_id=p.id, action = 1) }}" class="header-button">{{ p.name }} {{ p.surname }}</a>
+                            <a href="{{ url_for('profile.select_id', profile_id=p.id, action = 1) }}" class="header-button">{{ p.name }} {{ p.surname }}</a>
                         {% endif %}
                     {% endfor %}
                     {%else%}
-                        <a href="{{ url_for('profile.profile') }}" class="header-button">Account</a>
+                        <a href="{{ url_for('account.view') }}" class="header-button">Account</a>
                     {%endif%}
 
+            <a href="{{ url_for('notifications.view') }}" class="header-button">Notifiche</a>
             <a href="{{ url_for('shop.orders') }}" class="header-button">Ordini</a>
             <a href="{{ url_for('cart.cart') }}" class="header-button">Carrello</a>
             

@@ -61,9 +61,5 @@ if __name__ == '__main__':
         #]
         #
         #add_products(example_products)
-    #
-        #order_products = [[1,2],[2,1],[3,2]]
-        #
-        #create_order(user.id, addr.id, order_products)
     
     app.run(debug=True)

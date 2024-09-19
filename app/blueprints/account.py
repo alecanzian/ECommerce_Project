@@ -5,17 +5,23 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Blueprint('account', __name__)
 
-# Route che reindirizza l'utente verso il form per inserire la password e verificare che sia davvero l'utente
-@app.route('/delete_account', methods=['GET','POST'])
+@app.route('/account', methods = ['GET'])
 @login_required
 @fresh_login_required
-def delete_account():
+def view():
+    return render_template('account.html')
+
+# Route che reindirizza l'utente verso il form per inserire la password e verificare che sia davvero l'utente
+@app.route('/account/delete', methods=['GET','POST'])
+@login_required
+@fresh_login_required
+def delete():
     if request.method == 'POST':
         password = request.form.get('password')
 
         if not password:
             flash('Inserisci la password per confermare la cancellazione dell\'account ')
-            return redirect(url_for('profile.profile'))
+            return redirect(url_for('account.view'))
         
         if not current_user.password:
                 # Gestisci il caso in cui l'utente ha una password = None
@@ -60,16 +66,16 @@ def delete_account():
         except AttributeError:
             db.session.rollback()
             flash('L\'utente non ha una password impostata.', 'error')
-            return redirect(url_for('profile.profile'))
+            return redirect(url_for('account.view'))
         
         except Exception as e:
             db.session.rollback()
             flash(f'Errore durante l\'eliminazione dell\'account: {str(e)}', 'error')
-            return redirect(url_for('profile.profile'))
+            return redirect(url_for('account.view'))
         
     return render_template('confirm_password.html', action = 0)
 
-@app.route('/change_password', methods=['GET','POST'])
+@app.route('/account/change_password', methods=['GET','POST'])
 @login_required
 @fresh_login_required
 def change_password():
@@ -92,30 +98,30 @@ def change_password():
         # Se la nuova password non corrisponde con la sua conferma
         if new_password != confirm_new_password:
             flash('Passwords do not match!', category='error')
-            return redirect(url_for('profile.profile'))
+            return redirect(url_for('account.view'))
         # Se la nuova password è uguale a quella vecchia
         if(new_password == old_password):
             flash('Password non modificata.', 'error')
-            return redirect(url_for('profile.profile'))
+            return redirect(url_for('account.view'))
         else:
             current_user.password = generate_password_hash(new_password)
             # Le modifiche vengono salvate nel database
             db.session.commit()
 
             flash('Password modificata con successo.', 'success')
-            return redirect(url_for('profile.profile'))
+            return redirect(url_for('account.view'))
     return render_template('change_password.html')
 
-@app.route('/add_seller_role', methods=['GET','POST'])
+@app.route('/account/become_seller', methods=['GET','POST'])
 @login_required
 @fresh_login_required
-def add_seller_role():
+def become_seller():
     if request.method == 'POST':
         password = request.form.get('password')
         # Se la password non corrisponde 
         if current_user.password is None or not check_password_hash(current_user.password, password):
             flash('Password errata. Impossibile eliminare l\'account.', 'error')
-            return redirect(url_for('profile.profile'))
+            return redirect(url_for('account.view'))
     
         seller_role = Role.query.filter_by(name='seller').first()
         if seller_role:
@@ -124,12 +130,12 @@ def add_seller_role():
                 current_user.roles.append(seller_role)
                 db.session.commit()
                 flash('Ruolo di seller aggiunto con successo.', 'success')
-                return redirect(url_for('profile.profile'))
+                return redirect(url_for('account.view'))
             else:
                 flash('Ruolo di seller già presente con successo.', 'success')
-                return redirect(url_for('profile.profile'))
+                return redirect(url_for('account.view'))
         
         else:
             flash(f'Ruolo seller non esistente', 'error')
-            return redirect(url_for('profile.profile'))
+            return redirect(url_for('account.view'))
     return render_template('confirm_password.html', action = 1)
