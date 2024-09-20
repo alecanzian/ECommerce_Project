@@ -28,7 +28,6 @@
                 <td>********  
                     <a href="{{ url_for('account.change_password') }}"">Modifica</a>
                 </td>
-               
             </tr>
             <tr>
                 <th>Roles</th>
@@ -73,6 +72,28 @@
 
         {% endfor %}
     
+    <h1>Cards</h1>
+    <a href="{{ url_for('card.add', action = '') }}"">Aggiungi</a>
+    {%if current_user.cards%}
+    {% for card in current_user.cards %}
+    <table>
+        <tr>
+            <th>
+                <a href="{{ url_for('card.delete', card_id = card.id) }}">Elimina</a>
+            </th>
+        </tr>
+        <tr>
+            <th>Name Surame</th>
+            <td>{{ card.name }} {{card.surname}}</td>
+        </tr>
+        <tr>
+            <th>PAN</th>
+            <td>*****{{card.last_digits}}</td>
+        </tr>
+    </table>
+    <p></p>
+        {% endfor %}
+    {%endif%}
     <h1>Addresses</h1>
     <a href="{{ url_for('address.add', action = 'profile') }}"">Aggiungi</a>
     {% for address in current_user.addresses %}
@@ -109,8 +130,24 @@
         <p></p>
     {% endfor %}
 
-    <h1>Products</h1>
+    <h1>Seller Information</h1>
     {% if current_user.has_role('seller') %}
+    <table>
+        <tr>
+            <th>IBAN</th>
+            {%if not current_user.seller_information.iban%}
+            <p>ciao</p>
+            {%endif%}
+            <td>{{current_user.seller_information.iban}}
+                <a href="{{ url_for('account.modify_iban') }}">Modifica</a>
+            </td>
+        </tr>
+        <tr>
+            <th>Profit</th>
+            <th>{{current_user.seller_information.profit}}</th>
+        </tr>
+    </table>
+    <h1>Products</h1>
     <a href="{{ url_for('product.add_product') }}">Aggiungi</a>
         {% for p in current_user.products %}
             <table>
@@ -154,33 +191,32 @@
 
         
         {% endfor %}
-    {% else %} 
-        <p>Non hai prodotti</p>
-        <a rel="stylesheet" href="{{ url_for('account.become_seller') }}">Diventa un Seller!</a>
 
-    {% endif %}
     <h1>Ordini dei prorpi prodotti</h1>
-    {% if current_user.has_role('seller') %}
         {% for p in current_user.products %}
-           
             {% for order_product in p.order_product_of_product %}
-            <table>
-                <tr>
-                    <th>Name</th>
-                    <td>{{ order_product.product_name }}</td>
-                </tr>
-                <tr>
-                    
-                    <td>Stato</td>
-                    <th>{{order_product.state.name}} <a href="{{ url_for('shop.modify_order_state', order_product_id = order_product.id) }}">Modifica</a>
-                </tr>
-                    
-            </table>
+                {%if order_product.state.name != "Consegnato"%}
+                    <table>
+                        <tr>
+                            <th>Name</th>
+                            <td>{{ order_product.product_name }}</td>
+                        </tr>
+                        <tr>
+                            
+                            <td>Stato</td>
+                            <th>{{order_product.state.name}} <a href="{{ url_for('shop.modify_order_state', order_product_id = order_product.id) }}">Modifica</a>
+                        </tr>
+                            
+                    </table>
+                {%endif%}
             {%endfor%}
             <p></p>
 
         
         {% endfor %}
+    {%else%}
+    <a rel="stylesheet" href="{{ url_for('account.become_seller') }}">Diventa un Seller!</a>
+
     {% endif %}
 
     {% with messages = get_flashed_messages(with_categories=true) %}

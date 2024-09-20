@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modify IBAN</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <!-- Logo -->
+            <a href="{{ url_for('auth.home') }}">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
+            </a>
+        </div>
+        <div class="header-right">
+        </div>
+    </header>
+    <main>
+        <h1>Modify IBAN</h1>
+        <form method="POST" action="{{ url_for('account.modify_iban') }}">
+            <input type="password" name = "password" placeholder="password" required>
+            <input type="text" name="iban" placeholder="IBAN" value = "{{current_user.seller_information.IBAN}}"  min = "27" max = "27" pattern="\d{27}" title="Il codice iban deve essere di 27 cifre"required>
+            <button type="submit">Modify IBAN</button>
+        </form>
+        <a href="{{ url_for('account.view') }}">Annulla</a>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{category}}:{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    </main>
+</body>
+</html>

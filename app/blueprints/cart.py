@@ -45,7 +45,9 @@ def delete_item_from_cart(item_id):
 def order_cart_items():
     if request.method == 'POST':
         address_id = int(request.form.get('selected_address_id'))
-        if not address_id:
+        card_id = int(request.form.get('selected_card_id'))
+
+        if not address_id or not card_id:
             flash('Indirizzo non valido', 'fail')
             return redirect(url_for('cart.order_cart_items'))
         try:
@@ -53,17 +55,23 @@ def order_cart_items():
             if not address:
                 flash('Indirizzo non trovato', 'fail')
                 return redirect(url_for('cart.order_cart_items'))
+            
+            card = next((card for card in current_user.cards if card.id == card_id), None)
+            if not card:
+                flash('Carta non trovata', 'fail')
+                return redirect(url_for('cart.order_cart_items'))
+
             items = current_user.cart_items
             if not items:
                 flash('Carrello vuoto', 'fail')
                 return redirect(url_for('shop.shop'))
             
-            profile = Profile.query.filter_by(id = session['current_profile_id']).first()
-            if not profile:
-                 flash('Profilo non trovato', 'fail')
-                 return redirect(url_for('cart.cart'))
+            #profile = Profile.query.filter_by(id = session['current_profile_id']).first()
+            #if not profile:
+            #     flash('Profilo non trovato', 'fail')
+            #     return redirect(url_for('cart.cart'))
             address = address.street + ", " + str(address.postal_code) +", " + address.city + ", " + address.province + ", " + address.country
-            new_order = Order(user_id = current_user.id, profile_name = profile.name, address = address, total_price = 0.0)
+            new_order = Order(user_id = current_user.id, address = address, total_price = 0.0)
             db.session.add(new_order)
             db.session.flush()
 
@@ -74,7 +82,7 @@ def order_cart_items():
                 db.session.add(new_order_product)
                 item.product.availability-=item.quantity
                 db.session.delete(item)
-                
+
                 notification = Notification(
                     sender_id=current_user.id,  # The user who changed the state
                     receiver_id=item.product.user_id,  # The user who placed the order
@@ -83,6 +91,8 @@ def order_cart_items():
                     order_id=new_order.id
                 )
                 db.session.add(notification)
+                current_user.seller_information.profit += item.product.price * item.quantity
+
                 
             new_order.total_price = total_price
             db.session.commit()
@@ -93,6 +103,10 @@ def order_cart_items():
             db.session.rollback()
             flash('Si è verificato un errore di database4. Riprova più tardi','error')
             return redirect(url_for('cart.cart'))
+        
+    if not current_user.cards or not current_user.addresses:
+        flash('Devi avere almeno una carta di credito e un indirizzo per poter continuare con l\'acquisto', 'FAIL')
+        return redirect(url_for('cart.cart'))
     return render_template('order_cart_items.html')
 
 @app.route('/change_quantity_cart_item/<int:item_id>', methods = ['POST'])

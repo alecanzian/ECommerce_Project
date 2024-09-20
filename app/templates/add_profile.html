@@ -21,7 +21,8 @@
 
     <main>
         <h1>Add New Profile</h1>
-        <form method="POST" action="{{ url_for('profile.add', action = action) }}">
+        <form method="POST" action="{{ url_for('profile.add') }}">
+            <input type="hidden" name = "action" value ="action">
             <input type="text" id="name" name="name" placeholder="Nome" required>
             <input type="text" id="surname" name="surname" placeholder="Cognome" required>
             <input type="date" id="birth_date" name="birth_date" placeholder="Data di nascita" required>

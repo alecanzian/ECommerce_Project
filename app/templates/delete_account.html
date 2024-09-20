@@ -9,29 +9,16 @@
     <header>
         <div class="header-left">
             <!-- Logo -->
-            <a href="{{ url_for('auth.home') }}">
+            <a href="{{ url_for('shop.shop') }}">
                 <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
             </a>
         </div>
-        <div class="header-right">
-            <a href="{{url_for('auth.login')}}">Login Page</a>
-            <a href="{{url_for('auth.register')}}">Register Page</a>
-        </div>
     </header>
-    {% if action == 0 %}
         <h1>Conferma Eliminazione Account</h1>
         <p>Per favore, inserisci la tua password per confermare l'eliminazione del tuo account.</p>
         <form action="{{ url_for('account.delete') }}" method="POST">
-            <input type="password" id="password" name="password" placeholder="password">
+            <input type="password" id="password" name="password" placeholder="password" required>
             <button type="submit">Conferma Eliminazione</button>
-        </form>
-        <a href="{{ url_for('account.view') }}">Annulla</a>
-    {% elif action == 1 %}
-        <h1>Conferma Per Diventare Seller</h1>
-        <p>Per favore, inserisci la tua password per poter diventare un seller.</p>
-        <form action="{{ url_for('account.become_seller') }}" method="POST">
-            <input type="password" id="password" name="password" placeholder="password">
-            <button type="submit">Conferma</button>
         </form>
         <a href="{{ url_for('account.view') }}">Annulla</a>
 
@@ -44,6 +31,5 @@
             </ul>
         {% endif %}
     {% endwith %}
-    {% endif %}
 </body>
 </html>

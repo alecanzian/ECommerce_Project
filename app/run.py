@@ -3,8 +3,6 @@ from extensions.princ import princ
 from extensions.login import login_manager
 #from extensions.database import db, Address, Product, add_categories, add_roles, set_user_with_role, add_products, generate_password_hash, User, Profile
 from extensions.database import *
-from datetime import datetime
-import os
 
 # Inizializzo moduli
 db.init_app(app)
@@ -43,7 +41,6 @@ if __name__ == '__main__':
         #set_user_with_role(user, 'admin')  # Aggiungi un utente di esempio
         #set_user_with_role(user, 'buyer')  # Aggiungi un utente di esempio
         #set_user_with_role(user, 'seller')  # Aggiungi un utente di esempio
- #
         #example_products = [
         #    {"name": "Scarpe Nike", "price": 10.99, "description": "gnegne", "availability": 10, "categories": ["Sport e Tempo Libero"]},
         #    {"name": "Jeans Levis", "price": 19.99, "description": "gnegne", "availability": 2, "categories": ["Abbigliamento"]},

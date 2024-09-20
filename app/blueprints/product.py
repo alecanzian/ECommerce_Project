@@ -162,8 +162,9 @@ def order_product(product_id):
     if request.method == 'POST':
         quantity = int(request.form.get('quantity'))
         address_id = int(request.form.get('selected_address_id'))
+        card_id = int(request.form.get('selected_card_id'))
         # Verifica preliminare della quantità e indirizzo
-        if not quantity or not address_id:
+        if not quantity or not address_id or not card_id:
             flash('Inserisci la quantità e l\'indirizzo', 'fail')
             return redirect(url_for('product.order_product', product_id=product_id))
         
@@ -179,6 +180,12 @@ def order_product(product_id):
             if not address:
                 flash('Indirizzo non valido', 'fail')
                 return redirect(url_for('product.access_product', product_id=product_id))
+            
+            card = next((card for card in current_user.cards if card.id == card_id), None)
+            if not card:
+                flash('Carta non trovata', 'fail')
+                return redirect(url_for('product.access_product', product_id=product_id))
+
 
         except Exception:
             flash('Si è verificato un errore di database1. Riprova più tardi.', 'error')
@@ -187,13 +194,13 @@ def order_product(product_id):
         
         # Operazioni critiche sul database in blocco try-except
         try:
-            profile = Profile.query.filter_by(id = session['current_profile_id']).first()
-            if not profile:
-                flash('Profilo non trovato', 'fail')
-                return redirect(url_for('product.access_product', product_id=product_id))
-            # Creazione del nuovo ordine
+            #profile = Profile.query.filter_by(id = session['current_profile_id']).first()
+            #if not profile:
+            #    flash('Profilo non trovato', 'fail')
+            #    return redirect(url_for('product.access_product', product_id=product_id))
+            ## Creazione del nuovo ordine
             address_name = address.street + ", " + str(address.postal_code) +", " + address.city + ", " + address.province + ", " + address.country
-            new_order = Order(user_id = current_user.id, profile_id = profile.id, profile_name = profile.name, address = address_name, total_price = (product.price * quantity))
+            new_order = Order(user_id = current_user.id, address = address_name, total_price = (product.price * quantity))
             db.session.add(new_order)
             db.session.flush()  # Forza la generazione dell'ID per l'ordine
 
@@ -212,6 +219,7 @@ def order_product(product_id):
             )
 
             db.session.add(notification)
+            current_user.seller_information.profit += product.price * quantity
             db.session.commit()
             flash('Ordine effettuato con successo', 'success')
             return redirect(url_for('shop.orders'))
@@ -239,6 +247,10 @@ def order_product(product_id):
                 if item.product_id == product.id:
                     flash('Prodotto già presente nel carrello', 'fail')
                     return redirect(url_for('product.access_product', product_id=product_id))
+                
+            if not current_user.cards or not current_user.addresses:
+                flash('Devi avere almeno una carta di credito e un indirizzo per poter continuare con l\'acquisto', 'FAIL')
+                return redirect(url_for('product.access_product', product_id=product_id))
         except Exception as e:
             print(f"Errore durante l'operazione: {str(e)}")
             flash('Si è verificato un errore di database3. Riprova più tardi','error')

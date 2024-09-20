@@ -1,7 +1,9 @@
+import time
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash
 from datetime import datetime
+
 
 db = SQLAlchemy()
 
@@ -21,7 +23,7 @@ product_categories = db.Table('product_categories',
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique = True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)
+    password = db.Column(db.String(256), nullable=False)
 
     roles = db.relationship('Role', secondary=user_roles, backref='users', lazy = True)
     profiles = db.relationship('Profile', backref='user', lazy=True)
@@ -29,6 +31,9 @@ class User(db.Model, UserMixin):
     addresses = db.relationship('Address', backref='users', lazy=True)
     orders = db.relationship('Order', backref = 'user', lazy = True)
     cart_items = db.relationship('Cart', backref='user', lazy=True)
+    cards = db.relationship('Card', backref = 'user', lazy = True)
+    seller_information = db.relationship('SellerInformation', lazy = True)
+
 
     def __init__(self, username, password):
         self.username = username
@@ -135,11 +140,10 @@ class Order(db.Model):
     # Relazione con i prodotti attraverso tabella intermedia OrderProduct
     products = db.relationship('OrderProduct', backref='order', lazy = True)
 
-    def __init__(self, user_id, address, total_price, profile_name):
+    def __init__(self, user_id, address, total_price):
         self.user_id = user_id
         self.total_price = total_price
         self.address = address
-        self.profile_name = profile_name
 
 class OrderProduct(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -150,9 +154,8 @@ class OrderProduct(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete = 'SET NULL'))
     state_id = db.Column(db.Integer, db.ForeignKey('state.id'),nullable = False)
 
-    product = db.relationship('Product', backref = 'order_product_of_product', lazy = True)
-    state = db.relationship('State', backref = 'prder_product', lazy = True)
-   
+    product = db.relationship('Product', backref = 'in_order', lazy = True)
+    state = db.relationship('State', backref = 'order_product', lazy = True)
 
     def __init__(self, order_id, product_id, product_name, quantity):
         self.order_id = order_id
@@ -193,7 +196,54 @@ class Notification(db.Model):
     
     sender = db.relationship('User', foreign_keys=[sender_id])
     receiver = db.relationship('User', foreign_keys=[receiver_id])
-    
+
+    def __init__(self,sender_id, receiver_id,type,product_name, order_id):
+        self.sender_id = sender_id
+        self.receiver_id = receiver_id
+        self.type = type
+        self.product_name = product_name
+        self.order_id = order_id
+
+class Card(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    PAN = db.Column(db.String(256), nullable = False)
+    last_digits = db.Column(db.String(4), nullable = False)
+    expiration_month = db.Column(db.String(256), nullable = False)
+    expiration_year = db.Column(db.String(256), nullable = False)
+    card_type = db.Column(db.String(50), nullable = False)
+    name = db.Column(db.String(50), nullable = False)
+    surname = db.Column(db.String(50), nullable = False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
+
+    def __init__(self, name, surname, PAN, last_digits, expiration_month, expiration_year, card_type, user_id):
+        self.name = name
+        self.surname = surname
+        self.PAN = PAN
+        self.last_digits = last_digits
+        self.expiration_year = expiration_year
+        self.expiration_month = expiration_month
+        self.card_type = card_type
+        self.user_id = user_id
+
+class SellerInformation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    profit = db.Column(db.Float, nullable = False)
+    iban = db.Column(db.String(27), nullable = False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
+    #user = db.relationship('User', backref = 'seller_information')
+
+    def __init__(self, iban, user_id):
+        self.profit = 0.0
+        self.iban = iban
+        self.user_id = user_id
+
+
+
+
+
+
 def add_user(name, surname, birth_date, username, password):
     # Crea l'utente
         user = User(

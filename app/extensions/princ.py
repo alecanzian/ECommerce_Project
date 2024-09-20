@@ -15,8 +15,8 @@ buyer_permission = Permission(RoleNeed('buyer'))
 # A Permission is a set of requirements, any of which should be present for access to a resource.
 @identity_loaded.connect
 def on_identity_loaded(sender, identity):
-    print(sender)
-    print('carico identità')
+    #print(sender)
+    #print('carico identità')
     # Set the identity user object
     identity.user = current_user
 
@@ -29,11 +29,11 @@ def on_identity_loaded(sender, identity):
     if hasattr(current_user, 'roles'):
         for role in current_user.roles:
             identity.provides.add(RoleNeed(role.name))
-            print(f'aggiunto ruolo {role.name}')
+            #print(f'aggiunto ruolo {role.name}')
             
 def update_identity(app, user_id):
     # Invia il segnale per aggiornare l'identità
-    print('invio segnale per aggiornare identita')
+    #print('invio segnale per aggiornare identita')
     identity_changed.send(current_app._get_current_object(), identity=Identity(user_id))
     
 # Decoratore personalizzato per gestire il caso in cui l'utente non ha l'autorizzazione(ovvero non possiede il ruolo) per eseguire una azione

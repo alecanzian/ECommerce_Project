@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, render_template, session, redirect, request, url_for
 from flask_login import login_required, current_user
-from extensions.database import Cart, Order, OrderProduct, Profile, State, db, Product, Category, get_user_orders#, Order
+from extensions.database import Cart, Notification, Order, OrderProduct, Profile, State, db, Product, Category, get_user_orders#, Order
 from extensions.princ import buyer_required, seller_required
 
 app = Blueprint('shop', __name__)
@@ -119,7 +119,7 @@ def orders():
 @login_required
 def modify_order_state(order_product_id):
     order_product = OrderProduct.query.filter_by(id = order_product_id).first()
-    if not order_product:
+    if not order_product or order_product.product.user_id != current_user.id:
         flash('order_product non trovato','error')
         return redirect(url_for('account.view'))
     if request.method == 'POST':
@@ -129,6 +129,15 @@ def modify_order_state(order_product_id):
             flash('Stato non trovato','error')
             return redirect(url_for('account.view'))
         order_product.state_id = state_id#mancano i controlli se esiste lo state_id
+
+        new_notification = Notification(
+            sender_id =  current_user.id,
+            receiver_id = order_product.order.user_id,
+            type = 'Stato ordine modificato',
+            product_name = order_product.product.name,
+            order_id = order_product.order_id
+        )
+        db.session.add(new_notification)
         db.session.commit()
         flash('Stato dell\'ordine modificato con successo', 'success')
         return redirect(url_for('account.view'))
@@ -138,7 +147,7 @@ def modify_order_state(order_product_id):
         flash('Stato non trovato','error')
         return redirect(url_for('account.view'))
     
-    if order_product.state_id != consegnato_state.id:
+    if order_product.state_id == consegnato_state.id:
         print(order_product.product_name)
         print(order_product.state_id)
         print(order_product.state.name)

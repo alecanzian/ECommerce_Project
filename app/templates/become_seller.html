@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diventa Seller</title>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <!-- Logo -->
+            <a href="{{ url_for('shop.shop') }}">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
+            </a>
+        </div>
+    </header>
+       
+        <h1>Conferma Per Diventare Seller</h1>
+        <p>Per favore, inserisci la tua password per poter diventare un seller.</p>
+        <form action="{{ url_for('account.become_seller') }}" method="POST">
+            <input type="text" name = "iban" placeholder="IBAN" min = "27" max = "27" pattern="\d{27}" title="Il codice iban deve essere di 27 cifre" required>
+            <input type="password" id="password" name="password" placeholder="password" required>
+            <button type="submit">Conferma</button>
+        </form>
+        <a href="{{ url_for('account.view') }}">Annulla</a>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{category }}: {{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>
