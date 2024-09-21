@@ -16,7 +16,7 @@
         </div>
         <div class="header-right">
             {%for profile in current_user.profiles%}
-            <a href="{{ url_for('profile.select',profile_id = profile.id, action = 3) }}"">{{profile.name}}</a>
+            <a href="{{ url_for('profile.select_id',profile_id = profile.id, action = 2) }}"">{{profile.name}}</a>
             {%endfor%}
             <a href="{{ url_for('shop.shop') }}">Back to shop</a>
         </div>

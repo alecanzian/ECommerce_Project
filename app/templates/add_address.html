@@ -25,7 +25,13 @@
             <input type="text" id="country" name="country" placeholder="Country" required>
             <button type="submit">Add Address</button>
         </form>
-        <a href="{{ url_for('account.view') }}">Annulla</a>
+        {%if action == "profile"%}
+            <a href="{{ url_for('account.view') }}">Annulla</a>
+        {%elif action == "order_cart_items"%}
+            <a href="{{ url_for('cart.order_cart_items') }}">Annulla</a>
+        {%else%}
+            <a href="{{url_for('product.order_product', product_id = action)}}">Annulla</a>
+        {%endif%}
         
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

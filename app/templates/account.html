@@ -136,7 +136,6 @@
         <tr>
             <th>IBAN</th>
             {%if not current_user.seller_information.iban%}
-            <p>ciao</p>
             {%endif%}
             <td>{{current_user.seller_information.iban}}
                 <a href="{{ url_for('account.modify_iban') }}">Modifica</a>
@@ -192,9 +191,9 @@
         
         {% endfor %}
 
-    <h1>Ordini dei prorpi prodotti</h1>
+    <h1>Ordini dei propri prodotti</h1>
         {% for p in current_user.products %}
-            {% for order_product in p.order_product_of_product %}
+            {% for order_product in p.in_order %}
                 {%if order_product.state.name != "Consegnato"%}
                     <table>
                         <tr>

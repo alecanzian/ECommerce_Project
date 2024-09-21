@@ -11,7 +11,6 @@
     <h1>Order product</h1>
     <form action="{{ url_for('product.order_product', product_id = product.id) }}" method="POST">
         <div class="colonna">
-            <input type="hidden" value="0">
             {%if current_user.addresses%}
             {% for address in current_user.addresses %}
                 <input type="radio" id="{{ address.id }}" name="selected_address_id" value="{{ address.id }}" required>

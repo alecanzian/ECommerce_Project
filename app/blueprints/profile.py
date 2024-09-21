@@ -19,36 +19,33 @@ def select():
 @fresh_login_required
 def select_id(profile_id, action):
     try:
-        profile = db.session.get(Profile, profile_id)
+        profile = next((p for p in current_user.profiles if p.id == profile_id),None)
 
         if not profile:                
             flash('Il profilo selezionato non esiste', 'error')
-            return redirect(url_for('profile.select'))
-
-        if profile.user_id != current_user.id:
-            flash('Il profilo selezionato non appartiene a te', 'error')
-            return redirect(url_for('profile.select'))
+            return redirect(url_for('shop.shop'))
 
         # Here you can set the selected profile in the session or any other logic
         session['current_profile_id'] = profile.id
+        flash('Profilo aggiornato con successo', 'SUCCESS')
         if action == 0:
             return redirect(url_for('shop.shop'))
         elif action == 1:
             return redirect(url_for('shop.shop'))
         elif action == 2:
-            return redirect(url_for('shop.orders'))
-        elif action == 3:
             return redirect(url_for('cart.cart'))
+        else:
+            return redirect(url_for('auth.logout'))
     except Exception:
         flash('Si è verificato un errore', 'error')
         if action == 0:
-            return redirect(url_for('profile.select'))
+            return redirect(url_for('shop.shop'))
         elif action == 1:
             return redirect(url_for('shop.shop'))
         elif action == 2:
-            return redirect(url_for('shop.orders'))
-        elif action == 3:
             return redirect(url_for('cart.cart'))
+        else:
+            return redirect(url_for('auth.logout'))
 
 @app.route('/profile/add/<int:action>', methods=['GET', 'POST'])
 @login_required

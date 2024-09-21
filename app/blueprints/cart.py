@@ -91,7 +91,7 @@ def order_cart_items():
                     order_id=new_order.id
                 )
                 db.session.add(notification)
-                current_user.seller_information.profit += item.product.price * item.quantity
+                #current_user.seller_information.profit += item.product.price * item.quantity
 
                 
             new_order.total_price = total_price
