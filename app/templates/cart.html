@@ -1,59 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cart</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
-</head>
-<body>
-    <header>
-        <div class="header-left">
-            <!-- Logo -->
-            <a href="{{ url_for('auth.home') }}">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
-            </a>
-        </div>
-        <div class="header-right">
-            {%for profile in current_user.profiles%}
-            <a href="{{ url_for('profile.select_id',profile_id = profile.id, action = 2) }}"">{{profile.name}}</a>
-            {%endfor%}
-            <a href="{{ url_for('shop.shop') }}">Back to shop</a>
-        </div>
-    </header>
+{% extends "base.html" %}
 
-    <h1>Cart</h1>
-    
-    {%if current_user.profiles%}
-        {% for profile in current_user.profiles%}
-            {%if profile.id == session['current_profile_id']%}
-                {%if profile.cart_items%}
-                    {%for item in profile.cart_items%}
-                    <p>
-                        <a href="{{url_for('product.access_product', product_id = item.product_id)}}"> {{item.product.name}}</a> -- ${{item.product.price}}
-                        <form action="{{url_for('cart.change_quantity_cart_item',item_id = item.id)}}" method = "POST">
-                            <input type="number" name = "quantity" value = "{{item.quantity}}" required min = "1" max = "{{item.product.availability}}">
-                            <button type = "submit"> Applica </button>
-                        </form>
-                        <a href="{{url_for('cart.delete_item_from_cart', item_id = item.id)}}">Elimina</a>
-                    </p>
-                    {%endfor%}
-                    <a href = "{{url_for('cart.order_cart_items')}}">Continua con l'ordine</a>
-                {%else%}
+{% block title %}Carrello{% endblock %}
+
+{% block main %}
+    <h1>Carrello</h1>
+
+    {% if current_user.profiles %}
+        {% for profile in current_user.profiles %}
+            {% if profile.id == session['current_profile_id'] %}
+                {% if profile.cart_items %}
+                    {%for item in profile.cart_items %}
+                        <p>
+                            <a href="{{url_for('product.access_product', product_id = item.product_id)}}">{{ item.product.name }}</a> -- ${{item.product.price}}
+                            <form action="{{url_for('cart.change_quantity_cart_item',item_id=item.id)}}" method="POST">
+                                <input type="number" name="quantity" value="{{item.quantity}}" required min="1" max="{{item.product.availability}}">
+                                <button type="submit">Applica</button>
+                            </form>
+                            <a href="{{url_for('cart.delete_item_from_cart', item_id = item.id)}}">Elimina</a>
+                        </p>
+                    {% endfor %}
+                    <a href="{{url_for('cart.order_cart_items')}}">Continua con l'ordine</a>
+                {% else %}
                     <p>Carrello vuoto</p>
-                {%endif%}
-            {%endif%}
-        {%endfor%}
-    {%endif%}
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{category }}:{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-</body>
-</html>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endblock %}

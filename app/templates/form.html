@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block main %}
+    <h1>{{ heading }}</h1>
+
+    <form method="{{ method }}" action="{{ action_url }}">
+        {% for field in fields %}
+            {% if field.type == 'text' or field.type == 'number' or field.type == 'hidden' %}
+                <input 
+                    type="{{ field.type }}" 
+                    id="{{ field.id }}" 
+                    name="{{ field.name }}" 
+                    placeholder="{{ field.placeholder }}" 
+                    {% if field.value is defined %} value="{{ field.value }}" {% endif %}
+                    {% if field.min is defined %} min="{{ field.min }}" {% endif %}
+                    {% if field.max is defined %} max="{{ field.max }}" {% endif %}
+                    {% if field.step is defined %} step="{{ field.step }}" {% endif %}
+                    {% if field.pattern is defined %} pattern="{{ field.pattern }}" {% endif %}
+                    {% if field.title is defined %} title="{{ field.title }}" {% endif %}
+                    {% if field.required %} required {% endif %}
+                >
+            {% elif field.type == 'select' %}
+                <select name="{{ field.name }}" {% if field.required %}required{% endif %}>
+                    {% for option in field.options %}
+                        <option value="{{ option.value }}" {% if option.selected %}selected{% endif %} {% if option.disabled %}disabled{% endif %}>
+                            {{ option.label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            {% elif field.type == 'checkbox' %}
+                {% for option in field.options %}
+                    <input type="checkbox" id="{{ option.id }}" name="{{ field.name }}" value="{{ option.value }}">
+                    <label for="{{ option.id }}">{{ option.label }}</label><br>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+        <button type="submit">{{ submit_label }}</button>
+    </form>
+
+    {% if cancel_url %}
+        <a href="{{ cancel_url }}">Annulla</a>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    {% if scripts %}
+        {{ scripts | safe }}
+    {% endif %}
+{% endblock %}

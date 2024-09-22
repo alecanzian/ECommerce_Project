@@ -1,173 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eCommerce - Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+{% extends "base.html" %}
+
+{% block title %}Homepage{% endblock %}
+
+{% block styles %}
     <link rel="stylesheet" href="{{ url_for('static', filename='homepage.css') }}">
-</head>
-<body>
-    <!-- Header con logo, barra di ricerca e pulsanti -->
-    <header>
-        <div class="header-left">
-            <!-- Logo -->
-            <a href="{{ url_for('auth.home') }}">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
-            </a>
-        </div>
+{% endblock %}
 
+{% block main %}
+    <form action="{{ url_for('shop.filtered_results') }}" method="POST" id="filter-form">
         <!-- Barra di ricerca -->
-        <form action="{{ url_for('shop.filtered_results') }}" method="POST" id="filter-form">
-            <div class="search-bar">
-              <input type="text" name="query" placeholder="Search products...">
-              <button type="submit">Search</button>
-            </div>
-          
-            <div class="filter-options">
-              <div class="colonna">
+        <div class="search-bar">
+            <select name="category">
+                {% if not session['selected_categories'] %}
+                    <option selected="selected" value="all">Tutte le categorie</option>
+                {% else %}
+                    <option value="all">Tutte le categorie</option>
+                {% endif %}
+
                 {% for category in categories %}
-                  <input type="checkbox" id="{{ category.name }}" name="selected_categories" value="{{ category.name }}" {% if category.name in session['selected_categories'] %} checked {% endif %}>
-                  <label for="{{ category.name }}">{{ category.name }}</label><br>
+                    <option value="{{ category.name }}">{{ category.name }}</option>
                 {% endfor %}
-              </div>
-          
-              <div class="price-range">
-                <label for="minPriceRange">Prezzo minimo: <span id="minPriceValue">{{ session['min_price'] }}</span> €</label><br>
-                <input type="range" id="minPriceRange" name="minPriceRange" min="0" max="1000" step="10" value="{{ session['min_price'] }}" oninput="updatePriceValues()"><br>
-          
-                <label for="maxPriceRange">Prezzo massimo: <span id="maxPriceValue">{{ session['max_price'] }}</span> €</label><br>
-                <input type="range" id="maxPriceRange" name="maxPriceRange" min="0" max="6000" step="100" value="{{ session['max_price'] }}" oninput="updatePriceValues()"><br>
-              </div>
-          
-              <div class="filter-actions">
-                <button type="submit">Applica</button>
-                <a href="{{ url_for('shop.reset_filters') }}" class="inline-form">Reset</a>
-              </div>
-            </div>
-          </form>
+            </select>
 
-        <!-- Pulsanti Account, Carrello e Ordini -->
-        <div class="header-right">
-           
-                {%if current_user.is_authenticated%}
-                <a href="{{ url_for('account.view') }}" class="header-button">
-                    {% for p in current_user.profiles %}
-                        {% if p.id == session['current_profile_id'] %}
-                            {{ p.name }} {{ p.surname }}
-                        {% endif %}
-                    {% endfor %}
-                </a>
-                    {% for p in current_user.profiles %}
-                        {% if p.id != session['current_profile_id'] %}
-                            <a href="{{ url_for('profile.select_id', profile_id=p.id, action = 1) }}" class="header-button">{{ p.name }} {{ p.surname }}</a>
-                        {% endif %}
-                    {% endfor %}
-                    {%else%}
-                        <a href="{{ url_for('account.view') }}" class="header-button">Account</a>
-                    {%endif%}
-
-            <a href="{{ url_for('notifications.view') }}" class="header-button">Notifiche</a>
-            <a href="{{ url_for('shop.orders') }}" class="header-button">Ordini</a>
-            <a href="{{ url_for('cart.cart') }}" class="header-button">Carrello</a>
-            
-           
-                    
-                
-            
-            {%if current_user.is_authenticated%}
-                    {% if current_user.has_role('admin') %}
-                        <a href="{{ url_for('profile.info') }}" class="header-button">See Info</a>
-                    {% endif %}
-                    <a href="{{ url_for('auth.logout') }}" class="header-button">Logout</a>
-            {%else%}
-                <a href="{{ url_for('auth.login') }}" class="header-button">Login</a>
-            {% endif %}
+            <input type="text" name="query" placeholder="Cerca prodotto..." value="{{ request.form.get('query', '') }}">
+            <button type="submit">Cerca</button>
         </div>
-    </header>
+        
+        <!-- Opzioni di filtro migliorate -->
+        <div class="filter-options">
 
-    <!-- Sezione principale con i prodotti -->
-    <main>
-        <h1>Prodotti Popolari</h1>
-        <div class="product-grid">
-            <div class="product">
-                <img src="{{ url_for('static', filename='img/product1.jpg') }}" alt="Product 1">
-                <p class="product-name">Prodotto 1</p>
-                <p class="product-price">€ 49.99</p>
-                <button>Aggiungi al Carrello</button>
+            <!-- Filtro per prezzo -->
+            <div class="price-range">
+                <h4>Filtra per Prezzo</h4>
+                <label for="minPriceRange">Prezzo minimo: <span id="minPriceValue">{{ session['min_price'] or 0 }}</span> €</label><br>
+                <input type="range" id="minPriceRange" name="minPriceRange" min="0" max="1000" step="10" value="{{ session['min_price'] or 0 }}" oninput="updatePriceValues()"><br>
+
+                <label for="maxPriceRange">Prezzo massimo: <span id="maxPriceValue">{{ session['max_price'] or 6000 }}</span> €</label><br>
+                <input type="range" id="maxPriceRange" name="maxPriceRange" min="0" max="6000" step="100" value="{{ session['max_price'] or 6000 }}" oninput="updatePriceValues()"><br>
             </div>
-            <div class="product">
-                <img src="{{ url_for('static', filename='img/product2.jpg') }}" alt="Product 2">
-                <p class="product-name">Prodotto 2</p>
-                <p class="product-price">€ 99.99</p>
-                <button>Aggiungi al Carrello</button>
+
+            <!-- Azioni del filtro -->
+            <div class="filter-actions">
+                <button type="submit">Applica Filtri</button>
+                <a href="{{ url_for('shop.reset_filters') }}">Reset</a>
             </div>
-            <div class="product">
-                <img src="{{ url_for('static', filename='img/product3.jpg') }}" alt="Product 3">
-                <p class="product-name">Prodotto 3</p>
-                <p class="product-price">€ 29.99</p>
-                <button>Aggiungi al Carrello</button>
-            </div>
-            <!-- Aggiungi altri prodotti -->
         </div>
+    </form>
 
-        {%if current_user.is_authenticated%}
-        <ul class="product-list">
-            <style>
-                table {
-                  border-collapse: collapse;
-                }
-              
-                td, th {
-                  border: 1px solid #ddd;
-                  padding: 8px;
-                }
-              </style>
-            <table>
-                {% for p in products %}
-                <tr>
-                  <td class="product-image-cell">
-                    <a href="{{ url_for('product.access_product', product_id=p.id) }}" class="product-link"><img src="{{ p.image_url }}" alt="{{ p.name }}" height="50" width="50"></a>
-                    <p>{{ p.name }}</p>
-                  </td>
-              
-                  <td class="product-info-cell">
-                    <p>|{% for c in p.categories %}
-                      {{ c.name }} |
-                    {% endfor %}</p>
-                    <p>Price: ${{ p.price }}</p>
-                    <p>Description: {{ p.description }}</p>
-                    <p>Availability: {% if p.availability > 0 %}{{ p.availability }}{% else %}Non Disponibile{% endif %}</p>
-                  </td>
-                </tr>
-                {% endfor %}
-              </table>
-        </ul>
-        {% endif %}
-    </main>
+    {% if current_user.is_authenticated%}
+    <h1>Prodotti</h1>
+    <div class="product-grid">
+        {% for p in products %}
+            <div class="product">
+                <a href="{{ url_for('product.access_product', product_id=p.id) }}" class="product-link"><img src="{{ p.image_url }}" alt="{{ p.name }}" height="50" width="50"></a>
+                <p class="product-name">{{ p.name }}</p>
+                <p class="product-price">€{{ p.price }}</p>
+                <button>Aggiungi al carrello</button>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endblock %}
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{category}}: {{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-
+{% block scripts %}
     <script>
         // Funzione per aggiornare il valore visualizzato dei range input
         function updatePriceValues() {
-            var minPriceRange = document.getElementById("minPriceRange");
-            var maxPriceRange = document.getElementById("maxPriceRange");
-            var minPriceValue = document.getElementById("minPriceValue");
-            var maxPriceValue = document.getElementById("maxPriceValue");
-
-            minPriceValue.textContent = minPriceRange.value;
-            maxPriceValue.textContent = maxPriceRange.value;
+            document.getElementById('minPriceValue').textContent = document.getElementById('minPriceRange').value;
+            document.getElementById('maxPriceValue').textContent = document.getElementById('maxPriceRange').value;
         }
         updatePriceValues();
     </script>
-</body>
-</html>
+{% endblock %}

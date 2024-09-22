@@ -1,52 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select your profile</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='profile_selection.css') }}">
-</head>
-<body>
-    <header>
-        <div class="header-left">
-            <!-- Logo -->
-            <a href="{{ url_for('auth.home') }}">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
-            </a>
-        </div>
-        <div class="header-right">
-            <a href="{{ url_for('auth.logout') }}">Logout</a>
-        </div>
-    </header>
-    <main>
-        <h1>Select your profile</h1>
-        <div class="profile-selection">
-            {%if current_user.profiles%}
-            {% for profile in current_user.profiles %}
-                <div class="profile-card">
-                    <img src="{{ profile.avatar }}" alt="Avatar" class="profile-avatar">
-                    <p class="profile-name">{{ profile.name }}</p>
-                    <a href="{{ url_for('profile.select_id', profile_id=profile.id, action = 0) }}" class="profile-button">Select profile</a>
-                </div>
-            {% endfor %}
-            {%else%}
-                <p>Non ci sono profili</p>
-            {%endif%}
-            <div class="profile-card">
-                <a href="{{ url_for('profile.add', action = 0) }}" class="profile-button">New profile</a>
-            </div>
-        </div>
-    </main>
+{% extends "base.html" %}
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{category}}:{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-</body>
-</html>
+{% block title %}Seleziona profilo{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='profile_selection.css') }}">
+{% endblock %}
+
+{% block main %}
+    <h1>Seleziona il tuo profilo</h1>
+    <div class="profile-selection">
+        {% for profile in current_user.profiles %}
+            <div class="profile-card">
+                <img src="{{ profile.avatar }}" alt="Avatar" class="profile-avatar">
+                <p class="profile-name">{{ profile.name }}</p>
+                <a href="{{ url_for('profile.select_id', profile_id=profile.id, action = 0) }}" class="profile-button">Seleziona profilo</a>
+            </div>
+        {% endfor %}
+        <div class="profile-card">
+            <a href="{{ url_for('profile.add', action = 0) }}" class="profile-button">Nuovo profilo</a>
+        </div>
+    </div>
+{% endblock %}

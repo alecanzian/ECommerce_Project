@@ -1,86 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
-</head>
-<body>
-    <header>
-        <div class="header-left">
-            <!-- Logo -->
-            <a href="{{ url_for('auth.home') }}">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
-            </a>
-        </div>
-    </header>
-    <main>
-        <h1>Register Page</h1>
-        <form action="{{ url_for('auth.register') }}" method="post">
-            <input type="text" id="name" name="name" placeholder="Nome" required>
-            <input type="text" id="surname" name="surname" placeholder="Cognome" required>
-            <input type="date" id="birth_date" name="birth_date" placeholder="Data di nascita" required>
-            <input type="email" id="email" name="email" placeholder="Email" required>
-            <input type="password" id="password" name="password" placeholder="Password" required>
-            <div id="password-strength-message"></div>
-            <input type="password" id="confirm_password" name="confirm_password" placeholder="Conferma Password" required>
-            <button type="submit">Register</button>
-        </form>
-        
-        <a href="{{url_for('auth.login')}}">Already have an account? Sign in</a>
-        <!--<script>
-            function checkPasswordStrength(password) {
-                const passwordStrengthDiv = document.getElementById('password-strength-message');
-        
-                if (password.length < 8) {
-                    passwordStrengthDiv.textContent = 'Password must be at least 8 characters long.';
-                    return false;
-                }
-        
-                const hasUppercase = /[A-Z]/.test(password);
-                const hasLowercase = /[a-z]/.test(password);
-                const hasNumber = /\d/.test(password);
-                const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/g.test(password);
+{% extends "base.html" %}
 
-                if (!hasUppercase) {
-                    passwordStrengthDiv.textContent = 'La password deve contenere almeno una lettera maiuscola.';
-                    return false;
-                }
+{% block title %}Registrazione{% endblock %}
 
-                if (!hasLowercase) {
-                    passwordStrengthDiv.textContent = 'La password deve contenere almeno una lettera minuscola.';
-                    return false;
-                }
+{% block main %}
+    <h1>Registrazione</h1>
 
-                if (!hasNumber) {
-                    passwordStrengthDiv.textContent = 'La password deve contenere almeno un numero.';
-                    return false;
-                }
-
-                if (!hasSpecialChar) {
-                    passwordStrengthDiv.textContent = 'La password deve contenere almeno un carattere speciale (!@#$%^&*(),.?":{}|<>).';
-                    return false;
-                }
-                    
-                passwordStrengthDiv.textContent = 'Password strength: Strong';
-                return true;
-                }
-        
-            document.getElementById('password').addEventListener('input', function() {
-                const password = this.value;
-                checkPasswordStrength(password);
-            });
-        </script>-->
-    </main>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{category}}:{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-</body>
-</html>
+    <form action="{{ url_for('auth.register') }}" method="POST">
+        <input type="text" id="name" name="name" placeholder="Nome" required>
+        <input type="text" id="surname" name="surname" placeholder="Cognome" required>
+        <input type="date" id="birth_date" name="birth_date" placeholder="Data di nascita" required>
+        <input type="email" id="email" name="email" placeholder="Email" required>
+        <input type="password" id="password" name="password" placeholder="Password" required>
+        <div id="password-strength-message"></div>
+        <input type="password" id="confirm_password" name="confirm_password" placeholder="Conferma password" required>
+        <button type="submit">Registrati</button>
+    </form>
+    
+    <a href="{{url_for('auth.login')}}">Hai già un account? Accedi</a>
+{% endblock %}

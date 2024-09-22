@@ -14,27 +14,29 @@ def add(action):
         city = request.form.get('city')
         province = request.form.get('province')
         country = request.form.get('country')
-
         user_id = current_user.id
 
         for a in current_user.addresses:
             if a.street.replace(" ", "").lower() == street.replace(" ", "").lower():
-                flash('Indirizzo già presente.', 'error')
+                flash("Indirizzo già presente", "error")
                 print("ACTION")
                 print(action)
+                
                 if action == 'profile':
                     return redirect(url_for('account.view'))
                 elif action == 'order_cart_items':
                     return redirect(url_for('cart.order_cart_items'))
                 else:
                     return redirect(url_for('product.order_product', product_id = int(action)))
+                
         address = Address(street = street, postal_code = postal_code, city = city, province = province, country = country, user_id = user_id)
         db.session.add(address)
         current_user.addresses.append(address)
         db.session.commit()
-        flash('Indirizzo aggiunto con successo.', 'success')
+        flash("Indirizzo aggiunto con successo", "success")
         print("ACTION")
         print(action)
+        
         if action == 'profile':
             return redirect(url_for('account.view'))
         elif action == 'order_cart_items':
@@ -62,7 +64,7 @@ def modify(address_id):
         for a in current_user.addresses:
             print(a.street)
             if a.id != address.id and a.street.replace(" ", "").lower() == street.replace(" ", "").lower():
-                flash('Indirizzo già presente.', 'error')
+                flash("Indirizzo già presente", "error")
                 return redirect(url_for('address.modify', address_id = address.id))
             
         address.street = street
@@ -72,7 +74,7 @@ def modify(address_id):
         address.country = country
         
         db.session.commit()
-        flash('Indirizzo modificato con successo.', 'message')
+        flash("Indirizzo modificato con successo", "success")
         return redirect(url_for('account.view'))
 
     return render_template('modify_address.html', address = address)
@@ -85,16 +87,16 @@ def delete(address_id):
         address = next((a for a in current_user.addresses if a.id == address_id), None)
         
         if not address:
-            flash('Indirizzo non trovato', 'error')
+            flash("Indirizzo non trovato", "error")
             return redirect(url_for('account.view'))
         
         db.session.delete(address)
         db.session.commit()
 
-        flash('Indirizzo eliminato con successo.', 'success')
+        flash("Indirizzo eliminato con successo", "success")
         return redirect(url_for('account.view'))
     except Exception as e:
         db.session.rollback()
         print(f"Errore durante l'operazione: {str(e)}")
-        flash('Si è verificato un errore di database. Riprova più tardi.', 'error')
+        flash("Si è verificato un errore di database", "error")
         return redirect(url_for('account.view'))

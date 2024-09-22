@@ -20,14 +20,13 @@ def select():
 def select_id(profile_id, action):
     try:
         profile = next((p for p in current_user.profiles if p.id == profile_id),None)
-
         if not profile:                
-            flash('Il profilo selezionato non esiste', 'error')
+            flash('Il profilo selezionato non esiste', "error")
             return redirect(url_for('shop.shop'))
 
         # Here you can set the selected profile in the session or any other logic
         session['current_profile_id'] = profile.id
-        flash('Profilo aggiornato con successo', 'SUCCESS')
+        flash('Profilo aggiornato con successo', "success")
         if action == 0:
             return redirect(url_for('shop.shop'))
         elif action == 1:
@@ -37,7 +36,7 @@ def select_id(profile_id, action):
         else:
             return redirect(url_for('auth.logout'))
     except Exception:
-        flash('Si è verificato un errore', 'error')
+        flash('Si è verificato un errore', "error")
         if action == 0:
             return redirect(url_for('shop.shop'))
         elif action == 1:
@@ -71,16 +70,15 @@ def add(action):
                 return redirect(url_for('profile.select'))
             elif action == 1:
                 return redirect(url_for('account.view'))
-            
         except IntegrityError:
             # Handle unique constraint violation (e.g., duplicate profile name)
             db.session.rollback()
-            flash('Un porfilo con lo stesso nome esiste già', 'error')
+            flash('Un porfilo con lo stesso nome esiste già', "error")
             return render_template('add_profile.html', action=action)
         except Exception:
             # Catch other unexpected errors
             db.session.rollback()
-            flash('Si è verificato un errore di database. Riprova più tardi.', 'error')
+            flash('Si è verificato un errore di database. Riprova più tardi.', "error")
             return redirect(url_for('profile.select'))
         
     return render_template('add_profile.html', action=action)
@@ -93,7 +91,7 @@ def modify(profile_id):
     profile = next((p for p in current_user.profiles if p.id == profile_id), None)
 
     if not profile:
-        flash('Il profilo non è stato trovato', 'error')
+        flash('Il profilo non è stato trovato', "error")
         return redirect(url_for('account.view'))
         
     if request.method == 'POST':
@@ -139,12 +137,12 @@ def modify(profile_id):
             return redirect(url_for('account.view'))
 
         except ValueError:
-            flash('Formato della data non valido.','error')
+            flash('Formato della data non valido.',"error")
             return redirect(url_for('profile.modify', profile_id=profile_id))
         except Exception as e:
             print(f"Errore durante l'operazione: {str(e)}")
             db.session.rollback()
-            flash('Si è verificato un errore di database. Riprova più tardi.', 'error')
+            flash('Si è verificato un errore di database. Riprova più tardi.', "error")
             return redirect(url_for('account.view'))
     
     return render_template('modify_profile.html', profile=profile)
@@ -159,7 +157,7 @@ def delete(profile_id):
         profile = next((p for p in current_user.profiles if p.id == profile_id), None)
         
         if not profile:
-            flash('Il profilo non è stato trovato', 'error')
+            flash('Il profilo non è stato trovato', "error")
             return redirect(url_for('account.view'))
         
         # Se è presente un solo profilo, allora non posso eliminarlo, altrimenti non avrei un profilo con cui navigare lo shop
@@ -172,14 +170,14 @@ def delete(profile_id):
             db.session.commit()
             if profile.id == session['current_profile_id']:
                 session['current_profile_id'] = current_user.profiles[0].id
-            flash('Profilo eliminato correttamente', 'success')
+            flash('Profilo eliminato correttamente', "success")
             return redirect(url_for('account.view')) 
         else:
             flash("Non puoi eliminare l'unico profilo rimanente.", 'fail')
             return redirect(url_for('account.view'))
     except Exception:
         db.session.rollback()
-        flash('Si è verificato un errore di database. Riprova più tardi.', 'error')
+        flash('Si è verificato un errore di database. Riprova più tardi.', "error")
         return redirect(url_for('account.view'))
 
 @app.route('/profile/info', methods = ['GET'])
@@ -197,8 +195,8 @@ def info():
         all_addresses = Address.query.all()
         all_cart_items = Cart.query.all()
     except Exception:
-        #flash('Si è verificato un errore di database. Riprova più tardi.', 'error')
-        flash('La pagina info.html non è stata caricata correttamente','error')
+        #flash('Si è verificato un errore di database. Riprova più tardi.', "error")
+        flash('La pagina info.html non è stata caricata correttamente',"error")
     return render_template('info.html', users=all_users, products=all_products, roles=all_roles, categories=all_categories, addresses = all_addresses, cart_items = all_cart_items) # Passo anche lo username dell'utente loggato(sarà sempre unico)
 
 # Personalizzazione della pagina profilo

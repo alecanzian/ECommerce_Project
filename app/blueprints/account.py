@@ -1,9 +1,8 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import current_user, login_required, fresh_login_required
 from extensions.princ import seller_required
-from extensions.database import Address, Product, Role, SellerInformation, State, db
+from extensions.database import Role, SellerInformation, State, db
 from werkzeug.security import check_password_hash, generate_password_hash
-
 
 app = Blueprint('account', __name__)
 
@@ -22,24 +21,24 @@ def delete():
         password = request.form.get('password')
 
         if not password:
-            flash('Inserisci la password per confermare la cancellazione dell\'account ')
+            flash("Inserisci la password per confermare la cancellazione dell'account", "error")
             return redirect(url_for('account.view'))
         
         if not current_user.password:
-                # Gestisci il caso in cui l'utente ha una password = None
-                flash('Lutente non ha una password impostata.', 'error')
-                return redirect(url_for('auth.login'))
+            # Gestisci il caso in cui l'utente ha una password = None
+            flash("L'utente non ha una password impostata", "error")
+            return redirect(url_for('auth.login'))
 
         # Se la password è presente, controlla l'hash
         if not check_password_hash(current_user.password, password):
-            flash("Password errata.")
+            flash("Password errata", "error")
             return redirect(url_for('auth.login'))
         
         #db.session.begin()
         try:
-            consegnato_state = State.query.filter_by(name = 'Consegnato').first()
+            consegnato_state = State.query.filter_by(name='Consegnato').first()
             if not consegnato_state:
-                flash('Stato non trovato', 'ERROR')
+                flash("Stato non trovato", "error")
                 return redirect(url_for('account.view'))
                 
             if current_user.has_role('seller'):
@@ -49,19 +48,22 @@ def delete():
                             for item in product.in_carts:
                                 db.session.delete(item)
                             db.session.delete(product)                        
-                        flash('non puoì eliminare l\'account se hai ancora dei prodotti da consegnare. Tutti i tuoi prodotti sono stati eliminati')
+                        flash("Non puoi eliminare l'account se hai ancora dei prodotti da consegnare. Tutti i tuoi prodotti sono stati eliminati", "error")
                         return redirect(url_for('account.view'))
+                    
             for order in current_user.orders:
                 for order_product in order.products:
                     if order_product.state_id != consegnato_state.id:
-                        flash('non puoì eliminare l\'account se hai ancora dei prodotti da ricevere', 'ERROR')
+                        flash("Non puoì eliminare l\'account se hai ancora dei prodotti da ricevere", "error")
                         return redirect(url_for('account.view'))
+                    
             # Elimina prima tutti i prodotti associati all'utente
             if current_user.has_role('seller'):
                 for product in current_user.products:
                     for item in product.in_carts:
                         db.session.delete(item)
                     db.session.delete(product)
+                    
             # Elimina il profilo dopo aver eliminato i prodotti
             for profile in current_user.profiles:
                 db.session.delete(profile) 
@@ -80,7 +82,6 @@ def delete():
             for order in current_user.orders:
                 db.session.delete(order)
             
-            
             #db.session.delete(current_user.seller_information)
             # visto che current_user.seller_information non funziona, per ora uso questo
             for tuple in SellerInformation.query.all():
@@ -91,17 +92,17 @@ def delete():
             db.session.delete(current_user)
             db.session.commit()
 
-            flash('Account eliminato con successo.', 'success')
+            flash("Account eliminato con successo", "success")
             return redirect(url_for('auth.logout'))
         
         except AttributeError:
             db.session.rollback()
-            flash('L\'utente non ha una password impostata.', 'error')
+            flash("L'utente non ha una password impostata", "error")
             return redirect(url_for('account.view'))
         
         except Exception as e:
             db.session.rollback()
-            flash(f'Errore durante l\'eliminazione dell\'account: {str(e)}', 'error')
+            flash(f"Errore durante l'eliminazione dell'account: {str(e)}", "error")
             return redirect(url_for('account.view'))
         
     return render_template('delete_account.html')
@@ -116,30 +117,32 @@ def change_password():
         confirm_new_password = request.form.get('confirm_new_password')
 
         # Se la vecchia password non corrisponde con la password corrente
+        
+        # Gestisci il caso in cui l'utente non ha una password
         if current_user.password is None:
-            # Gestisci il caso in cui l'utente non ha una password
-            flash("Errore: l'utente non ha una password impostata.")
+            flash("L'utente non ha una password impostata", "error")
             return redirect(url_for('auth.login'))
 
         # Se la password è presente, controlla l'hash
         if not check_password_hash(current_user.password, old_password):
-            flash("Password errata.")
+            flash("Password errata", "error")
             return redirect(url_for('auth.login'))
 
         # Se la nuova password non corrisponde con la sua conferma
         if new_password != confirm_new_password:
-            flash('Passwords do not match!', category='error')
+            flash("La nuova password non corrisponde", "error")
             return redirect(url_for('account.view'))
+        
         # Se la nuova password è uguale a quella vecchia
-        if(new_password == old_password):
-            flash('Password non modificata.', 'error')
+        if new_password == old_password:
+            flash("La nuova password è uguale a quella vecchia", "error")
             return redirect(url_for('account.view'))
         else:
             current_user.password = generate_password_hash(new_password)
             # Le modifiche vengono salvate nel database
             db.session.commit()
 
-            flash('Password modificata con successo.', 'success')
+            flash("Password modificata con successo", "success")
             return redirect(url_for('account.view'))
     return render_template('change_password.html')
 
@@ -150,46 +153,45 @@ def become_seller():
     if request.method == 'POST':
         password = request.form.get('password')
         iban = request.form.get('iban')
-        # Se la password non corrisponde 
-        try:
-            if not current_user.password or not check_password_hash(current_user.password, password):
-                flash('Password errata. Impossibile eliminare l\'account.', 'error')
-                return redirect(url_for('account.view'))
-            if not iban or len(iban) != 27:
-                flash('IBAN non valido.', 'error')
-                return redirect(url_for('account.view'))
-            
-            
         
+        try:
+            # Se la password non corrisponde
+            if not current_user.password or not check_password_hash(current_user.password, password):
+                flash("Password errata", "error")
+                return redirect(url_for('account.view'))
+
+            if not iban or len(iban) != 27:
+                flash("IBAN non valido", "error")
+                return redirect(url_for('account.view'))
+
             seller_role = Role.query.filter_by(name='seller').first()
             if seller_role:
-
                 current_user.roles.append(seller_role)                
                 new_seller_information = SellerInformation(user_id = current_user.id, iban = iban)
                 db.session.add(new_seller_information)
                 db.session.commit()
                 info = SellerInformation.query.filter_by(user_id = current_user.id).first()
+                
                 if not info:
                     print("non esiste")
                 else:
                     print(info.iban)
                 
                 #print(current_user.seller_information.iban)
-                flash('Ruolo di seller aggiunto con successo.', 'success')
+                flash("Sei diventato un venditore con successo", "success")
                 return redirect(url_for('account.view'))
-            
             else:
-                flash(f'Ruolo seller non esistente', 'error')
+                flash(f"Il ruolo venditore non esiste", "error")
                 return redirect(url_for('account.view'))
         except Exception as e:
             print(e)
-            flash('Errore durante la modifica del ruolo.', 'error')
+            flash("Errore durante la modifica del ruolo", "error")
             return redirect(url_for('account.view'))
 
-    
     if current_user.has_role('seller'):
-        flash('Sei già un venditore.', 'error')
+        flash("Sei già un venditore", "error")
         return redirect(url_for('account.view'))
+    
     return render_template('become_seller.html')
 
 @app.route('/account/iban/modify', methods = ['GET', 'POST'])
@@ -200,11 +202,13 @@ def modify_iban():
     if request.method == 'POST':
         password = request.form.get('password')
         iban = request.form.get('iban')
+        
         if not password or not current_user.password or not check_password_hash(current_user.password, password):
-            flash('Password errata. Impossibile modificare l\'IBAN.', 'error')
+            flash("Password errata", "error")
             return redirect(url_for('account.modify_iban'))
+        
         if not iban or len(iban) != 27:
-            flash('Inserisci nuovamente l\'iban', 'FAIL')
+            flash("IBAN non valido", "error")
             return redirect(url_for('account.modify_iban'))
         
         #stampa di debug
@@ -217,10 +221,9 @@ def modify_iban():
         #            print(p.iban)
         #            p.iban = iban
 
-
         #current_user.seller_information.iban = iban
         db.session.commit()
-        flash('IBAN modificato con successo.', 'success')
+        flash("IBAN modificato con successo", "success")
         return redirect(url_for('account.view'))
 
     return render_template('modify_iban.html')

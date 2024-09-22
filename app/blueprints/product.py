@@ -12,10 +12,10 @@ def access_product(product_id):
     try:
         product = db.session.get(Product,product_id)
         if not product:
-            flash('Il prodotto non esiste','ERROR')
+            flash('Il prodotto non esiste',"error")
             return redirect(url_for('shop.shop'))
     except Exception:
-        flash('Si è verificato un errore di database. Riprova più tardi','ERROR')
+        flash('Si è verificato un errore di database. Riprova più tardi',"error")
         return redirect(url_for('shop.shop'))
         
     return render_template('product.html', product=product)
@@ -33,18 +33,19 @@ def add_product():
         availability = request.form.get('availability')
         list_categories = request.form.getlist('selected_categories_product')
         category_objects = []
+        
         try:
             if list_categories:
                 for category_name in list_categories:
                         category = Category.query.filter_by(name=category_name).first()
                         if not category:
-                            flash('Categoria non trovata', 'ERROR')
+                            flash('Categoria non trovata', "error")
                             return redirect(url_for('account.view'))
                         category_objects.append(category)
             else:
                 category = Category.query.filter_by(name='Altro').first()
                 if not category:
-                    flash('Errore nel database. Riprova più tardi', 'ERROR')
+                    flash('Errore nel database. Riprova più tardi', "error")
                     return redirect(url_for('account.view'))
                 category_objects.append(category)
 
@@ -60,10 +61,10 @@ def add_product():
 
         except Exception:
             db.session.rollback()
-            flash('Si è verificato un errore di database. Riprova più tardi','ERROR')
+            flash('Si è verificato un errore di database. Riprova più tardi',"error")
             return redirect(url_for('shop.shop'))
         
-        flash('Prodotto aggiunto correttamente', 'SUCCESS')
+        flash('Prodotto aggiunto correttamente', "success")
         return redirect(url_for('account.view'))
     
     return render_template('add_product.html', categories = Category.query.all())
@@ -76,7 +77,7 @@ def delete_product(product_id):
     try:
         product = next((p for p in current_user.products if p.id == product_id), None)
         if not product:
-            flash('il prodotto non è stato trovato', 'ERROR')
+            flash('il prodotto non è stato trovato', "error")
             return redirect(url_for('account.view'))
         # Elimino tutte le tuple del carrello che si riferiscono a quell'oggetto
         for item in product.in_carts:
@@ -85,9 +86,10 @@ def delete_product(product_id):
         db.session.commit()
     except Exception:
         db.session.rollback()
-        flash('Si è verificato un errore di database. Riprova più tardi','ERROR')
+        flash('Si è verificato un errore di database. Riprova più tardi',"error")
         return redirect(url_for('shop.shop'))
-    flash('Prodotto eliminato correttamente', 'SUCCESS')
+    
+    flash('Prodotto eliminato correttamente', "success")
     return redirect(url_for('account.view'))
     
 @app.route('/modify_product/<int:product_id>', methods=['GET'])
@@ -96,10 +98,10 @@ def modify_product(product_id):
     try:
         product = next((p for p in current_user.products if p.id == product_id), None)
         if not product:
-            flash('il prodotto non è stato trovato', 'ERROR')
+            flash('il prodotto non è stato trovato', "error")
             return redirect(url_for('account.view'))
     except Exception:
-            flash('Si è verificato un errore di database. Riprova più tardi','ERROR')
+            flash('Si è verificato un errore di database. Riprova più tardi',"error")
             return redirect(url_for('shop.shop'))
 
     if request.method == 'POST':
@@ -125,13 +127,13 @@ def modify_product(product_id):
                     for category_name in list_categories:
                             category = Category.query.filter_by(name=category_name).first()
                             if not category:
-                                flash('Categoria non trovata', 'ERROR')
+                                flash('Categoria non trovata', "error")
                                 return redirect(url_for('account.view'))
                             categories.append(category)
             else:
                 category = Category.query.filter_by(name='Altro').first()
                 if not category:
-                    flash('Errore nel database. Riprova più tardi', 'ERROR')
+                    flash('Errore nel database. Riprova più tardi', "error")
                     return redirect(url_for('account.view'))
                 categories.append(category)
             
@@ -148,7 +150,7 @@ def modify_product(product_id):
         
         except Exception:
             db.session.rollback()
-            flash('Si è verificato un errore di database. Riprova più tardi','ERROR')
+            flash('Si è verificato un errore di database. Riprova più tardi',"error")
             return redirect(url_for('shop.shop'))
         
         flash('Prodotto aggiornato con successo')
@@ -185,10 +187,8 @@ def order_product(product_id):
             if not card:
                 flash('Carta non trovata', 'fail')
                 return redirect(url_for('product.access_product', product_id=product_id))
-
-
         except Exception:
-            flash('Si è verificato un errore di database1. Riprova più tardi.', 'error')
+            flash('Si è verificato un errore di database1. Riprova più tardi.', "error")
             return redirect(url_for('product.access_product', product_id=product_id))
 
         
@@ -222,14 +222,13 @@ def order_product(product_id):
 
             #current_user.seller_information.profit += product.price * quantity
             db.session.commit()
-            flash('Ordine effettuato con successo', 'success')
+            flash('Ordine effettuato con successo', "success")
             return redirect(url_for('shop.orders'))
-
         except Exception as e:
             # In caso di errore, rollback e gestione dell'eccezione
             db.session.rollback()
             print(f"Errore durante l'operazione: {str(e)}")
-            flash('Si è verificato un errore di database2. Riprova più tardi.', 'error')
+            flash('Si è verificato un errore di database2. Riprova più tardi.', "error")
             return redirect(url_for('product.access_product', product_id=product_id))
         
     elif request.method == 'GET':
@@ -254,7 +253,7 @@ def order_product(product_id):
                 return redirect(url_for('product.access_product', product_id=product_id))
         except Exception as e:
             print(f"Errore durante l'operazione: {str(e)}")
-            flash('Si è verificato un errore di database3. Riprova più tardi','error')
+            flash('Si è verificato un errore di database3. Riprova più tardi',"error")
             return redirect(url_for('product.access_product', product_id=product_id))
         
         return render_template('order_product.html', product = product)

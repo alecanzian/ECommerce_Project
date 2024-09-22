@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, render_template, session, redirect, request, url_for
 from flask_login import login_required, current_user
-from extensions.database import Cart, Order, OrderProduct, Profile, db, Product, Notification
+from extensions.database import Cart, Order, OrderProduct, Product, Notification, db
 from extensions.princ import buyer_required
 
 app = Blueprint('cart', __name__)
@@ -19,13 +19,16 @@ def add_to_cart(product_id):
         if item.product_id == product.id:
             flash('Prodotto già nel carrello', 'fail')
             return redirect(url_for('product.access_product', product_id=product_id))
+        
     if product.availability == 0:
         flash('Prodotto non disponibile', 'fail')
         return redirect(url_for('product.access_product', product_id=product_id))
+    
     item = Cart(profile_id = session['current_profile_id'], user_id = current_user.id, product_id = product.id, quantity=1)
     db.session.add(item)
     db.session.commit()
-    flash('Prodotto aggiunto correttamente al carrello', 'success')
+    
+    flash('Prodotto aggiunto correttamente al carrello', "success")
     return redirect(url_for('product.access_product', product_id=product_id))
 
 @app.route('/delete_item_from_cart/<int:item_id>', methods = ['GET'])
@@ -35,9 +38,10 @@ def delete_item_from_cart(item_id):
     if item:
         db.session.delete(item)
         db.session.commit()
-        flash('Prodotto rimosso correttamente dal carrello', 'success')
+        flash('Prodotto rimosso correttamente dal carrello', "success")
         return redirect(url_for('cart.cart'))
-    flash('Prodotto non trovato nel carrello', 'error')
+    
+    flash('Prodotto non trovato nel carrello', "error")
     return redirect(url_for('cart.cart'))
 
 @app.route('/order_cart_items', methods = ['GET', 'POST'])
@@ -92,16 +96,16 @@ def order_cart_items():
                 )
                 db.session.add(notification)
                 #current_user.seller_information.profit += item.product.price * item.quantity
-
                 
             new_order.total_price = total_price
             db.session.commit()
-            flash('Ordine avvenuto correttamente','success')
+            
+            flash('Ordine avvenuto correttamente',"success")
             return redirect(url_for('shop.orders'))
         except Exception as e:
             print(f"Errore durante l'operazione: {str(e)}")
             db.session.rollback()
-            flash('Si è verificato un errore di database4. Riprova più tardi','error')
+            flash('Si è verificato un errore di database4. Riprova più tardi',"error")
             return redirect(url_for('cart.cart'))
         
     if not current_user.cards or not current_user.addresses:
@@ -116,17 +120,20 @@ def change_quantity_cart_item(item_id):
     if not quantity:
         flash('Inserisci la quantità prima di premere Applica', 'fail')
         return redirect(url_for('cart.cart'))
+    
     try:
         item = next((i for i in current_user.cart_items if i.id == item_id), None)
         if not item:
-            flash('Prodotto non trovato', 'error')
+            flash('Prodotto non trovato', "error")
             return redirect(url_for('cart.cart'))
+        
         item.quantity = quantity
         db.session.commit()
-        flash('La quantità è stata aggiornata correttamente', 'success')
+        
+        flash('La quantità è stata aggiornata correttamente', "success")
         return redirect(url_for('cart.cart'))
     except Exception as e:
         db.session.rollback()
         print(f"Errore durante l'operazione: {str(e)}")
-        flash('Si è verificato un errore di database5. Riprova più tardi','error')
+        flash('Si è verificato un errore di database5. Riprova più tardi',"error")
         return redirect(url_for('cart.cart'))

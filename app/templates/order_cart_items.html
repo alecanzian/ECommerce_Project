@@ -1,44 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Product</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
-</head>
-<body>
-    
+{% extends "base.html" %}
+
+{% block title %}Ordina prodotto{% endblock %}
+
+{% block main %}
     <h1>Order product</h1>
 
     <form action="{{ url_for('cart.order_cart_items') }}" method="POST">
         <div class="colonna">
-            {%if current_user.addresses%}
-            {% for address in current_user.addresses %}
-                <input type="radio" id="{{ address.id }}" name="selected_address_id" value="{{ address.id }}" required>
-                <label for="{{ address.id }}">{{ address.street }},{{address.city}},{{address.postal_code}},{{address.province}},{{address.country}}</label><br>
-            {% endfor %}
-            <a href="{{url_for('address.add', action = 'order_cart_items')}}">Aggiungi indirizzo</a>
-            {%endif%}
+            {% if current_user.addresses%}
+                {% for address in current_user.addresses %}
+                    <input type="radio" id="{{ address.id }}" name="selected_address_id" value="{{ address.id }}" required>
+                    <label for="{{ address.id }}">{{ address.street }},{{address.city}},{{address.postal_code}},{{address.province}},{{address.country}}</label><br>
+                {% endfor %}
+                <a href="{{url_for('address.add', action = 'order_cart_items')}}">Aggiungi indirizzo</a>
+            {% endif %}
         </div>
-        {%if current_user.cards%}
-        {% for card in current_user.cards %}
-            <input type="radio" id="{{ card.id }}" name="selected_card_id" value="{{ card.id }}" required>
-            <label for="{{ card.id }}">{{ card.name }} {{card.surname}}  *****{{card.last_digits}}</label><br>
-        {% endfor %}
+        {% if current_user.cards%}
+            {% for card in current_user.cards %}
+                <input type="radio" id="{{ card.id }}" name="selected_card_id" value="{{ card.id }}" required>
+                <label for="{{ card.id }}">{{ card.name }} {{card.surname}}  *****{{card.last_digits}}</label><br>
+            {% endfor %}
             <a href="{{url_for('card.add')}}">Aggiungi carta</a>
-        {%endif%}
-        <button type="submit">Add</button>
+        {% endif %}
+        <button type="submit">Aggiungi</button>
     </form>
     
     <a href="{{ url_for('cart.cart') }}">Annulla</a>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                <li class="{{ category }}">{{category }}: {{ message }}</li>                
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-</body>
-</html>
+{% endblock %}

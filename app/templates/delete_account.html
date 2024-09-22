@@ -1,35 +1,13 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conferma Password Account</title>
-</head>
-<body>
-    <header>
-        <div class="header-left">
-            <!-- Logo -->
-            <a href="{{ url_for('shop.shop') }}">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
-            </a>
-        </div>
-    </header>
-        <h1>Conferma Eliminazione Account</h1>
-        <p>Per favore, inserisci la tua password per confermare l'eliminazione del tuo account.</p>
-        <form action="{{ url_for('account.delete') }}" method="POST">
-            <input type="password" id="password" name="password" placeholder="password" required>
-            <button type="submit">Conferma Eliminazione</button>
-        </form>
-        <a href="{{ url_for('account.view') }}">Annulla</a>
+{% extends "base.html" %}
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{category }}: {{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-</body>
-</html>
+{% block title %}Eliminazione account{% endblock %}
+
+{% block main %}
+    <h1>Conferma eliminazione account</h1>
+    <p>Per favore, inserisci la tua password per confermare l'eliminazione del tuo account</p>
+    <form action="{{ url_for('account.delete') }}" method="POST">
+        <input type="password" id="password" name="password" placeholder="Password" required>
+        <button type="submit" style="background-color: #cd0000;">Conferma eliminazione</button>
+    </form>
+    <a href="{{ url_for('account.view') }}">Annulla</a>
+{% endblock %}

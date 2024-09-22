@@ -1,60 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Card</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
-</head>
-<body>
-    <header>
-        <div class="header-left">
-            <!-- Logo -->
-            <a href="{{ url_for('auth.home') }}">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
-            </a>
-        </div>
-    </header>
-    <main>
-        <h1>Add New card</h1>
-        <form method="POST" action="{{ url_for('card.add') }}">
-            <input type="hidden" name="action" value = "0">
+{% extends "base.html" %}
 
-            <select name="card_type" required>
-                <option value="" disabled selected >Seleziona il tipo di carta</option>
-                <option value="credit">Credit Card</option>
-                <option value="debit">Debit Card</option>
-            </select>
-            <input type="text" name="name" placeholder="Name" required>
-            <input type="text" name="surname" placeholder="Surname" required>
-            <input type="number" name="card_number" placeholder="PAN" required>
-            <input type="number" name="expiration_month" id = "expiration_month" placeholder="Month" min = "1" max = "12" required>    
-            <input type="number" name="expiration_year"  id = "expiration_year" placeholder="Year" required>    
+{% block title %}Nuova carta{% endblock %}
 
-            <button type="submit">Add Card</button>
-        </form>
-        {%if action == "profile"%}
-            <a href="{{ url_for('account.view') }}">Annulla</a>
-        {%elif action == "order_cart_items"%}
-            <a href="{{ url_for('cart.order_cart_items') }}">Annulla</a>
-        {%else%}
-            <a href="{{url_for('product.order_product', product_id = action)}}">Annulla</a>
-        {%endif%}
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{category}}: {{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+{% block main %}
+    <h1>Nuova carta</h1>
+
+    <form method="POST" action="{{ url_for('card.add') }}">
+        <input type="hidden" name="action" value = "0">
+        <select name="card_type" required>
+            <option value="" disabled selected >Seleziona il tipo di carta</option>
+            <option value="credit">Carta di credito</option>
+            <option value="debit">Carta di debito</option>
+        </select>
+        <input type="text" name="name" placeholder="Nome" required>
+        <input type="text" name="surname" placeholder="Cognome" required>
+        <input type="number" name="card_number" placeholder="PAN" required>
+        <input type="number" name="expiration_month" id="expiration_month" placeholder="Mese" min = "1" max = "12" required>    
+        <input type="number" name="expiration_year"  id="expiration_year" placeholder="Anno" required>    
+        <button type="submit">Aggiungi carta</button>
+    </form>
+
+    {% if action == "profile"%}
+        <a href="{{ url_for('account.view') }}">Annulla</a>
+    {%elif action == "order_cart_items"%}
+        <a href="{{ url_for('cart.order_cart_items') }}">Annulla</a>
+    {% else %}
+        <a href="{{url_for('product.order_product', product_id = action)}}">Annulla</a>
+    {% endif %}
+    
+{% endblock %}
+{% block scripts %}
     <script>
         const currentDate = new Date();
         document.getElementById('expiration_month').min = currentDate.getMonth() + 1;
         document.getElementById("expiration_year").min = currentDate.getFullYear();
     </script>
-    </main>
-</body>
-</html>
+{% endblock %}

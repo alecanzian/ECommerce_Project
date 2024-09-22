@@ -1,79 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ordini</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='orders.css') }}">
-</head>
-<body>
-    <header>
-        <div class="header-left">
-            <!-- Logo -->
-            <a href="{{ url_for('shop.homepage') }}">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
-            </a>
-        </div>
-        <div class="header-right">
-            <div class="navbar">
-                <a href="{{ url_for('shop.shop') }}">Back to shop</a>
-            </div>
-        </div>
-    </header>
-    <main>
-        <h1>Lista Ordini</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID Ordine</th>
-                    <th>Data Ordine</th>
-                    <th>Indirizzo Spedizione</th>
-                    <th>Prodotti</th>
-                    <th>Prezzo Totale</th>
-                </tr>
-            </thead>
-            <tbody>
-                {%if current_user.orders%}
-                    {%for order in current_user.orders%}
-                    <tr>
-                        <td>{{ order.id }}</td>
-                        <td>{{ order.order_date.strftime('%d-%m-%Y') }}</td>
-                        <td>{{ order.address }}</td>
-                        <td>
-                            <ul>
-                            {%if order.products%}
-                                {% for product in order.products %}
-                                    {% if product.product_id %}
-                                        <li><a href="{{url_for('product.access_product', product_id=product.product_id)}}">{{product.product_name}}</a> (x{{ product.quantity }}) {{product.state.name}}</li>
-                                    {% else %}
-                                        <li>{{ product.product_name }} (x{{ product.quantity }}) {{product.state.name}}</li>
-                                    {% endif %}
-                                {% endfor %}
+{% extends "base.html" %}
 
-                            {%endif%}
-                            </ul>
-                        </td>
-                        <td>{{ order.total_price }}</td>
-                    </tr>
-                    {%endfor%}
-            {%else%}
+{% block title %}Ordini{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='orders.css') }}">
+{% endblock %}
+
+{% block main %}
+    <h1>Lista Ordini</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID ordine</th>
+                <th>Data ordine</th>
+                <th>Indirizzo spedizione</th>
+                <th>Prodotti</th>
+                <th>Prezzo totale</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if current_user.orders %}
+                {% for order in current_user.orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.order_date.strftime('%d-%m-%Y') }}</td>
+                    <td>{{ order.address }}</td>
+                    <td>
+                        <ul>
+                        {% if order.products %}
+                            {% for product in order.products %}
+                                {% if product.product_id %}
+                                    <li><a href="{{url_for('product.access_product', product_id=product.product_id)}}">{{ product.product_name }}</a> (x{{ product.quantity }}) {{ product.state.name }}</li>
+                                {% else %}
+                                    <li>{{ product.product_name }} (x{{ product.quantity }}) {{product.state.name}}</li>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        </ul>
+                    </td>
+                    <td>{{ order.total_price }}</td>
+                </tr>
+                {% endfor %}
+        {% else %}
             <tr>
                 <td colspan="5">Nessun ordine trovato</td>
             </tr>
-            {%endif%}
-            </tbody>
-        </table>
-    </main>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{category}}: {{ message }}</li>
-                {% endfor %}
-            </ul>
         {% endif %}
-    {% endwith %}
-</body>
-</html>
+        </tbody>
+    </table>
+{% endblock %}

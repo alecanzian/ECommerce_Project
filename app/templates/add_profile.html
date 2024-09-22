@@ -1,44 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Profile</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
-</head>
-<body>
-    <header>
-        <div class="header-left">
-            <!-- Logo -->
-            <a href="{{ url_for('auth.home') }}">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
-            </a>
-        </div>
-        <div class="header-right">
-            <a href="{{ url_for('auth.logout') }}">Logout</a>
-        </div>
-    </header>
+{% extends "base.html" %}
 
-    <main>
-        <h1>Add New Profile</h1>
-        <form method="POST" action="{{ url_for('profile.add') }}">
-            <input type="hidden" name = "action" value ="action">
-            <input type="text" id="name" name="name" placeholder="Nome" required>
-            <input type="text" id="surname" name="surname" placeholder="Cognome" required>
-            <input type="date" id="birth_date" name="birth_date" placeholder="Data di nascita" required>
-            <button type="submit">Add Profile</button>
-        </form>
-        <a href="{{ url_for('profile.select') }}">Back to profile selection</a>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{category }}:{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-    </main>
-</body>
-</html>
+{% block title %}Nuovo profilo{% endblock %}
+
+{% block main %}
+    <h1>Nuovo profilo</h1>
+
+    <form action="{{ url_for('profile.add') }}" method="POST">
+        <input type="hidden" name = "action" value ="action">
+        <input type="text" id="name" name="name" placeholder="Nome" required>
+        <input type="text" id="surname" name="surname" placeholder="Cognome" required>
+        <input type="date" id="birth_date" name="birth_date" placeholder="Data di nascita" required>
+        <button type="submit">Add Profile</button>
+    </form>
+    
+    <a href="{{ url_for('profile.select') }}">Torna alla selezione dei profili</a>
+{% endblock %}

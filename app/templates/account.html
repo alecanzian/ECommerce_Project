@@ -1,105 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account</title>
+{% extends "base.html" %}
+
+{% block title %}Account{% endblock %}
+
+{% block styles %}
     <link rel="stylesheet" href="{{ url_for('static', filename='account.css') }}">
-</head>
-<body>
-    <header>
-        <div class="header-left">
-            <!-- Logo -->
-            <a href="{{ url_for('auth.home') }}">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
-            </a>
-        </div>
-    </header>
-    <a href="{{url_for('shop.shop')}}">Back to shop</a> 
+{% endblock %}
+
+{% block main %}
     <h1>Account</h1>
-    <a href="{{ url_for('account.delete') }}"">Elimina</a>
+    <a href="{{ url_for('account.delete') }}">Elimina</a>
+    <table>
+        <tr>
+            <th>Nome utente</th>
+            <td>{{current_user.username}}</td>
+        </tr>
+        <tr>
+            <th>Password</th>
+            <td>********  
+                <a href="{{ url_for('account.change_password') }}">Modifica</a>
+            </td>
+        </tr>
+        <tr>
+            <th>Ruoli</th>
+            <td>
+                <ul>
+                    {% for role in current_user.roles %}
+                        <li>{{ role.name }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+        </tr>
+    </table>
+
+    <h1>Profili</h1>
+    <a href="{{ url_for('profile.add', action = 1) }}">Aggiungi</a>
+    {% for p in current_user.profiles %}
+        <p></p>
         <table>
             <tr>
-                <th>Username</th>
-                <td>{{current_user.username}}</td>
-            </tr>
-            <tr>
-                <th>Password</th>
-                <td>********  
-                    <a href="{{ url_for('account.change_password') }}"">Modifica</a>
-                </td>
-            </tr>
-            <tr>
-                <th>Roles</th>
+                <th>
+                    <a href="{{ url_for('profile.modify', profile_id = p.id) }}">Modifica</a>
+                    <a href="{{ url_for('profile.delete', profile_id = p.id) }}">Elimina</a>
+                </th>
                 <td>
-                    <ul>
-                        {%if current_user.roles%}
-                        {% for role in current_user.roles %}
-                            <li>{{ role.name }}</li>
-                        {% endfor %}
-                        {%else%}
-                            <li>Non ci sono ruoli</li>
-                        {%endif%}
-                    </ul>
+                    <img src="{{ p.image_url }}" alt="Nome" width = "50" height = "50">
                 </td>
+                
+            </tr>
+            <tr>
+                <th>Nome</th>
+                <td>{{ p.name }}</td>
+            </tr>
+            <tr>
+                <th>Cognome</th>
+                <td>{{ p.surname }}</td>
+            </tr>
+            <tr>
+                <th>Data di nascita</th>
+                <td>{{ p.birth_date }}</td>
             </tr>
         </table>
-        <h1>Profiles</h1>
-        <a href="{{ url_for('profile.add', action = 1) }}"">Aggiungi</a>
-        {% for p in current_user.profiles %}
-            <p></p>
+    {% endfor %}
 
+    <h1>Metodi di pagamento</h1>
+    <a href="{{ url_for('card.add', action = 'profile') }}">Aggiungi</a>
+    {% if current_user.cards %}
+        {% for card in current_user.cards %}
             <table>
                 <tr>
                     <th>
-                        <a href="{{ url_for('profile.modify', profile_id = p.id) }}">Modifica</a>
-                        <a href="{{ url_for('profile.delete', profile_id = p.id) }}">Elimina</a>
+                        <a href="{{ url_for('card.delete', card_id = card.id) }}">Elimina</a>
                     </th>
-                    <td>
-                        <img src="{{ p.image_url }}" alt="Nome" width = "50" height = "50">
-                    </td>
-                    
                 </tr>
                 <tr>
-                    <th>Name</th>
-                    <td>{{ p.name }}</td>
+                    <th>Nome Cognome</th>
+                    <td>{{ card.name }} {{ card.surname }}</td>
                 </tr>
                 <tr>
-                    <th>Surname</th>
-                    <td>{{ p.surname }}</td>
-                </tr>
-                <tr>
-                    <th>Birth Date</th>
-                    <td>{{ p.birth_date }}</td>
+                    <th>PAN</th>
+                    <td>*****{{ card.last_digits }}</td>
                 </tr>
             </table>
+            <p></p>
+        {% endfor %}
+    {% endif %}
 
-        {% endfor %}
-    
-    <h1>Cards</h1>
-    <a href="{{ url_for('card.add', action = '') }}"">Aggiungi</a>
-    {%if current_user.cards%}
-    {% for card in current_user.cards %}
-    <table>
-        <tr>
-            <th>
-                <a href="{{ url_for('card.delete', card_id = card.id) }}">Elimina</a>
-            </th>
-        </tr>
-        <tr>
-            <th>Name Surame</th>
-            <td>{{ card.name }} {{card.surname}}</td>
-        </tr>
-        <tr>
-            <th>PAN</th>
-            <td>*****{{card.last_digits}}</td>
-        </tr>
-    </table>
-    <p></p>
-        {% endfor %}
-    {%endif%}
-    <h1>Addresses</h1>
-    <a href="{{ url_for('address.add', action = 'profile') }}"">Aggiungi</a>
+    <h1>Indirizzi</h1>
+    <a href="{{ url_for('address.add', action = 'profile') }}">Aggiungi</a>
+    {% if current_user.addresses %}
     {% for address in current_user.addresses %}
         <table>
             <tr>
@@ -107,129 +95,118 @@
                     <a href="{{ url_for('address.modify', address_id = address.id) }}">Modifica</a>
                     <a href="{{ url_for('address.delete', address_id = address.id) }}">Elimina</a>
                 </th>
-                
             </tr>
             <tr>
-                <th>Street</th>
+                <th>Via</th>
                 <td>{{ address.street }}</td>
             </tr>
             <tr>
-                <th>Postal Code</th>
+                <th>Codice Postale</th>
                 <td>{{ address.postal_code }}</td>
             </tr>
             <tr>
-                <th>City</th>
+                <th>Città</th>
                 <td>{{ address.city }}</td>
             </tr>
             <tr></tr>
-                <th>province</th>
+                <th>Provincia</th>
                 <td>{{ address.province }}</td>
             </tr>
             <tr>
-                <th>Country</th>
+                <th>Paese</th>
                 <td>{{ address.country }}</td>
             </tr>
         </table>
-
         <p></p>
-    {% endfor %}
-
-    <h1>Seller Information</h1>
-    {% if current_user.has_role('seller') %}
-    <table>
-        <tr>
-            <th>IBAN</th>
-            {%if not current_user.seller_information.iban%}
-            {%endif%}
-            <td>{{current_user.seller_information.iban}}
-                <a href="{{ url_for('account.modify_iban') }}">Modifica</a>
-            </td>
-        </tr>
-        <tr>
-            <th>Profit</th>
-            <th>{{current_user.seller_information.profit}}</th>
-        </tr>
-    </table>
-    <h1>Products</h1>
-    <a href="{{ url_for('product.add_product') }}">Aggiungi</a>
-        {% for p in current_user.products %}
-            <table>
-                <tr>
-                    <th><a href="{{ url_for('product.modify_product', product_id = p.id) }}">Modifica</a>
-                        <a href="{{ url_for('product.delete_product', product_id = p.id) }}">Elimina</a></th>
-                    <td>
-                        <img src="{{ p.image_url }}" alt="Nome" width = "50" height = "50">
-                    </td>
-                    
-                </tr>
-                <tr>
-                    <th>Name</th>
-                    <td>{{ p.name }}</td>
-                </tr>
-                <tr>
-                    <th>Categories</th>
-                    <td>|{% for c in p.categories %}
-                        {{ c.name }} |
-                    {% endfor %}
-                    </td>
-                </tr>
-                <tr>
-                    <th>Description</th>
-                    <td>{{ p.description }}</td>
-                </tr>
-                <tr>
-                    <th>Price</th>
-                    <td>${{ p.price }}</td>
-                </tr>
-                <tr>
-                    <th>Availability</th>
-                    <td>{{ p.availability }}</td>
-                </tr>
-                <tr>
-                    <th>Associated profile</th>
-                    <td>{{ current_user.username }}</td>
-                </tr>
-            </table>
-            <p></p>
-
-        
         {% endfor %}
-
-    <h1>Ordini dei propri prodotti</h1>
-        {% for p in current_user.products %}
-            {% for order_product in p.in_order %}
-                {%if order_product.state.name != "Consegnato"%}
-                    <table>
-                        <tr>
-                            <th>Name</th>
-                            <td>{{ order_product.product_name }}</td>
-                        </tr>
-                        <tr>
-                            
-                            <td>Stato</td>
-                            <th>{{order_product.state.name}} <a href="{{ url_for('shop.modify_order_state', order_product_id = order_product.id) }}">Modifica</a>
-                        </tr>
-                            
-                    </table>
-                {%endif%}
-            {%endfor%}
-            <p></p>
-
-        
-        {% endfor %}
-    {%else%}
-    <a rel="stylesheet" href="{{ url_for('account.become_seller') }}">Diventa un Seller!</a>
-
     {% endif %}
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{category}}:{{ message }}</li>
-                {% endfor %}
-            </ul>
+    {% if current_user.has_role('seller') %}
+        <h1>Informazioni venditore</h1>
+        <table>
+            <tr>
+                <th>IBAN</th>
+                {% if current_user.seller_information.iban %}
+                    <td>{{ current_user.seller_information.iban }}
+                        <a href="{{ url_for('account.modify_iban') }}">Modifica</a>
+                    </td>
+                {% endif %}
+            </tr>
+            <tr>
+                <th>Guadagno</th>
+                {% if current_user.seller_information.profit %}
+                    <th>{{ current_user.seller_information.profit }}</th>
+                {% endif %}
+            </tr>
+        </table>
+
+        <h1>Prodotti</h1>
+        <a href="{{ url_for('product.add_product') }}">Aggiungi</a>
+        {% if current_user.products %}
+            {% for p in current_user.products %}
+                <table>
+                    <tr>
+                        <th><a href="{{ url_for('product.modify_product', product_id = p.id) }}">Modifica</a>
+                            <a href="{{ url_for('product.delete_product', product_id = p.id) }}">Elimina</a></th>
+                        <td>
+                            <img src="{{ p.image_url }}" alt="Nome" width = "50" height = "50">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Nome</th>
+                        <td>{{ p.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Categoria</th>
+                        <td>|
+                            {% for c in p.categories %}
+                                {{ c.name }} |
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Descrizione</th>
+                        <td>{{ p.description }}</td>
+                    </tr>
+                    <tr>
+                        <th>Prezzo</th>
+                        <td>€{{ p.price }}</td>
+                    </tr>
+                    <tr>
+                        <th>Disponibilità</th>
+                        <td>{{ p.availability }}</td>
+                    </tr>
+                    <tr>
+                        <th>Profilo associato</th>
+                        <td>{{ current_user.username }}</td>
+                    </tr>
+                </table>
+                <p></p>
+            {% endfor %}
         {% endif %}
-    {% endwith %}
-</body>
-</html>
+
+        <h1>Ordini dei propri prodotti</h1>
+        {% if current_user.products %}
+            {% for p in current_user.products %}
+                {% for order_product in p.in_order %}
+                    {% if order_product.state.name != "Consegnato" %}
+                        <table>
+                            <tr>
+                                <th>Nome</th>
+                                <td>{{ order_product.product_name }}</td>
+                            </tr>
+                            <tr>
+                                
+                                <td>Stato</td>
+                                <th>{{ order_product.state.name }} <a href="{{ url_for('shop.modify_order_state', order_product_id = order_product.id) }}">Modifica</a></th>
+                            </tr>
+                        </table>
+                    {% endif %}
+                {% endfor %}
+                <p></p>
+            {% endfor %}
+        {% endif %}
+    {% else %}
+        <a rel="stylesheet" href="{{ url_for('account.become_seller') }}">Diventa un venditore!</a>
+    {% endif %}
+{% endblock %}

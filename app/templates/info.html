@@ -1,61 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Users</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='users.css') }}">
+{% extends "base.html" %}
 
-</head>
-<body>
-    <header>
-        <div class="header-left">
-            <!-- Logo -->
-            <a href="{{ url_for('auth.home') }}">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
-            </a>
-        </div>
-        <div class="header-right">
-            <a href="{{ url_for('shop.shop') }}">Back to Shop</a>
+{% block title %}Pagina amministratore{% endblock %}
 
-            <a href="{{ url_for('auth.logout') }}">Logout</a>
-        </div>
-    </header>
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='users.css') }}">
+{% endblock %}
 
+{% block main %}
     <h1>All Info</h1>
 
     <table>
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Username</th>
+                <th>Nome utente</th>
                 <!--<th>Password</th>-->
-                <th>Roles</th>
-                <th>Profiles</th> <!-- Nuova colonna per i profili -->
+                <th>Ruoli</th>
+                <th>Profili</th> <!-- Nuova colonna per i profili -->
             </tr>
         </thead>
         <tbody>
             {% for user in users %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.username }}</td>
-                <!--<td>{{ user.password }}</td>-->
-                <td>
-                    {% for role in user.roles %}
-                        {{ role.name }}{% if not loop.last %}, {% endif %}
-                    {% endfor %}
-                </td>
-                <td>
-                    <ul>
-                        {% for profile in user.profiles %}
-                            
-                            <img src="{{ profile.image_url }}" alt="{{ profile.name }}" width="50" height = "50">
-                            <p>{{ profile.id }} {{ profile.name }} {{ profile.surname }}</p>
-                              
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <!--<td>{{ user.password }}</td>-->
+                    <td>
+                        {% for role in user.roles %}
+                            {{ role.name }}{% if not loop.last %}, {% endif %}
                         {% endfor %}
-                    </ul>
-                </td>
-            </tr>
+                    </td>
+                    <td>
+                        <ul>
+                            {% for profile in user.profiles %}
+                                <img src="{{ profile.image_url }}" alt="{{ profile.name }}" width="50" height = "50">
+                                <p>{{ profile.id }} {{ profile.name }} {{ profile.surname }}</p>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>
@@ -64,44 +47,44 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Street</th>
-                <th>Postal Code</th>
-                <th>City</th>
-                <th>Province</th>
-                <th>Country</th>
+                <th>Via</th>
+                <th>Codice postale</th>
+                <th>Città</th>
+                <th>Provincia</th>
+                <th>Paese</th>
             </tr>
         </thead>
+
         {% for address in addresses %}
-        <tr>
-            <td>{{ address.id }}</td>
-            <td>{{ address.street }}</td>
-            <td>{{ address.postal_code }}</td>
-            <td>{{ address.city }}</td>
-            <td>{{ address.province }}</td>
-            <td>{{ address.country }}</td>
-        </tr>
+            <tr>
+                <td>{{ address.id }}</td>
+                <td>{{ address.street }}</td>
+                <td>{{ address.postal_code }}</td>
+                <td>{{ address.city }}</td>
+                <td>{{ address.province }}</td>
+                <td>{{ address.country }}</td>
+            </tr>
         {% endfor %}
     </table>
     
     <table>
         <thead>
             <tr>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>User</th>
+                <th>Prodotto</th>
+                <th>Quantità</th>
+                <th>Utente</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-            {%for item in cart_items%}
-            {%if item%}
-                    <th>{{item.product.name}}</th>
-                    <th>{{item.quantity}}</th>
-                    <th>{{item.user.username}}</th>
-        
-            {%endif%}
-            {%endfor%}
-        </tr>
+                {% for item in cart_items %}
+                    {% if item %}
+                        <th>{{item.product.name}}</th>
+                        <th>{{item.quantity}}</th>
+                        <th>{{item.user.username}}</th>
+                    {% endif %}
+                {% endfor %}
+            </tr>
         </tbody>
     </table>
 
@@ -109,42 +92,39 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Description</th>
-                <th>Availability</th>
-                <th>Categories</th>
+                <th>Nome</th>
+                <th>Prezzo</th>
+                <th>Descrizione</th>
+                <th>Disponibilità</th>
+                <th>Categoria</th>
             </tr>
         </thead>
         <tbody>
             {% for p in products %}
-            <tr>
-                <td>{{ p.id }}</td>
-                <td>{{ p.name }}</td>
-                <td>{{ p.price }}</td>
-                <td>{{ p.description }}</td>
-                <td>{{ p.availability }}</td>
-                <td>
-                    {% if p.categories %}
-                        {% for category in p.categories %}
-                            <p>{{ category.name }}</p>
-                        {% endfor %}
-                    {% else %}
-                        <p>Nessuna categoria associata</p>
-                    {% endif %}
+                <tr>
+                    <td>{{ p.id }}</td>
+                    <td>{{ p.name }}</td>
+                    <td>{{ p.price }}</td>
+                    <td>{{ p.description }}</td>
+                    <td>{{ p.availability }}</td>
+                    <td>
+                        {% if p.categories %}
+                            {% for category in p.categories %}
+                                <p>{{ category.name }}</p>
+                            {% endfor %}
+                        {% else %}
+                            <p>Nessuna categoria associata</p>
+                        {% endif %}
                     </td>
-                
-                    
-            </tr>
+                </tr>
             {% endfor %}
         </tbody>
     </table>
-
     <table>
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Name</th>
+                <th>Nome</th>
             </tr>
         </thead>
         <tbody>
@@ -156,12 +136,11 @@
             {% endfor %}
         </tbody>
     </table>
-
     <table>
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Name</th>
+                <th>Nome</th>
             </tr>
         </thead>
         <tbody>
@@ -173,11 +152,10 @@
             {% endfor %}
         </tbody>
     </table>
-
     <table>
         <thead>
             <tr>
-                <th>Username in Session</th>
+                <th>Nome utente in sessione</th>
             </tr>
         </thead>
         <tbody>
@@ -187,15 +165,4 @@
             </tr>
         </tbody>
     </table>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{category}}: {{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-</body>
-</html>
+{% endblock %}

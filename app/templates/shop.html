@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,28 +19,28 @@
             <div class="navbar">
                 <div class="dropdown">
                     <a href="{{ url_for('account.view') }}" class="dropbtn">
-                    {%if current_user%}
+                    {% if current_user%}
                         {% for p in current_user.profiles %}
                             {% if p.id == session['current_profile_id'] %}
                                 {{ p.name }} {{ p.surname }}
                             {% endif %}
                         {% endfor %}
-                    {%endif%}
+                    {% endif %}
                     </a>
                     <div class="dropdown-content">
-                        {%if current_user.is_authenticated%}
+                        {% if current_user.is_authenticated%}
                         {% for p in current_user.profiles %}
                             {% if p.id != session['current_profile_id'] %}
                                 <a href="{{ url_for('profile.select_id', profile_id=p.id, action = 1) }}">{{ p.name }} {{ p.surname }}</a>
                             {% endif %}
                         {% endfor %}
-                        {%endif%}
+                        {% endif %}
                     </div>
                 </div>
                 <a href="{{ url_for('notifications.view') }}">Notifications</a>
                 <a href="{{ url_for('shop.orders') }}">Orders</a>
                 <a href="{{ url_for('cart.cart') }}">Cart</a>
-                {%if current_user.is_authenticated%}
+                {% if current_user.is_authenticated%}
                     {% if current_user.has_role('buyer') %}
                         <a href="{{ url_for('profile.info') }}">See Info</a>
                     {% endif %}
@@ -80,7 +80,7 @@
     </form>
     
     <!--
-     {%if current_user.is_authenticated%}
+     {% if current_user.is_authenticated%}
     {% if current_user.has_role('admin') %}
         <div class="colonna">
             <h3>Prodotti in sessione</h3>
@@ -108,7 +108,7 @@
                     </p>
                     <p>price: ${{ p.price }}</p>
                     <p>Description: {{ p.description }}</p>
-                    <p>Availability: {%if p.availability > 0%}{{ p.availability }}{%else%}Non Disponibile{%endif%}</p>
+                    <p>Availability: {% if p.availability > 0%}{{ p.availability }}{% else %}Non Disponibile{% endif %}</p>
                 </div>
             </li>
         {% endfor %}

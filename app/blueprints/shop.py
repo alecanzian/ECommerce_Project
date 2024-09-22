@@ -5,6 +5,10 @@ from extensions.princ import buyer_required, seller_required
 
 app = Blueprint('shop', __name__)
 
+@app.route('/homepage', methods = ['GET'])
+def homepage():
+    return render_template('homepage.html')
+
 @app.route('/shop', methods = ['GET'])
 #@login_required
 #@buyer_required
@@ -28,7 +32,7 @@ def shop():
         products = Product.query.filter(Product.id.in_(session['selected_products'])).all()
                 
     except Exception:
-        flash('Si è verificato un errore di database. Riprova più tardi','ERROR')
+        flash('Si è verificato un errore di database. Riprova più tardi',"error")
         return redirect(url_for('auth.logout'))
     
     if 'selected_categories' not in session:
@@ -78,7 +82,7 @@ def filtered_results():
             # Aggiorno gli id dei prodotti
             session['selected_products'] = [p.id for p in products]
         except Exception:
-            flash('Si è verificato un errore di database. Riprova più tardi','ERROR')
+            flash('Si è verificato un errore di database. Riprova più tardi',"error")
             return redirect(url_for('auth.logout'))
 
         return render_template('homepage.html', products=products, categories=Category.query.all())
@@ -104,7 +108,7 @@ def reset_filters():
         else:
             session['selected_products'] = [p.id for p in Product.query.all()]
     except Exception:
-        flash('Si è verificato un errore di database. Riprova più tardi','ERROR')
+        flash('Si è verificato un errore di database. Riprova più tardi',"error")
         return redirect(url_for('auth.logout'))
 
     # Ritorna alla pagina shop con i prodotti e categorie aggiornati
@@ -120,13 +124,13 @@ def orders():
 def modify_order_state(order_product_id):
     order_product = OrderProduct.query.filter_by(id = order_product_id).first()
     if not order_product or order_product.product.user_id != current_user.id:
-        flash('order_product non trovato','error')
+        flash('order_product non trovato',"error")
         return redirect(url_for('account.view'))
     if request.method == 'POST':
         state_id = int(request.form.get('selected_state_id'))
         state = State.query.filter_by(id = state_id).first()
         if not state:
-            flash('Stato non trovato','error')
+            flash('Stato non trovato',"error")
             return redirect(url_for('account.view'))
         order_product.state_id = state_id#mancano i controlli se esiste lo state_id
 
@@ -139,12 +143,12 @@ def modify_order_state(order_product_id):
         )
         db.session.add(new_notification)
         db.session.commit()
-        flash('Stato dell\'ordine modificato con successo', 'success')
+        flash('Stato dell\'ordine modificato con successo', "success")
         return redirect(url_for('account.view'))
     
     consegnato_state = State.query.filter_by(name = 'Consegnato').first()
     if not consegnato_state:
-        flash('Stato non trovato','error')
+        flash('Stato non trovato',"error")
         return redirect(url_for('account.view'))
     
     if order_product.state_id == consegnato_state.id:
@@ -157,7 +161,3 @@ def modify_order_state(order_product_id):
         return redirect(url_for('account.view'))
     all_states = State.query.all()
     return render_template('modify_order_state.html', order_product = order_product, states = all_states)
-
-@app.route('/homepage', methods = ['GET'])
-def homepage():
-    return render_template('homepage.html')

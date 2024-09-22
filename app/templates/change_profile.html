@@ -1,43 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modify Profile</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
-</head>
-<body>
-    <header>
-        <div class="header-left">
-            <!-- Logo -->
-            <a href="{{ url_for('auth.home') }}">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
-            </a>
-        </div>
-        <div class="header-right">
-            <a href="{{url_for('auth.login')}}">Login Page</a>
-            <a href="{{url_for('auth.register')}}">Register Page</a>
-        </div>
-    </header>
-    <main>
-        <h1>Add New Profile</h1>
-        <form method="POST" action="{{ url_for('profile.modify') }}">
-            <input type="text" id="name" name="name" placeholder="Nome">
-            <input type="text" id="surname" name="surname" placeholder="Cognome">
-            <input type="date" id="birth_date" name="birth_date" placeholder="Data di nascita">
-            <button type="submit">Aggiungi modifiche</button>
-        </form>
-        <a href="{{ url_for('account.view') }}">Annulla</a>
+{% extends "base.html" %}
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{category }}: {{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-    </main>
-</body>
-</html>
+{% block title %}Modifica profilo{% endblock %}
+
+{% block main %}
+    <h1>Nuovo profilo</h1>
+    <form method="POST" action="{{ url_for('profile.modify') }}">
+        <input type="text" id="name" name="name" placeholder="Nome">
+        <input type="text" id="surname" name="surname" placeholder="Cognome">
+        <input type="date" id="birth_date" name="birth_date" placeholder="Data di nascita">
+        <button type="submit">Aggiungi modifiche</button>
+    </form>
+    <a href="{{ url_for('account.view') }}">Annulla</a>
+{% endblock %}
