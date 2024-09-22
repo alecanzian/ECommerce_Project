@@ -1,7 +1,9 @@
+import time
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash
 from datetime import datetime
+
 
 db = SQLAlchemy()
 
@@ -21,14 +23,17 @@ product_categories = db.Table('product_categories',
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique = True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)
+    password = db.Column(db.String(256), nullable=False)
 
     roles = db.relationship('Role', secondary=user_roles, backref='users', lazy = True)
     profiles = db.relationship('Profile', backref='user', lazy=True)
     products = db.relationship('Product', backref='user', lazy = True)
     addresses = db.relationship('Address', backref='users', lazy=True)
+    orders = db.relationship('Order', backref = 'user', lazy = True)
     cart_items = db.relationship('Cart', backref='user', lazy=True)
-    orders = db.relationship('Order', lazy = True)
+    cards = db.relationship('Card', backref = 'user', lazy = True)
+    seller_information = db.relationship('SellerInformation', lazy = True)
+
 
     def __init__(self, username, password):
         self.username = username
@@ -55,7 +60,7 @@ class Profile(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    #products = db.relationship('Product', backref='profile')
+    cart_items = db.relationship('Cart', backref='profile', lazy=True)
 
     def __init__(self, name, surname, birth_date, user_id, image_url='https://static.vecteezy.com/ti/vettori-gratis/p1/2318271-icona-profilo-utente-vettoriale.jpg'):
         self.name = name
@@ -85,12 +90,13 @@ class Address(db.Model):
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(50), unique = True,nullable=False)
     price = db.Column(db.Float, nullable=False)
     image_url = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String(255), nullable=False)
     availability = db.Column(db.Integer, nullable = False)
 
+    #profile_id = db.Column(db.Integer, db.ForeignKey('profile.id', ondelete = 'SET NULL'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
 
     categories = db.relationship('Category', secondary=product_categories, backref='products')
@@ -114,85 +120,49 @@ class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     quantity = db.Column(db.Integer, nullable = False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable = False)
+    profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'), nullable = False)
 
-    def __init__(self, quantity, user_id, product_id):
+    def __init__(self, quantity, user_id, product_id, profile_id):
         self.quantity = quantity
         self.user_id = user_id
         self.product_id = product_id
+        self.profile_id = profile_id
 
-#class OrderProduct(db.Model):
-#    __tablename__ = 'order_products'
-#    
-#    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), primary_key=True)
-#    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
-#    
-#    # Quantità di prodotto acquistato
-#    quantity = db.Column(db.Integer, nullable=False)
-#    
-#    # Relazioni
-#    order = db.relationship('Order', backref='order_products')
-#    product = db.relationship('Product', backref='order_products')
-#
-#    def __init__(self, order_id, product_id, quantity):
-#        self.order_id = order_id
-#        self.product_id = product_id
-#        self.quantity = quantity
-#
-#class Order(db.Model):
-#    id = db.Column(db.Integer, primary_key=True)
-#    order_date = db.Column(db.Date, nullable=False)
-#    total_price = db.Column(db.Float, nullable=False)
-#
-#    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-#    address_id = db.Column(db.Integer, db.ForeignKey('address.id'), nullable=True)
-#
-#    # Relazione con la tabella intermedia 'OrderProduct'
-#    products = db.relationship('OrderProduct', backref='order')
-#
-#    def __init__(self, user_id, address_id):
-#        self.user_id = user_id
-#        self.address_id = address_id
-#
-#
-#
-#
-#
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_date = db.Column(db.DateTime, default=datetime.now(), nullable=False)
     total_price = db.Column(db.Float, nullable=False)
-
+    address = db.Column(db.String(255),nullable = False)
+    
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    address_id = db.Column(db.Integer, db.ForeignKey('address.id'), nullable=True)
-    
-    
-    # Relazione con l'indirizzo (dove spedire l'ordine)
-    address = db.relationship('Address', backref='order', lazy = True)
-
     # Relazione con i prodotti attraverso tabella intermedia OrderProduct
     products = db.relationship('OrderProduct', backref='order', lazy = True)
 
-    def __init__(self, user_id, address_id, total_price):
+    def __init__(self, user_id, address, total_price):
         self.user_id = user_id
-        self.address_id = address_id
         self.total_price = total_price
-        
+        self.address = address
+
 class OrderProduct(db.Model):
-    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
-    
-    # Quantità di prodotto acquistato
+    id = db.Column(db.Integer, primary_key=True)
+    product_name = db.Column(db.String(50),nullable = False)
     quantity = db.Column(db.Integer, nullable=False)
     
-    # Relazioni
-    product = db.relationship('Product', lazy = True)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable = False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete = 'SET NULL'))
+    state_id = db.Column(db.Integer, db.ForeignKey('state.id'),nullable = False)
 
-    def __init__(self, order_id, product_id, quantity):
+    product = db.relationship('Product', backref = 'in_order', lazy = True)
+    state = db.relationship('State', backref = 'order_product', lazy = True)
+
+    def __init__(self, order_id, product_id, product_name, quantity):
         self.order_id = order_id
         self.product_id = product_id
+        self.product_name = product_name
         self.quantity = quantity
+        self.state = State.query.filter_by(name = 'Ordinato').first()
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -207,6 +177,72 @@ class Role(db.Model):
 
     def __init__(self, name):
         self.name = name
+
+class State(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True,nullable = False)
+
+    def __init__(self, name):
+        self.name = name
+        
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    type = db.Column(db.String(50), nullable=False)
+    product_name = db.Column(db.String(50),nullable = False)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.now(), nullable=False)
+    
+    sender = db.relationship('User', foreign_keys=[sender_id])
+    receiver = db.relationship('User', foreign_keys=[receiver_id])
+
+    def __init__(self,sender_id, receiver_id,type,product_name, order_id):
+        self.sender_id = sender_id
+        self.receiver_id = receiver_id
+        self.type = type
+        self.product_name = product_name
+        self.order_id = order_id
+
+class Card(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    PAN = db.Column(db.String(256), nullable = False)
+    last_digits = db.Column(db.String(4), nullable = False)
+    expiration_month = db.Column(db.String(256), nullable = False)
+    expiration_year = db.Column(db.String(256), nullable = False)
+    card_type = db.Column(db.String(50), nullable = False)
+    name = db.Column(db.String(50), nullable = False)
+    surname = db.Column(db.String(50), nullable = False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
+
+    def __init__(self, name, surname, PAN, last_digits, expiration_month, expiration_year, card_type, user_id):
+        self.name = name
+        self.surname = surname
+        self.PAN = PAN
+        self.last_digits = last_digits
+        self.expiration_year = expiration_year
+        self.expiration_month = expiration_month
+        self.card_type = card_type
+        self.user_id = user_id
+
+class SellerInformation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    profit = db.Column(db.Float, nullable = False)
+    iban = db.Column(db.String(27), nullable = False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
+    #user = db.relationship('User', backref = 'seller_information')
+
+    def __init__(self, iban, user_id):
+        self.profit = 0.0
+        self.iban = iban
+        self.user_id = user_id
+
+
+
+
+
 
 def add_user(name, surname, birth_date, username, password):
     # Crea l'utente
@@ -383,3 +419,10 @@ def get_user_orders(user_id):
         })
     
     return result
+
+def add_states():
+    states = ['Ordinato', 'Preso in carico', 'Spedito', 'Consegnato']
+    for state in states:
+        db.session.add(State(name=state))
+    db.session.commit()
+

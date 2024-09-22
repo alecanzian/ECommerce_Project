@@ -18,19 +18,71 @@
         </div>
 
         <!-- Barra di ricerca -->
-        <div class="search-bar">
-            
-            <form action="" method="GET">
-                <input type="text" name="q" placeholder="Cerca prodotti..." required>
-                <button type="submit">Cerca</button>
-            </form>
-        </div>
+        <form action="{{ url_for('shop.filtered_results') }}" method="POST" id="filter-form">
+            <div class="search-bar">
+              <input type="text" name="query" placeholder="Search products...">
+              <button type="submit">Search</button>
+            </div>
+          
+            <div class="filter-options">
+              <div class="colonna">
+                {% for category in categories %}
+                  <input type="checkbox" id="{{ category.name }}" name="selected_categories" value="{{ category.name }}" {% if category.name in session['selected_categories'] %} checked {% endif %}>
+                  <label for="{{ category.name }}">{{ category.name }}</label><br>
+                {% endfor %}
+              </div>
+          
+              <div class="price-range">
+                <label for="minPriceRange">Prezzo minimo: <span id="minPriceValue">{{ session['min_price'] }}</span> €</label><br>
+                <input type="range" id="minPriceRange" name="minPriceRange" min="0" max="1000" step="10" value="{{ session['min_price'] }}" oninput="updatePriceValues()"><br>
+          
+                <label for="maxPriceRange">Prezzo massimo: <span id="maxPriceValue">{{ session['max_price'] }}</span> €</label><br>
+                <input type="range" id="maxPriceRange" name="maxPriceRange" min="0" max="6000" step="100" value="{{ session['max_price'] }}" oninput="updatePriceValues()"><br>
+              </div>
+          
+              <div class="filter-actions">
+                <button type="submit">Applica</button>
+                <a href="{{ url_for('shop.reset_filters') }}" class="inline-form">Reset</a>
+              </div>
+            </div>
+          </form>
 
         <!-- Pulsanti Account, Carrello e Ordini -->
         <div class="header-right">
-            <a href="{{ url_for('profile.profile') }}" class="header-button">Account</a>
+           
+                {%if current_user.is_authenticated%}
+                <a href="{{ url_for('account.view') }}" class="header-button">
+                    {% for p in current_user.profiles %}
+                        {% if p.id == session['current_profile_id'] %}
+                            {{ p.name }} {{ p.surname }}
+                        {% endif %}
+                    {% endfor %}
+                </a>
+                    {% for p in current_user.profiles %}
+                        {% if p.id != session['current_profile_id'] %}
+                            <a href="{{ url_for('profile.select_id', profile_id=p.id, action = 1) }}" class="header-button">{{ p.name }} {{ p.surname }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    {%else%}
+                        <a href="{{ url_for('account.view') }}" class="header-button">Account</a>
+                    {%endif%}
+
+            <a href="{{ url_for('notifications.view') }}" class="header-button">Notifiche</a>
             <a href="{{ url_for('shop.orders') }}" class="header-button">Ordini</a>
-            <a href="{{ url_for('shop.cart') }}" class="header-button">Carrello</a>
+            <a href="{{ url_for('cart.cart') }}" class="header-button">Carrello</a>
+            
+           
+                    
+                
+            
+            {%if current_user.is_authenticated%}
+                    {% if current_user.has_role('admin') %}
+                        <a href="{{ url_for('profile.info') }}" class="header-button">See Info</a>
+                    {% endif %}
+                    <a href="{{ url_for('auth.logout') }}" class="header-button">Logout</a>
+            {%else%}
+                <a href="{{ url_for('auth.login') }}" class="header-button">Login</a>
+            {% endif %}
         </div>
     </header>
 
@@ -58,6 +110,40 @@
             </div>
             <!-- Aggiungi altri prodotti -->
         </div>
+
+        {%if current_user.is_authenticated%}
+        <ul class="product-list">
+            <style>
+                table {
+                  border-collapse: collapse;
+                }
+              
+                td, th {
+                  border: 1px solid #ddd;
+                  padding: 8px;
+                }
+              </style>
+            <table>
+                {% for p in products %}
+                <tr>
+                  <td class="product-image-cell">
+                    <a href="{{ url_for('product.access_product', product_id=p.id) }}" class="product-link"><img src="{{ p.image_url }}" alt="{{ p.name }}" height="50" width="50"></a>
+                    <p>{{ p.name }}</p>
+                  </td>
+              
+                  <td class="product-info-cell">
+                    <p>|{% for c in p.categories %}
+                      {{ c.name }} |
+                    {% endfor %}</p>
+                    <p>Price: ${{ p.price }}</p>
+                    <p>Description: {{ p.description }}</p>
+                    <p>Availability: {% if p.availability > 0 %}{{ p.availability }}{% else %}Non Disponibile{% endif %}</p>
+                  </td>
+                </tr>
+                {% endfor %}
+              </table>
+        </ul>
+        {% endif %}
     </main>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -69,5 +155,19 @@
             </ul>
         {% endif %}
     {% endwith %}
+
+    <script>
+        // Funzione per aggiornare il valore visualizzato dei range input
+        function updatePriceValues() {
+            var minPriceRange = document.getElementById("minPriceRange");
+            var maxPriceRange = document.getElementById("maxPriceRange");
+            var minPriceValue = document.getElementById("minPriceValue");
+            var maxPriceValue = document.getElementById("maxPriceValue");
+
+            minPriceValue.textContent = minPriceRange.value;
+            maxPriceValue.textContent = maxPriceRange.value;
+        }
+        updatePriceValues();
+    </script>
 </body>
 </html>

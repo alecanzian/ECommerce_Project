@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Address</title>
+    <title>New Card</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
 </head>
 <body>
@@ -16,14 +16,22 @@
         </div>
     </header>
     <main>
-        <h1>Add New Address</h1>
-        <form method="POST" action="{{ url_for('address.add', action = action) }}">
-            <input type="text" id="street" name="street" placeholder="Street" required>
-            <input type="number" id="postal_code" name="postal_code" placeholder="Codice Postale" required minlength="5" maxlength="5" pattern="\d{5}" title="Il codice postale deve essere di 5 cifre">
-            <input type="text" id="city" name="city" placeholder="City" required>
-            <input type="text" id="province" name="province" placeholder="Province" required>
-            <input type="text" id="country" name="country" placeholder="Country" required>
-            <button type="submit">Add Address</button>
+        <h1>Add New card</h1>
+        <form method="POST" action="{{ url_for('card.add') }}">
+            <input type="hidden" name="action" value = "0">
+
+            <select name="card_type" required>
+                <option value="" disabled selected >Seleziona il tipo di carta</option>
+                <option value="credit">Credit Card</option>
+                <option value="debit">Debit Card</option>
+            </select>
+            <input type="text" name="name" placeholder="Name" required>
+            <input type="text" name="surname" placeholder="Surname" required>
+            <input type="number" name="card_number" placeholder="PAN" required>
+            <input type="number" name="expiration_month" id = "expiration_month" placeholder="Month" min = "1" max = "12" required>    
+            <input type="number" name="expiration_year"  id = "expiration_year" placeholder="Year" required>    
+
+            <button type="submit">Add Card</button>
         </form>
         {%if action == "profile"%}
             <a href="{{ url_for('account.view') }}">Annulla</a>
@@ -42,6 +50,11 @@
             </ul>
         {% endif %}
     {% endwith %}
+    <script>
+        const currentDate = new Date();
+        document.getElementById('expiration_month').min = currentDate.getMonth() + 1;
+        document.getElementById("expiration_year").min = currentDate.getFullYear();
+    </script>
     </main>
 </body>
 </html>

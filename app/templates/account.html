@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='profile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='account.css') }}">
 </head>
 <body>
     <header>
@@ -17,7 +17,7 @@
     </header>
     <a href="{{url_for('shop.shop')}}">Back to shop</a> 
     <h1>Account</h1>
-    <a href="{{ url_for('account.delete_account') }}"">Elimina</a>
+    <a href="{{ url_for('account.delete') }}"">Elimina</a>
         <table>
             <tr>
                 <th>Username</th>
@@ -28,7 +28,6 @@
                 <td>********  
                     <a href="{{ url_for('account.change_password') }}"">Modifica</a>
                 </td>
-               
             </tr>
             <tr>
                 <th>Roles</th>
@@ -46,15 +45,15 @@
             </tr>
         </table>
         <h1>Profiles</h1>
-        <a href="{{ url_for('profile.add_profile', action = 1) }}"">Aggiungi</a>
+        <a href="{{ url_for('profile.add', action = 1) }}"">Aggiungi</a>
         {% for p in current_user.profiles %}
             <p></p>
 
             <table>
                 <tr>
                     <th>
-                        <a href="{{ url_for('profile.modify_profile', profile_id = p.id) }}">Modifica</a>
-                        <a href="{{ url_for('profile.delete_profile', profile_id = p.id) }}">Elimina</a>
+                        <a href="{{ url_for('profile.modify', profile_id = p.id) }}">Modifica</a>
+                        <a href="{{ url_for('profile.delete', profile_id = p.id) }}">Elimina</a>
                     </th>
                     <td>
                         <img src="{{ p.image_url }}" alt="Nome" width = "50" height = "50">
@@ -77,14 +76,36 @@
 
         {% endfor %}
     
+    <h1>Cards</h1>
+    <a href="{{ url_for('card.add', action = '') }}"">Aggiungi</a>
+    {%if current_user.cards%}
+    {% for card in current_user.cards %}
+    <table>
+        <tr>
+            <th>
+                <a href="{{ url_for('card.delete', card_id = card.id) }}">Elimina</a>
+            </th>
+        </tr>
+        <tr>
+            <th>Name Surame</th>
+            <td>{{ card.name }} {{card.surname}}</td>
+        </tr>
+        <tr>
+            <th>PAN</th>
+            <td>*****{{card.last_digits}}</td>
+        </tr>
+    </table>
+    <p></p>
+        {% endfor %}
+    {%endif%}
     <h1>Addresses</h1>
-    <a href="{{ url_for('address.add_address', action = 0) }}"">Aggiungi</a>
+    <a href="{{ url_for('address.add', action = 'profile') }}"">Aggiungi</a>
     {% for address in current_user.addresses %}
         <table>
             <tr>
                 <th>
-                    <a href="{{ url_for('address.modify_address', address_id = address.id) }}">Modifica</a>
-                    <a href="{{ url_for('address.delete_address', address_id = address.id) }}">Elimina</a>
+                    <a href="{{ url_for('address.modify', address_id = address.id) }}">Modifica</a>
+                    <a href="{{ url_for('address.delete', address_id = address.id) }}">Elimina</a>
                 </th>
                 
             </tr>
@@ -113,8 +134,23 @@
         <p></p>
     {% endfor %}
 
-    <h1>Products</h1>
+    <h1>Seller Information</h1>
     {% if current_user.has_role('seller') %}
+    <table>
+        <tr>
+            <th>IBAN</th>
+            {%if not current_user.seller_information.iban%}
+            {%endif%}
+            <td>{{current_user.seller_information.iban}}
+                <a href="{{ url_for('account.modify_iban') }}">Modifica</a>
+            </td>
+        </tr>
+        <tr>
+            <th>Profit</th>
+            <th>{{current_user.seller_information.profit}}</th>
+        </tr>
+    </table>
+    <h1>Products</h1>
     <a href="{{ url_for('product.add_product') }}">Aggiungi</a>
         {% for p in current_user.products %}
             <table>
@@ -158,9 +194,31 @@
 
         
         {% endfor %}
-    {% else %} 
-        <p>Non hai prodotti</p>
-        <a rel="stylesheet" href="{{ url_for('account.add_seller_role') }}">Diventa un Seller!!</a>
+
+    <h1>Ordini dei propri prodotti</h1>
+        {% for p in current_user.products %}
+            {% for order_product in p.in_order %}
+                {%if order_product.state.name != "Consegnato"%}
+                    <table>
+                        <tr>
+                            <th>Name</th>
+                            <td>{{ order_product.product_name }}</td>
+                        </tr>
+                        <tr>
+                            
+                            <td>Stato</td>
+                            <th>{{order_product.state.name}} <a href="{{ url_for('shop.modify_order_state', order_product_id = order_product.id) }}">Modifica</a>
+                        </tr>
+                            
+                    </table>
+                {%endif%}
+            {%endfor%}
+            <p></p>
+
+        
+        {% endfor %}
+    {%else%}
+    <a rel="stylesheet" href="{{ url_for('account.become_seller') }}">Diventa un Seller!</a>
 
     {% endif %}
 

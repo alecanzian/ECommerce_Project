@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modify Address</title>
+    <title>Modify IBAN</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
 </head>
 <body>
@@ -15,20 +15,14 @@
             </a>
         </div>
         <div class="header-right">
-            <a href="{{ url_for('auth.logout') }}">Logout</a>
         </div>
     </header>
     <main>
-        <h1>Modify Address</h1>
-        <p>Inserire i nuovi dati</p>
-        <form method="POST" action="{{ url_for('address.modify', address_id = address.id) }}">
-            <input type="text" id="street" name="street" placeholder="Street" value = "{{address.street}}" required>
-            <input type="number" id="postal_code" name="postal_code" placeholder="Codice Postale"  value = "{{address.postal_code}}"required 
-       minlength="5" maxlength="5" pattern="\d{5}" title="Il codice postale deve essere di 5 cifre" >
-            <input type="text" id="city" name="city" placeholder="City"   value = "{{address.city}}" required>
-            <input type="text" id="province" name="province" placeholder="Province"  value = "{{address.province}}" required>
-            <input type="text" id="country" name="country" placeholder="Country"  value = "{{address.country}}" required>
-            <button type="submit">Modify Address</button>
+        <h1>Modify IBAN</h1>
+        <form method="POST" action="{{ url_for('account.modify_iban') }}">
+            <input type="password" name = "password" placeholder="password" required>
+            <input type="text" name="iban" placeholder="IBAN" value = "{{current_user.seller_information.IBAN}}"  min = "27" max = "27" pattern="\d{27}" title="Il codice iban deve essere di 27 cifre"required>
+            <button type="submit">Modify IBAN</button>
         </form>
         <a href="{{ url_for('account.view') }}">Annulla</a>
         

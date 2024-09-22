@@ -9,7 +9,6 @@
 <body>
     
     <h1>Order product</h1>
-
     <form action="{{ url_for('product.order_product', product_id = product.id) }}" method="POST">
         <div class="colonna">
             {%if current_user.addresses%}
@@ -17,11 +16,20 @@
                 <input type="radio" id="{{ address.id }}" name="selected_address_id" value="{{ address.id }}" required>
                 <label for="{{ address.id }}">{{ address.street }},{{address.city}},{{address.postal_code}},{{address.province}},{{address.country}}</label><br>
             {% endfor %}
-            <a href="{{url_for('address.add_address', action = product.id)}}">Aggiungi indirizzo</a>
+                <a href="{{url_for('address.add', action = product.id)}}">Aggiungi indirizzo</a>
             {%else%}
-            <a href="{{url_for('address.add_address', action = product.id)}}">Non hai indirizzi. Aggiungine uno</a>
+                <a href="{{url_for('address.add', action = product.id)}}">Non hai indirizzi. Aggiungine uno</a>
+            {%endif%}
+            <p></p>
+            {%if current_user.cards%}
+            {% for card in current_user.cards %}
+                <input type="radio" id="{{ card.id }}" name="selected_card_id" value="{{ card.id }}" required>
+                <label for="{{ card.id }}">{{ card.name }} {{card.surname}}  *****{{card.last_digits}}</label><br>
+            {% endfor %}
+                <a href="{{url_for('card.add')}}">Aggiungi carta</a>
             {%endif%}
         </div>
+        <p>{{product.name}}</p>
         <input type="number" value = "1" name = "quantity" required min = "1" max = "{{product.availability}}">
         <button type="submit">Add</button>
     </form>

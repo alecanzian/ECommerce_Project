@@ -11,7 +11,7 @@ app = Blueprint('auth', __name__)
 @app.route('/', methods=['GET'])
 @anonymous_required
 def home():
-    return render_template('home.html')
+    return redirect(url_for('shop.shop'))
 
 @app.route('/register', methods=['GET', 'POST'])
 @anonymous_required
@@ -33,7 +33,21 @@ def register():
         if existing_user:
             flash('Username already exists. Please login.', category='error')
             return redirect(url_for('auth.login'))
-
+        # Password complexity checks
+        #if len(password) < 8:
+        #    flash('Password must be at least 8 characters long!', category='error')
+        #    return redirect(url_for('auth.register'))
+        #elif not any(char.isupper() for char in password):
+        #    flash('Password must contain at least one uppercase letter!', category='error')
+        #    return redirect(url_for('auth.register'))
+        #elif not any(char.islower() for char in password):
+        #    flash('Password must contain at least one lowercase letter!', category='error')
+        #    return redirect(url_for('auth.register'))
+        #elif not any(char.isdigit() for char in password):
+        #    flash('Password must contain at least one digit!', category='error')
+        #    return redirect(url_for('auth.register'))
+        # You can add more checks for special characters here (e.g., not any(char in string.punctuation for char in password)
+        
         if password != confirm_password:
             flash('Passwords do not match!', category='error')
         else:
@@ -76,7 +90,7 @@ def login():
                 print(identity_changed.send(current_app._get_current_object(), identity=Identity(user.id)))
                 print(Identity(user.id))
                 flash('Login successful!', category='success')
-                return redirect(url_for('profile.profile_selection'))
+                return redirect(url_for('profile.select'))
             else:
                 flash('Incorrect password.', category='error')
         else:

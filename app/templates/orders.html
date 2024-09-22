@@ -11,41 +11,13 @@
     <header>
         <div class="header-left">
             <!-- Logo -->
-            <a href="{{ url_for('auth.home') }}">
+            <a href="{{ url_for('shop.homepage') }}">
                 <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
             </a>
         </div>
         <div class="header-right">
             <div class="navbar">
-                <div class="dropdown">
-                    <a href="{{ url_for('profile.profile') }}" class="dropbtn">
-                        {%if current_user.profiles%}
-                        {% for p in current_user.profiles %}
-                            {% if p.id == session['current_profile_id'] %}
-                                {{ p.name }} {{ p.surname }}
-                            {% endif %}
-                        {% endfor %}
-                        {%else%}
-                            <p>Non ci sono profili</p>
-                        {%endif%}
-                    </a>
-                    <div class="dropdown-content">
-                        {%if current_user.profiles%}
-                        {% for p in current_user.profiles %}
-                            {% if p.id != session['current_profile_id'] %}
-                                <a href="{{ url_for('profile.select_profile', profile_id=p.id) }}">{{ p.name }} {{ p.surname }}</a>
-                            {% endif %}
-                        {% endfor %}
-                        {%else%}
-                            <p>Non ci sono profili</p>
-                        {%endif%}
-                    </div>
-                </div>
-                <a href="{{ url_for('shop.cart') }}">Cart</a>
-                {% if current_user.has_role('buyer') %}
-                    <a href="{{ url_for('profile.info') }}">See Info</a>
-                {% endif %}
-                <a href="{{ url_for('auth.logout') }}">Logout</a>
+                <a href="{{ url_for('shop.shop') }}">Back to shop</a>
             </div>
         </div>
     </header>
@@ -59,30 +31,37 @@
                     <th>Indirizzo Spedizione</th>
                     <th>Prodotti</th>
                     <th>Prezzo Totale</th>
-                    
                 </tr>
             </thead>
             <tbody>
-                {% for order in current_user.orders %}
+                {%if current_user.orders%}
+                    {%for order in current_user.orders%}
                     <tr>
                         <td>{{ order.id }}</td>
                         <td>{{ order.order_date.strftime('%d-%m-%Y') }}</td>
-                        <td>{{ order.address.street }}</td>
+                        <td>{{ order.address }}</td>
                         <td>
                             <ul>
+                            {%if order.products%}
                                 {% for product in order.products %}
-                                    <li>{{ product.product.name }} (x{{ product.quantity }})</li>
+                                    {% if product.product_id %}
+                                        <li><a href="{{url_for('product.access_product', product_id=product.product_id)}}">{{product.product_name}}</a> (x{{ product.quantity }}) {{product.state.name}}</li>
+                                    {% else %}
+                                        <li>{{ product.product_name }} (x{{ product.quantity }}) {{product.state.name}}</li>
+                                    {% endif %}
                                 {% endfor %}
 
+                            {%endif%}
                             </ul>
                         </td>
                         <td>{{ order.total_price }}</td>
                     </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="5">Nessun ordine trovato</td>
-                    </tr>
-                {% endfor %}
+                    {%endfor%}
+            {%else%}
+            <tr>
+                <td colspan="5">Nessun ordine trovato</td>
+            </tr>
+            {%endif%}
             </tbody>
         </table>
     </main>
