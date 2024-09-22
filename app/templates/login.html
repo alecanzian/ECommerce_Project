@@ -1,38 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
-</head>
-<body>
-    <header>
-        <div class="header-left">
-            <!-- Logo -->
-            <a href="{{ url_for('auth.home') }}">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
-            </a>
-        </div>
-    </header>
-    <main>
-        <h1>Login Page</h1>
-        <form action="{{url_for('auth.login')}}" method="post">
-            <input type="email" id="email" name="email" placeholder="Email" required>
-            <input type="password" id="password" name="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
-        <input type="hidden" id="error-message" value="{{ error_message }}">
-        <a href="{{url_for('auth.register')}}">Do not have an account? Sign up</a> 
-    </main>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{category }}: {{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Accedi{% endblock %}
+
+{% block main %}
+    <h1>Accedi</h1>
+    <form action="{{url_for('auth.login')}}" method="post">
+        <input type="email" id="email" name="email" placeholder="Email" required>
+        <input type="password" id="password" name="password" placeholder="Password" required>
+        <button type="submit">Entra</button>
+    </form>
+    <input type="hidden" id="error-message" value="{{ error_message }}">
+    <a href="{{url_for('auth.register')}}">Non hai un account? Iscriviti</a> 
+{% endblock %}

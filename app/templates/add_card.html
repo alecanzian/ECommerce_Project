@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Nuova carta{% endblock %}
+
+{% block main %}
+    <h1>Nuova carta</h1>
+
+    <form method="POST" action="{{ url_for('card.add') }}">
+        <input type="hidden" name="action" value = "0">
+        <select name="card_type" required>
+            <option value="" disabled selected >Seleziona il tipo di carta</option>
+            <option value="credit">Carta di credito</option>
+            <option value="debit">Carta di debito</option>
+        </select>
+        <input type="text" name="name" placeholder="Nome" required>
+        <input type="text" name="surname" placeholder="Cognome" required>
+        <input type="number" name="card_number" placeholder="PAN" required>
+        <input type="number" name="expiration_month" id="expiration_month" placeholder="Mese" min = "1" max = "12" required>    
+        <input type="number" name="expiration_year"  id="expiration_year" placeholder="Anno" required>    
+        <button type="submit">Aggiungi carta</button>
+    </form>
+
+    {% if action == "profile"%}
+        <a href="{{ url_for('account.view') }}">Annulla</a>
+    {%elif action == "order_cart_items"%}
+        <a href="{{ url_for('cart.order_cart_items') }}">Annulla</a>
+    {% else %}
+        <a href="{{url_for('product.order_product', product_id = action)}}">Annulla</a>
+    {% endif %}
+    
+{% endblock %}
+{% block scripts %}
+    <script>
+        const currentDate = new Date();
+        document.getElementById('expiration_month').min = currentDate.getMonth() + 1;
+        document.getElementById("expiration_year").min = currentDate.getFullYear();
+    </script>
+{% endblock %}

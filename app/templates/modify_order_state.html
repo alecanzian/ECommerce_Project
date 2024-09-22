@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Cambio stato dell'ordine{% endblock %}
+
+{% block main %}
+    <h1>Cambio stato dell'ordine</h1>
+
+    <form action="{{ url_for('shop.modify_order_state', order_product_id=order_product.id) }}" method="POST">
+        <div class="colonna">
+            {% for state in states %}
+                <input type="radio" id="{{ state.id }}" name="selected_state_id" value="{{ state.id }}" 
+                    {% if order_product.state and state.id == order_product.state.id %} checked {% endif %} required>
+                <label for="{{ state.id }}">{{ state.name }}</label><br>
+            {% endfor %}
+        <button type="submit">Applica</button>
+    </form>
+
+    <a href="{{ url_for('account.view')}}">Annulla</a>
+{% endblock %}

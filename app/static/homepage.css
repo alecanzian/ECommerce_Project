@@ -1,63 +1,93 @@
-
-
-/* Barra di ricerca al centro */
+/* Stile per la barra di ricerca */
 .search-bar {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    width: 100%;
-}
-
-.search-bar form {
-    display: flex;
-    flex-direction: inherit;
-    width: 100%;
-    max-width: 600px;
-}
-
-.search-bar form input {
-    margin: 0;
-}
-
-.search-bar input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px 0 0 5px;
-}
-
-.search-bar button {
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 0 5px 5px 0;
-}
-
-.search-bar button:hover {
-    background-color: #0056b3;
-}
-
-/* Pulsanti di account, ordini, carrello a destra */
-.header-right {
-    width: 50%;
     display: flex;
     align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f3f3f3;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.header-button {
-    color: #007bff;
-    font-weight: bold;
-    text-decoration: none;
-    margin-left: 15px;
-    padding: 10px 15px;
-    border: 1px solid #007bff;
+.search-bar select, .search-bar input {
+    padding: 10px;
+    font-size: 14px;
+    margin-right: 10px;
+    border: 1px solid #ddd;
     border-radius: 5px;
 }
 
-.header-button:hover {
-    background-color: #e9ecef;
+.search-bar button {
+    background-color: #ff9900;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.search-bar button:hover {
+    background-color: #e68a00;
+}
+
+/* Stile per i filtri */
+.filter-options {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.colonna {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.colonna label {
+    font-size: 14px;
+}
+
+.price-range {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.price-range input[type="range"] {
+    width: 100%;
+}
+
+.filter-actions {
+    flex: 0.5;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.filter-actions button {
+    background-color: #0073e6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.filter-actions button:hover {
+    background-color: #005bb5;
+}
+
+.filter-actions a {
+    text-align: center;
+    padding: 10px 0;
+    color: #0073e6;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.filter-actions a:hover {
+    text-decoration: underline;
 }
 
 /* Layout dei prodotti nella sezione principale */

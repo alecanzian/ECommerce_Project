@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FakeAzon - {% block title %}{% endblock %}</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    {% block styles %}
+    {% endblock %}
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <a href="{{ url_for('auth.home') }}">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
+            </a>
+        </div>
+        <div class="header-center">
+            {% block header_center %}
+            {% endblock %}
+        </div>
+        <div class="header-right">
+            <a href="{{ url_for('shop.shop') }}">Negozio</a>
+
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('cart.cart') }}">Carrello</a>
+                <a href="{{ url_for('shop.orders') }}">Ordini</a>
+                <a href="{{ url_for('notifications.view') }}">Notifiche</a>
+                {% if current_user.has_role('admin') %}
+                    <a href="{{ url_for('profile.info') }}">Pagina amministratore</a>
+                {% endif %}
+                {% for profile in current_user.profiles %}
+                    <a href="{{ url_for('profile.select_id', profile_id=profile.id, action=1) }}">{{ profile.name }} {{ profile.surname }}</a>
+                {% endfor %}
+                <a href="{{ url_for('account.view') }}">Il mio account</a>
+                <a href="{{ url_for('auth.logout') }}">Esci dall'account</a>
+            {% else %}
+                <a href="{{url_for('auth.login')}}">Entra</a>
+                <a href="{{url_for('auth.register')}}">Registrati</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main>
+        {% block main %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>Copyright © 2024 FakeAzon. Tutti i diritti riservati.</p>
+    </footer>
+
+    <!-- Contenitore per i toast -->
+    <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1050; pointer-events: none;">
+        <div id="toast-container" style="pointer-events: none;">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="toast align-items-center text-bg-{{ 'success' if category == 'success' else 'danger' if category == 'error' else 'warning' if category == 'warning' else 'info' }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" style="pointer-events: auto;">
+                            <div class="toast-body text-center">
+                                {{ message }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS e dipendenze -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script per mostrare i toast -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+            var toastList = toastElList.map(function (toastEl) {
+                var toast = new bootstrap.Toast(toastEl, { delay: 5000 }) // Mostra il toast per 5 secondi
+                toast.show()
+            })
+        });
+    </script>
+
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

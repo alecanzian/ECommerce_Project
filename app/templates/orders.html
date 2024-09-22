@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -94,7 +95,56 @@
                     <li class="{{ category }}">{{category}}: {{ message }}</li>
                 {% endfor %}
             </ul>
+=======
+{% extends "base.html" %}
+
+{% block title %}Ordini{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='orders.css') }}">
+{% endblock %}
+
+{% block main %}
+    <h1>Lista Ordini</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID ordine</th>
+                <th>Data ordine</th>
+                <th>Indirizzo spedizione</th>
+                <th>Prodotti</th>
+                <th>Prezzo totale</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if current_user.orders %}
+                {% for order in current_user.orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.order_date.strftime('%d-%m-%Y') }}</td>
+                    <td>{{ order.address }}</td>
+                    <td>
+                        <ul>
+                        {% if order.products %}
+                            {% for product in order.products %}
+                                {% if product.product_id %}
+                                    <li><a href="{{url_for('product.access_product', product_id=product.product_id)}}">{{ product.product_name }}</a> (x{{ product.quantity }}) {{ product.state.name }}</li>
+                                {% else %}
+                                    <li>{{ product.product_name }} (x{{ product.quantity }}) {{product.state.name}}</li>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        </ul>
+                    </td>
+                    <td>{{ order.total_price }}</td>
+                </tr>
+                {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="5">Nessun ordine trovato</td>
+            </tr>
+>>>>>>> Stashed changes
         {% endif %}
-    {% endwith %}
-</body>
-</html>
+        </tbody>
+    </table>
+{% endblock %}

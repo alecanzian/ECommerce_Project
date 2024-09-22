@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,33 +18,57 @@
         <div class="header-right">
             <div class="navbar">
                 <div class="dropdown">
+<<<<<<< Updated upstream
                     <a href="{{ url_for('profile.profile') }}" class="dropbtn">
                         {%if current_user.profiles%}
+=======
+                    <a href="{{ url_for('account.view') }}" class="dropbtn">
+                    {% if current_user%}
+>>>>>>> Stashed changes
                         {% for p in current_user.profiles %}
                             {% if p.id == session['current_profile_id'] %}
                                 {{ p.name }} {{ p.surname }}
                             {% endif %}
                         {% endfor %}
+<<<<<<< Updated upstream
                         {%else%}
                             <p>Non ci sono profili</p>
                         {%endif%}
                     </a>
                     <div class="dropdown-content">
                         {%if current_user.profiles%}
+=======
+                    {% endif %}
+                    </a>
+                    <div class="dropdown-content">
+                        {% if current_user.is_authenticated%}
+>>>>>>> Stashed changes
                         {% for p in current_user.profiles %}
                             {% if p.id != session['current_profile_id'] %}
                                 <a href="{{ url_for('profile.select_profile', profile_id=p.id) }}">{{ p.name }} {{ p.surname }}</a>
                             {% endif %}
                         {% endfor %}
+<<<<<<< Updated upstream
                         {%else%}
                             <p>Non ci sono profili</p>
                         {%endif%}
+=======
+                        {% endif %}
+>>>>>>> Stashed changes
                     </div>
                 </div>
                 <a href="{{ url_for('shop.orders') }}">Orders</a>
+<<<<<<< Updated upstream
                 <a href="{{ url_for('shop.cart') }}">Cart</a>
                 {% if current_user.has_role('buyer') %}
                     <a href="{{ url_for('profile.info') }}">See Info</a>
+=======
+                <a href="{{ url_for('cart.cart') }}">Cart</a>
+                {% if current_user.is_authenticated%}
+                    {% if current_user.has_role('buyer') %}
+                        <a href="{{ url_for('profile.info') }}">See Info</a>
+                    {% endif %}
+>>>>>>> Stashed changes
                 {% endif %}
                 <a href="{{ url_for('auth.logout') }}">Logout</a>
             </div>
@@ -79,7 +103,13 @@
         <button type="submit">Reset</button>
     </form>
     
+<<<<<<< Updated upstream
     <!--{% if current_user.has_role('admin') %}
+=======
+    <!--
+     {% if current_user.is_authenticated%}
+    {% if current_user.has_role('admin') %}
+>>>>>>> Stashed changes
         <div class="colonna">
             <h3>Prodotti in sessione</h3>
             {% for p in products %}
@@ -105,7 +135,7 @@
                     </p>
                     <p>price: ${{ p.price }}</p>
                     <p>Description: {{ p.description }}</p>
-                    <p>Availability: {%if p.availability > 0%}{{ p.availability }}{%else%}Non Disponibile{%endif%}</p>
+                    <p>Availability: {% if p.availability > 0%}{{ p.availability }}{% else %}Non Disponibile{% endif %}</p>
                 </div>
             </li>
         {% endfor %}

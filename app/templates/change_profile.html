@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,16 +29,19 @@
             <button type="submit">Aggiungi modifiche</button>
         </form>
         <a href="{{ url_for('profile.profile') }}">Annulla</a>
+=======
+{% extends "base.html" %}
+>>>>>>> Stashed changes
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{category }}: {{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-    </main>
-</body>
-</html>
+{% block title %}Modifica profilo{% endblock %}
+
+{% block main %}
+    <h1>Nuovo profilo</h1>
+    <form method="POST" action="{{ url_for('profile.modify') }}">
+        <input type="text" id="name" name="name" placeholder="Nome">
+        <input type="text" id="surname" name="surname" placeholder="Cognome">
+        <input type="date" id="birth_date" name="birth_date" placeholder="Data di nascita">
+        <button type="submit">Aggiungi modifiche</button>
+    </form>
+    <a href="{{ url_for('account.view') }}">Annulla</a>
+{% endblock %}
