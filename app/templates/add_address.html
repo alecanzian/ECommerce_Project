@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,29 +39,3 @@
     </main>
 </body>
 </html>
-=======
-{% extends "base.html" %}
-
-{% block title %}Nuovo indirizzo{% endblock %}
-
-{% block main %}
-    <h1>Nuovo indirizzo</h1>
-    
-    <form method="POST" action="{{ url_for('address.add', action = action) }}">
-        <input type="text" id="street" name="street" placeholder="Via" required>
-        <input type="number" id="postal_code" name="postal_code" placeholder="Codice postale" required minlength="5" maxlength="5" pattern="\d{5}" title="Il codice postale deve essere di 5 cifre">
-        <input type="text" id="city" name="city" placeholder="Città" required>
-        <input type="text" id="province" name="province" placeholder="Provincia" required>
-        <input type="text" id="country" name="country" placeholder="Paese" required>
-        <button type="submit">Aggiungi indirizzo</button>
-    </form>
-
-    {% if action == "profile"%}
-        <a href="{{ url_for('account.view') }}">Annulla</a>
-    {%elif action == "order_cart_items"%}
-        <a href="{{ url_for('cart.order_cart_items') }}">Annulla</a>
-    {% else %}
-        <a href="{{url_for('product.order_product', product_id = action)}}">Annulla</a>
-    {% endif %}
-{% endblock %}
->>>>>>> Stashed changes

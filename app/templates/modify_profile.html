@@ -1,11 +1,24 @@
-{% extends "base.html" %}
-
-{% block title %}Modifica profilo{% endblock %}
-
-{% block main %}
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifca profilo</title>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <!-- Logo -->
+            <a href="{{ url_for('auth.home') }}">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
+            </a>
+        </div>
+        <div class="header-right">
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
+        </div>
+    </header>
     <h1>Modifica profilo</h1>
     <p>Inserire i nuovi dati</p>
-<<<<<<< Updated upstream
     <form action="{{ url_for('profile.modify_profile', profile_id = profile.id) }}" method="POST">
         <input type="text" id="name" name="name" value="{{profile.name}}" required>
         <input type="text" id="surname" name="surname" value="{{profile.surname}}" required>
@@ -26,14 +39,3 @@
     {% endwith %}
 </body>
 </html>
-=======
-    <form action="{{ url_for('profile.modify', profile_id=profile.id) }}" method="POST">
-        <input type="text" id="name" name="name" value="{{ profile.name }}" required>
-        <input type="text" id="surname" name="surname" value="{{ profile.surname }}" required>
-        <input type="text" id="image_url" name="image_url" value="{{ profile.image_url }}" required>
-        <input type="date" id="birth_date" name="birth_date" value="{{ profile.birth_date }}" required>
-        <button type="submit">Conferma</button>
-    </form>
-    <a href="{{ url_for('account.view') }}">Annulla</a>
-{% endblock %}
->>>>>>> Stashed changes

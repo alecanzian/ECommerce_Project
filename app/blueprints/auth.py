@@ -3,7 +3,6 @@ from flask_login import login_user, logout_user, current_user
 from flask_principal import AnonymousIdentity, Identity, identity_changed
 from extensions.database import User, Profile, db
 from extensions.princ import anonymous_required
-from extensions.limiter import limiter
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import date, timedelta
 
@@ -19,9 +18,8 @@ def home():
 def register():
     # Per potersi registrare, l'utente non deve essere loggato con alcun account
     if current_user.is_authenticated:
-        flash("Sei già loggato", "error")
+        flash('You are already logged in. Please log out to register a new account.', 'error')
         return redirect(url_for('shop.shop'))
-    
     if request.method == 'POST':
         name = request.form['name']
         surname = request.form['surname']
@@ -33,30 +31,11 @@ def register():
         # Controllo se l'username esiste già
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
-            flash("Il nome utente esiste già", "error")
+            flash('Username already exists. Please login.', category='error')
             return redirect(url_for('auth.login'))
-<<<<<<< Updated upstream
 
-=======
-        
-        # Password complexity checks
-        #if len(password) < 8:
-        #    flash('Password must be at least 8 characters long!', category="error")
-        #    return redirect(url_for('auth.register'))
-        #elif not any(char.isupper() for char in password):
-        #    flash('Password must contain at least one uppercase letter!', category="error")
-        #    return redirect(url_for('auth.register'))
-        #elif not any(char.islower() for char in password):
-        #    flash('Password must contain at least one lowercase letter!', category="error")
-        #    return redirect(url_for('auth.register'))
-        #elif not any(char.isdigit() for char in password):
-        #    flash('Password must contain at least one digit!', category="error")
-        #    return redirect(url_for('auth.register'))
-        # You can add more checks for special characters here (e.g., not any(char in string.punctuation for char in password)
-        
->>>>>>> Stashed changes
         if password != confirm_password:
-            flash("Le password non corrispondono", "error")
+            flash('Passwords do not match!', category='error')
         else:
             # Creo un nuovo utente, con password cifrata 
             hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
@@ -66,23 +45,21 @@ def register():
                 db.session.commit()
                 db.session.add(Profile(name=name, surname=surname, birth_date=birth_date, user_id=new_user.id))
                 db.session.commit()
-                flash("Registrazione completata", "success")
+                flash('Registration successful!', category='success')
                 return redirect(url_for('auth.login'))
             except Exception as e:
                 db.session.rollback()
                 print(f"Error occurred: {e}")  # Log per il debugging
-                flash("Si è verificato un errore durante la registrazione", "error")
+                flash('An error occurred during registration. Please try again.', category='error')
                 return redirect(url_for('auth.register'))
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
-@limiter.limit("10 per hour", methods=["POST"])  # Limita le richieste POST a 5 all'ora (no bruteforce)
 @anonymous_required
 def login():
     if request.method == 'POST':
         username = request.form['email']
         password = request.form['password']
-        
         # Cerca una corrispondenza all'interno del database(se esiste, deve essere unica, quindi possiamo usare first())
         user = User.query.filter_by(username=username).first()
         if user:
@@ -98,18 +75,12 @@ def login():
                 print('invio segnale identity changed')
                 print(identity_changed.send(current_app._get_current_object(), identity=Identity(user.id)))
                 print(Identity(user.id))
-<<<<<<< Updated upstream
                 flash('Login successful!', category='success')
                 return redirect(url_for('profile.profile_selection'))
-=======
-                flash("Accesso effettuato con successo", "success")
-                return redirect(url_for('profile.select'))
->>>>>>> Stashed changes
             else:
-                flash("Password errata", "error")
+                flash('Incorrect password.', category='error')
         else:
-            flash("Il nome utente non esiste", "error")
-            
+            flash('Login failed. Check your email and password.', category='error')
     return render_template('login.html')
 
 @app.route('/logout', methods=['GET'])
@@ -130,5 +101,5 @@ def logout():
 
     # Tell Flask-Principal the user is anonymous
     identity_changed.send(app,identity=AnonymousIdentity())
-    flash("Disconnessione riuscita con successo", "success")
+    flash('Logout successful!', 'success')
     return redirect(url_for('auth.home'))

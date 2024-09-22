@@ -1,6 +1,11 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='users.css') }}">
 
-<<<<<<< Updated upstream
 </head>
 <body>
     <header>
@@ -15,47 +20,40 @@
         </div>
     </header>
 
-=======
-{% block title %}Pagina amministratore{% endblock %}
-
-{% block styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='users.css') }}">
-{% endblock %}
-
-{% block main %}
->>>>>>> Stashed changes
     <h1>All Info</h1>
 
     <table>
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Nome utente</th>
+                <th>Username</th>
                 <!--<th>Password</th>-->
-                <th>Ruoli</th>
-                <th>Profili</th> <!-- Nuova colonna per i profili -->
+                <th>Roles</th>
+                <th>Profiles</th> <!-- Nuova colonna per i profili -->
             </tr>
         </thead>
         <tbody>
             {% for user in users %}
-                <tr>
-                    <td>{{ user.id }}</td>
-                    <td>{{ user.username }}</td>
-                    <!--<td>{{ user.password }}</td>-->
-                    <td>
-                        {% for role in user.roles %}
-                            {{ role.name }}{% if not loop.last %}, {% endif %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <!--<td>{{ user.password }}</td>-->
+                <td>
+                    {% for role in user.roles %}
+                        {{ role.name }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    <ul>
+                        {% for profile in user.profiles %}
+                            
+                            <img src="{{ profile.image_url }}" alt="{{ profile.name }}" width="50" height = "50">
+                            <p>{{ profile.id }} {{ profile.name }} {{ profile.surname }}</p>
+                              
                         {% endfor %}
-                    </td>
-                    <td>
-                        <ul>
-                            {% for profile in user.profiles %}
-                                <img src="{{ profile.image_url }}" alt="{{ profile.name }}" width="50" height = "50">
-                                <p>{{ profile.id }} {{ profile.name }} {{ profile.surname }}</p>
-                            {% endfor %}
-                        </ul>
-                    </td>
-                </tr>
+                    </ul>
+                </td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
@@ -64,14 +62,13 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Via</th>
-                <th>Codice postale</th>
-                <th>Città</th>
-                <th>Provincia</th>
-                <th>Paese</th>
+                <th>Street</th>
+                <th>Postal Code</th>
+                <th>City</th>
+                <th>Province</th>
+                <th>Country</th>
             </tr>
         </thead>
-<<<<<<< Updated upstream
         {% for address in addresses %}
         <tr>
             <td>{{ address.id }}</td>
@@ -81,25 +78,12 @@
             <td>{{ address.province }}</td>
             <td>{{ address.country }}</td>
         </tr>
-=======
-
-        {% for address in addresses %}
-            <tr>
-                <td>{{ address.id }}</td>
-                <td>{{ address.street }}</td>
-                <td>{{ address.postal_code }}</td>
-                <td>{{ address.city }}</td>
-                <td>{{ address.province }}</td>
-                <td>{{ address.country }}</td>
-            </tr>
->>>>>>> Stashed changes
         {% endfor %}
     </table>
     
     <table>
         <thead>
             <tr>
-<<<<<<< Updated upstream
                 <th>Product_id</th>
                 <th>Quantity</th>
                 <th>User_id</th>
@@ -112,55 +96,39 @@
                 </tr>
             {%endfor%}
         </thead>
-=======
-                <th>Prodotto</th>
-                <th>Quantità</th>
-                <th>Utente</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                {% for item in cart_items %}
-                    {% if item %}
-                        <th>{{item.product.name}}</th>
-                        <th>{{item.quantity}}</th>
-                        <th>{{item.user.username}}</th>
-                    {% endif %}
-                {% endfor %}
-            </tr>
-        </tbody>
->>>>>>> Stashed changes
     </table>
 
     <table>
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Nome</th>
-                <th>Prezzo</th>
-                <th>Descrizione</th>
-                <th>Disponibilità</th>
-                <th>Categoria</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Description</th>
+                <th>Availability</th>
+                <th>Categories</th>
             </tr>
         </thead>
         <tbody>
             {% for p in products %}
-                <tr>
-                    <td>{{ p.id }}</td>
-                    <td>{{ p.name }}</td>
-                    <td>{{ p.price }}</td>
-                    <td>{{ p.description }}</td>
-                    <td>{{ p.availability }}</td>
-                    <td>
-                        {% if p.categories %}
-                            {% for category in p.categories %}
-                                <p>{{ category.name }}</p>
-                            {% endfor %}
-                        {% else %}
-                            <p>Nessuna categoria associata</p>
-                        {% endif %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.name }}</td>
+                <td>{{ p.price }}</td>
+                <td>{{ p.description }}</td>
+                <td>{{ p.availability }}</td>
+                <td>
+                    {% if p.categories %}
+                        {% for category in p.categories %}
+                            <p>{{ category.name }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <p>Nessuna categoria associata</p>
+                    {% endif %}
                     </td>
-                </tr>
+                
+                    
+            </tr>
             {% endfor %}
         </tbody>
     </table>
@@ -169,7 +137,7 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Nome</th>
+                <th>Name</th>
             </tr>
         </thead>
         <tbody>
@@ -186,7 +154,7 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Nome</th>
+                <th>Name</th>
             </tr>
         </thead>
         <tbody>
@@ -202,7 +170,7 @@
     <table>
         <thead>
             <tr>
-                <th>Nome utente in sessione</th>
+                <th>Username in Session</th>
             </tr>
         </thead>
         <tbody>
@@ -212,7 +180,6 @@
             </tr>
         </tbody>
     </table>
-<<<<<<< Updated upstream
     
     <a href="{{ url_for('shop.shop') }}">Back to Shop</a>
 
@@ -227,6 +194,3 @@
     {% endwith %}
 </body>
 </html>
-=======
-{% endblock %}
->>>>>>> Stashed changes

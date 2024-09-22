@@ -9,19 +9,7 @@ app = Blueprint('product', __name__)
 @login_required
 @buyer_required
 def access_product(product_id):
-<<<<<<< Updated upstream
     product = Product.query.get_or_404(product_id)
-=======
-    try:
-        product = db.session.get(Product,product_id)
-        if not product:
-            flash('Il prodotto non esiste',"error")
-            return redirect(url_for('shop.shop'))
-    except Exception:
-        flash('Si è verificato un errore di database. Riprova più tardi',"error")
-        return redirect(url_for('shop.shop'))
-        
->>>>>>> Stashed changes
     return render_template('product.html', product=product)
 
 @app.route('/add_product', methods=['GET','POST'])
@@ -36,7 +24,6 @@ def add_product():
         availability = request.form.get('availability')
         list_categories = request.form.getlist('selected_categories_product')
         category_objects = []
-<<<<<<< Updated upstream
         for category_name in list_categories:
                         category = Category.query.filter_by(name=category_name).first()
                         if not category:
@@ -53,41 +40,6 @@ def add_product():
         db.session.add(new_product)
         db.session.commit()
         return redirect(url_for('profile.profile'))
-=======
-        
-        try:
-            if list_categories:
-                for category_name in list_categories:
-                        category = Category.query.filter_by(name=category_name).first()
-                        if not category:
-                            flash('Categoria non trovata', "error")
-                            return redirect(url_for('account.view'))
-                        category_objects.append(category)
-            else:
-                category = Category.query.filter_by(name='Altro').first()
-                if not category:
-                    flash('Errore nel database. Riprova più tardi', "error")
-                    return redirect(url_for('account.view'))
-                category_objects.append(category)
-
-            user_id = current_user.id
-
-            if not image_url:
-                new_product = Product(name=name, price=price, user_id=user_id, description = description, availability = availability, categories = category_objects)
-            else:
-                new_product = Product(name=name, price=price, user_id=user_id, description = description, availability = availability, categories = category_objects, image_url = image_url)
-
-            db.session.add(new_product)
-            db.session.commit()
-
-        except Exception:
-            db.session.rollback()
-            flash('Si è verificato un errore di database. Riprova più tardi',"error")
-            return redirect(url_for('shop.shop'))
-        
-        flash('Prodotto aggiunto correttamente', "success")
-        return redirect(url_for('account.view'))
->>>>>>> Stashed changes
     
     return render_template('add_product.html', categories = Category.query.all())
 
@@ -96,42 +48,23 @@ def add_product():
 @login_required
 @seller_required
 def delete_product(product_id):
-<<<<<<< Updated upstream
     product = next((p for p in current_user.products if p.id == product_id), None)
    
     if product:
-=======
-    try:
-        product = next((p for p in current_user.products if p.id == product_id), None)
-        if not product:
-            flash('il prodotto non è stato trovato', "error")
-            return redirect(url_for('account.view'))
->>>>>>> Stashed changes
         # Elimino tutte le tuple del carrello che si riferiscono a quell'oggetto
         for item in product.in_carts:
             db.session.delete(item)
         db.session.delete(product)
         db.session.commit()
-<<<<<<< Updated upstream
         flash('Prodotto eliminato correttamente', 'message')
         return redirect(url_for('profile.profile'))
     else:
         flash('il prodotto non è stato trovato', 'error')
         return redirect(url_for('profile.profile'))
-=======
-    except Exception:
-        db.session.rollback()
-        flash('Si è verificato un errore di database. Riprova più tardi',"error")
-        return redirect(url_for('shop.shop'))
-    
-    flash('Prodotto eliminato correttamente', "success")
-    return redirect(url_for('account.view'))
->>>>>>> Stashed changes
     
 @app.route('/modify_product/<int:product_id>', methods=['GET', 'POST'])
 @login_required
 def modify_product(product_id):
-<<<<<<< Updated upstream
     product = next((p for p in current_user.products if p.id == product_id), None)
     if not product:
         flash('il prodotto non è stato trovato', 'error')
@@ -159,50 +92,6 @@ def modify_product(product_id):
                 if p.id != product.id and name == p.name:
                     flash('Nome già utilizzato')
                     return redirect(url_for('product.modify_product', product_id=product.id))
-=======
-    try:
-        product = next((p for p in current_user.products if p.id == product_id), None)
-        if not product:
-            flash('il prodotto non è stato trovato', "error")
-            return redirect(url_for('account.view'))
-    except Exception:
-            flash('Si è verificato un errore di database. Riprova più tardi',"error")
-            return redirect(url_for('shop.shop'))
-
-    if request.method == 'POST':
-        # Leggi i dati inviati dal form
-        try:
-            name = request.form.get('name')
-            price = float(request.form.get('price'))
-            image_url = request.form.get('image_url')
-            description = request.form.get('description')
-            availability = int(request.form.get('availability'))
-            list_categories = request.form.getlist('selected_categories_product')
-
-            if not name or not price or not description or not image_url or not availability:
-                #for p in current_user.products:
-                #    if p.id != product.id and name == p.name:
-                #        flash('Nome già utilizzato')
-                #        return redirect(url_for('shop.modify_product', product_id=product.id))
-                flash('Inserisci tutte le informazioni', 'FAIL')
-                return redirect(url_for('product.modify_product'), product_id = product.id)
-
-            categories = []
-            if list_categories:
-                    for category_name in list_categories:
-                            category = Category.query.filter_by(name=category_name).first()
-                            if not category:
-                                flash('Categoria non trovata', "error")
-                                return redirect(url_for('account.view'))
-                            categories.append(category)
-            else:
-                category = Category.query.filter_by(name='Altro').first()
-                if not category:
-                    flash('Errore nel database. Riprova più tardi', "error")
-                    return redirect(url_for('account.view'))
-                categories.append(category)
-            
->>>>>>> Stashed changes
             product.name = name
             
         if price:
@@ -220,20 +109,9 @@ def modify_product(product_id):
             if int(availability) == 0:
                 for item in product.in_carts:
                     db.session.delete(item)
-<<<<<<< Updated upstream
                 print("prodotto ha disponibilità 0")
            
         db.session.commit()
-=======
-            
-            db.session.commit()
-        
-        except Exception:
-            db.session.rollback()
-            flash('Si è verificato un errore di database. Riprova più tardi',"error")
-            return redirect(url_for('shop.shop'))
-        
->>>>>>> Stashed changes
         flash('Prodotto aggiornato con successo')
         return redirect(url_for('profile.profile'))
     
@@ -262,19 +140,9 @@ def order_product(product_id):
             if not address:
                 flash('Indirizzo non valido', 'fail')
                 return redirect(url_for('product.access_product', product_id=product_id))
-<<<<<<< Updated upstream
 
         except Exception:
             flash('Si è verificato un errore di database. Riprova più tardi.', 'error')
-=======
-            
-            card = next((card for card in current_user.cards if card.id == card_id), None)
-            if not card:
-                flash('Carta non trovata', 'fail')
-                return redirect(url_for('product.access_product', product_id=product_id))
-        except Exception:
-            flash('Si è verificato un errore di database1. Riprova più tardi.', "error")
->>>>>>> Stashed changes
             return redirect(url_for('product.access_product', product_id=product_id))
 
         
@@ -290,13 +158,14 @@ def order_product(product_id):
             db.session.add(new_order_product)
             product.availability-=quantity
             db.session.commit()
-            flash('Ordine effettuato con successo', "success")
+            flash('Ordine effettuato con successo', 'success')
             return redirect(url_for('shop.orders'))
+
         except Exception as e:
             # In caso di errore, rollback e gestione dell'eccezione
             db.session.rollback()
             print(f"Errore durante l'operazione: {str(e)}")
-            flash('Si è verificato un errore di database2. Riprova più tardi.', "error")
+            flash('Si è verificato un errore di database2. Riprova più tardi.', 'error')
             return redirect(url_for('product.access_product', product_id=product_id))
         
     elif request.method == 'GET':
@@ -315,18 +184,8 @@ def order_product(product_id):
                 if item.product_id == product.id:
                     flash('Prodotto già presente nel carrello', 'fail')
                     return redirect(url_for('product.access_product', product_id=product_id))
-<<<<<<< Updated upstream
         except Exception:
             flash('Si è verificato un errore di database3. Riprova più tardi','error')
-=======
-                
-            if not current_user.cards or not current_user.addresses:
-                flash('Devi avere almeno una carta di credito e un indirizzo per poter continuare con l\'acquisto', 'FAIL')
-                return redirect(url_for('product.access_product', product_id=product_id))
-        except Exception as e:
-            print(f"Errore durante l'operazione: {str(e)}")
-            flash('Si è verificato un errore di database3. Riprova più tardi',"error")
->>>>>>> Stashed changes
             return redirect(url_for('product.access_product', product_id=product_id))
         
         return render_template('order_product.html', product = product)

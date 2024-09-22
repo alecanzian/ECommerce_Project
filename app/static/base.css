@@ -9,6 +9,41 @@ body {
     flex-direction: column;
 }
 
+header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+header .logo {
+    width: 120px;
+}
+
+.header-left {
+    width: 50%;
+    display: flex;
+    align-items: center;
+}
+
+header a {
+    color: #007bff;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+header a:hover {
+    text-decoration: underline;
+}
+
+.navbar {
+    display: flex;
+}
+
 main {
     flex: 1;
     display: flex;
@@ -56,7 +91,7 @@ a:hover {
 form {
     display: flex;
     flex-direction: column;
-    /*align-items: center;*/
+    align-items: center;
     background-color: #ffffff;
     padding: 20px;
     border: 1px solid #ccc;
@@ -76,122 +111,4 @@ form input {
     width: 100%;
     border: 1px solid #ccc;
     border-radius: 5px;
-}
-
-select {
-    padding: 10px;
-    width: auto;
-    border: 1px solid #ccc;
-}
-
-footer {
-    text-align: center;
-    padding: 0;
-    width: 100%;
-}
-
-/* Header */
-
-header {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-header .logo {
-    width: 110px;
-}
-
-.header-right {
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-    margin-right: 15px;
-}
-
-.header-left {
-    display: flex;
-    width: 100%;
-}
-
-header button {
-    color: #007bff;
-    font-weight: bold;
-    text-decoration: none;
-    margin: 0px 15px 0px 15px;
-}
-
-header a {
-    color: #007bff;
-    font-weight: bold;
-    text-decoration: none;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-header a:hover {
-    text-decoration: underline;
-}
-
-
-/* Notifiche toast */
-
-/* Keyframes per lo slide-in dall'alto */
-@keyframes slideInFromTop {
-    0% {
-        opacity: 0;
-        transform: translateY(-100%);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Keyframes per lo slide-out verso l'alto */
-@keyframes slideOutToTop {
-    0% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(-100%);
-    }
-}
-
-/* Applica le animazioni ai toast */
-.toast {
-    animation: slideInFromTop 0.5s ease-out forwards, slideOutToTop 0.5s ease-in 4.5s forwards;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    min-width: 300px;
-    max-width: 500px;
-    text-align: center;
-    pointer-events: auto; /* Permette interazioni con i toast */
-    transition: none; /* Rimuove le transizioni predefinite di Bootstrap */
-}
-
-/* Assicurati che il contenitore dei toast non blocchi gli eventi */
-.position-fixed.top-0.start-50.translate-middle-x.p-3 {
-    width: auto; /* Rimuove la larghezza completa */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    pointer-events: none; /* Permette agli eventi di passare attraverso */
-    top: 20px; /* Aggiunge un margine dall'alto per evitare sovrapposizioni */
-}
-
-/* Responsività per schermi piccoli */
-@media (max-width: 576px) {
-    .toast {
-        min-width: 250px;
-        max-width: 90%;
-    }
-}
-
-/* Opzionale: Fermo l'animazione quando il toast è in hover */
-.toast:hover {
-    animation-play-state: paused;
 }
