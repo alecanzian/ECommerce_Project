@@ -5,12 +5,12 @@
 {% block main %}
     <h1>Nuovo profilo</h1>
 
-    <form action="{{ url_for('profile.add') }}" method="POST">
+    <form action="{{ url_for('profile.add', action=action) }}" method="POST">
         <input type="hidden" name = "action" value ="action">
         <input type="text" id="name" name="name" placeholder="Nome" required>
         <input type="text" id="surname" name="surname" placeholder="Cognome" required>
         <input type="date" id="birth_date" name="birth_date" placeholder="Data di nascita" required>
-        <button type="submit">Add Profile</button>
+        <button type="submit">Aggiungi</button>
     </form>
     
     <a href="{{ url_for('profile.select') }}">Torna alla selezione dei profili</a>

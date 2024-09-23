@@ -33,7 +33,7 @@
     </table>
 
     <h1>Profili</h1>
-    <a href="{{ url_for('profile.add', action = 1) }}">Aggiungi</a>
+    <a href="{{ url_for('profile.add', action=1) }}">Aggiungi</a>
     {% for p in current_user.profiles %}
         <p></p>
         <table>

@@ -162,10 +162,10 @@ def delete(profile_id):
         
         # Se è presente un solo profilo, allora non posso eliminarlo, altrimenti non avrei un profilo con cui navigare lo shop
         if len(current_user.profiles) > 1:
-            db.session.delete(profile)
-
             for item in profile.cart_items:
                 db.session.delete(item)
+                
+            db.session.delete(profile)
 
             db.session.commit()
             if profile.id == session['current_profile_id']:
@@ -175,8 +175,9 @@ def delete(profile_id):
         else:
             flash("Non puoi eliminare l'unico profilo rimanente.", 'fail')
             return redirect(url_for('account.view'))
-    except Exception:
+    except Exception as e:
         db.session.rollback()
+        print(str(e))
         flash('Si è verificato un errore di database. Riprova più tardi.', "error")
         return redirect(url_for('account.view'))
 
