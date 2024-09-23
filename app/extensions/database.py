@@ -1,6 +1,7 @@
 import time
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from sqlalchemy import UniqueConstraint
 from werkzeug.security import generate_password_hash
 from datetime import datetime
 
@@ -215,6 +216,9 @@ class Card(db.Model):
     surname = db.Column(db.String(50), nullable = False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
+
+    __table_args__ = (UniqueConstraint('name', 'surname', 'last_digits'),)
+
 
     def __init__(self, name, surname, PAN, last_digits, expiration_month, expiration_year, card_type, user_id):
         self.name = name

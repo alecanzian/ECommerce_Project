@@ -12,16 +12,13 @@
                     <label for="{{ address.id }}">{{ address.street }},{{address.city}},{{address.postal_code}},{{address.province}},{{address.country}}</label><br>
                 {% endfor %}
                 <a href="{{url_for('address.add', action = product.id)}}">Aggiungi indirizzo</a>
-            {% else %}
-                <a href="{{url_for('address.add', action = product.id)}}">Non hai indirizzi. Aggiungine uno</a>
-            {% endif %}
-            <p></p>
+            {%endif%}
             {% if current_user.cards%}
                 {% for card in current_user.cards %}
                     <input type="radio" id="{{ card.id }}" name="selected_card_id" value="{{ card.id }}" required>
                     <label for="{{ card.id }}">{{ card.name }} {{card.surname}}  *****{{card.last_digits}}</label><br>
                 {% endfor %}
-                <a href="{{url_for('card.add')}}">Aggiungi carta</a>
+                <a href="{{url_for('card.add', action = product.id)}}">Aggiungi carta</a>
             {% endif %}
         </div>
         <p>{{product.name}}</p>
@@ -30,4 +27,5 @@
     </form>
     
     <a href="{{ url_for('product.access_product', product_id=product.id) }}">Annulla</a>
+
 {% endblock %}

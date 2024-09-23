@@ -5,8 +5,7 @@
 {% block main %}
     <h1>Nuova carta</h1>
 
-    <form method="POST" action="{{ url_for('card.add') }}">
-        <input type="hidden" name="action" value = "0">
+    <form method="POST" action="{{ url_for('card.add', action = action) }}">
         <select name="card_type" required>
             <option value="" disabled selected >Seleziona il tipo di carta</option>
             <option value="credit">Carta di credito</option>
@@ -31,8 +30,20 @@
 {% endblock %}
 {% block scripts %}
     <script>
+        //document.getElementById('expiration_month').min = currentDate.getMonth() + 1;
+        //document.getElementById("expiration_year").min = currentDate.getFullYear();
         const currentDate = new Date();
-        document.getElementById('expiration_month').min = currentDate.getMonth() + 1;
-        document.getElementById("expiration_year").min = currentDate.getFullYear();
+        const expirationYearInput = document.getElementById("expiration_year");
+        const expirationMonthInput = document.getElementById("expiration_month");   
+
+
+        expirationYearInput.addEventListener('change', function() {
+            if (this.value === currentDate.getFullYear().toString()) {
+                expirationMonthInput.min = currentDate.getMonth() + 1; // Rimuovi il valore minimo
+            }
+            else{
+                expirationMonthInput.min = 1;
+            }
+        });
     </script>
 {% endblock %}

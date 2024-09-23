@@ -25,12 +25,11 @@ def encrypt_data(key, data):
 def derive_key(secret_key):
     return secret_key[:32].encode('utf-8')  # Usa i primi 32 byte della SECRET_KEY
 
-@app.route('/card/add', methods = ['GET', 'POST'])
+@app.route('/card/add/<string:action>', methods = ['GET', 'POST'])
 @login_required
-def add():
+def add(action):
     if request.method == 'POST':
         try:
-            act = request.form.get('action')
             name = request.form.get('name')
             surname = request.form.get('surname')
             card_number = request.form.get('card_number')
@@ -40,20 +39,21 @@ def add():
 
             if not name or not surname or not card_number or not expiration_month or not expiration_year or not card_type:
                 flash("Si prega di compilare tutti i campi", "error")
-                return render_template('add_card.html')
+                return redirect(url_for('card.add', action = action))
+                #return render_template('add_card.html', action = action)
             
             if card_type == 'credit' and len(card_number) != 16:
                 flash("Lunghezza numero di carta non valida", "error")
-                return render_template('add_card.html')
+                return redirect(url_for('card.add', action = action))
             
             elif card_type == 'debit' and len(card_number) != 19:
                 flash("Lunghezza numero di carta non valida", "error")
-                return render_template('add_card.html')
+                return redirect(url_for('card.add', action = action))
             
             current_date = date.today()
-            if int(expiration_month) < current_date.month or int(expiration_year) < current_date.year:
+            if int(expiration_year) < current_date.year or (int(expiration_month) < current_date.month and int(expiration_year == current_date.year)):
                 flash("La data di scadenza non può essere nel passato", "error")
-                return render_template('add_card.html')
+                return redirect(url_for('card.add', action = action))
 
             key = derive_key(current_app.config['SECRET_KEY'])
             # Crittografa i dati
@@ -68,26 +68,30 @@ def add():
             db.session.commit()
 
             flash("Carta aggiunta con successo", "success")
-            action = int(act)
-            if action == 0:
+            if action == 'profile':
                 return redirect(url_for('account.view'))
-            elif action == 1:
-                return redirect(url_for('card.add'))
-            elif action == 2:
-                return redirect(url_for('card.add'))
+            elif action == 'order_cart_items':
+                return redirect(url_for('cart.order_cart_items'))
+            elif action.isdigit():
+                return redirect(url_for('product.order_product', product_id = int(action)))
+            else:
+                flash('Action non riconosciuto', 'ERROR')
+                return redirect(url_for('auth.logout'))
         
         except Exception as e:
             print(e)
             flash("Si è verificato un errore di sistema", "error")
-            action = int(act)
-            if action == 0:
+            if action == 'profile':
                 return redirect(url_for('account.view'))
-            elif action == 1:
-                return redirect(url_for('account.view'))
-            elif action == 2:
-                return redirect(url_for('account.view'))
+            elif action == 'order_cart_items':
+                return redirect(url_for('cart.order_cart_items'))
+            elif action.isdigit():
+                return redirect(url_for('product.order_product', product_id = int(action)))
+            else:
+                flash('Action non riconosciuto', 'ERROR')
+                return redirect(url_for('auth.logout'))
             
-    return render_template('add_card.html')
+    return render_template('add_card.html', action = action)
 
 @app.route('/card/delete/<int:card_id>', methods = ['GET'])
 @login_required

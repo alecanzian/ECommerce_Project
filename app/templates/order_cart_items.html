@@ -20,10 +20,10 @@
                 <input type="radio" id="{{ card.id }}" name="selected_card_id" value="{{ card.id }}" required>
                 <label for="{{ card.id }}">{{ card.name }} {{card.surname}}  *****{{card.last_digits}}</label><br>
             {% endfor %}
-            <a href="{{url_for('card.add')}}">Aggiungi carta</a>
+            <a href="{{url_for('card.add',action = 'order_cart_items')}}">Aggiungi carta</a>
         {% endif %}
         <button type="submit">Aggiungi</button>
     </form>
     
     <a href="{{ url_for('cart.cart') }}">Annulla</a>
-{% endblock %}
+{% endblock %} 
