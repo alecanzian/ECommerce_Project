@@ -31,9 +31,7 @@
                         <td>{{ notification.type }}</td>
                         <td>{{ notification.timestamp.strftime('%d-%m-%Y %H:%M') }}</td>
                         <td>
-                            <form action="{{ url_for('notifications.delete', notification_id=notification.id) }}" method="POST">
-                                <button type="submit">Cancella</button>
-                            </form>
+                            <a href="{{ url_for('notification.delete', notification_id=notification.id) }}">Cancella</a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -45,7 +43,5 @@
         </tbody>
     </table>
 
-    <form action="{{ url_for('notifications.delete_all') }}" method="POST">
-        <button type="submit" class="delete-all">Cancella tutte le notifiche</button>
-    </form>
+    <a href="{{ url_for('notification.delete_all') }}" method="POST">Cancella tutte le notifiche</a>
 {% endblock %}
