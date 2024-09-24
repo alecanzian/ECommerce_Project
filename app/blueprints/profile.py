@@ -61,6 +61,22 @@ def add(action):
         # Begin database session
         #db.session.begin()
         try:
+            # Ottieni la data corrente
+            current_date = date.today()
+            # Definisci l'intervallo massimo per la data di nascita (100 anni fa)
+            earliest_date = date(current_date.year - 100, 1, 1)
+            # Controllo della data di nascita
+            birth_date = date.fromisoformat(birth_date)
+
+            # Controlla se la data è nel futuro
+            if birth_date > current_date:
+                flash("La data di nascita non può essere nel futuro.")
+                return redirect(url_for('profile.add', action = action))
+
+            # Controlla se la data è troppo indietro (più di 100 anni fa)
+            if birth_date < earliest_date:
+                flash(f"L'anno di nascita deve essere compreso tra {earliest_date.year} e {current_date.year}.")
+                return redirect(url_for('profile.add', action = action))
             # Create new profile
             new_profile = Profile(name=name, surname=surname, birth_date=birth_date, user_id=current_user.id)
             db.session.add(new_profile)
@@ -128,9 +144,6 @@ def modify(profile_id):
             profile.surname = surname
             profile.image_url = image_url
 
-            for p in profile.orders:
-                p.profile_name = name
-
             db.session.commit()
             
             flash('Profilo aggiornato con successo')
@@ -141,6 +154,7 @@ def modify(profile_id):
             return redirect(url_for('profile.modify', profile_id=profile_id))
         except Exception as e:
             print(f"Errore durante l'operazione: {str(e)}")
+            print('ciao')
             db.session.rollback()
             flash('Si è verificato un errore di database. Riprova più tardi.', "error")
             return redirect(url_for('account.view'))

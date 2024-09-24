@@ -15,3 +15,28 @@
     
     <a href="{{ url_for('profile.select') }}">Torna alla selezione dei profili</a>
 {% endblock %}
+{% block scripts %}
+<script>
+    const birthDateInput = document.getElementById("birth_date");
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+
+    // Calcola la data di 100 anni fa
+    const minYear = currentYear - 100;
+    const minDate = new Date(minYear, 0, 1); // 1 gennaio dell'anno minimo
+    const maxDate = currentDate; // Data corrente
+
+    // Imposta gli attributi min e max
+    birthDateInput.min = minDate.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+    birthDateInput.max = maxDate.toISOString().split('T')[0];
+
+    // Opzionalmente, aggiungi un evento per controllare la data inserita
+    birthDateInput.addEventListener('change', function() {
+        const selectedDate = new Date(this.value);
+        if (selectedDate > maxDate) {
+            alert("La data di nascita non può essere nel futuro.");
+            this.value = ""; // Resetta il campo
+        }
+    });
+    </script>
+{% endblock %}
