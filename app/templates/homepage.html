@@ -57,7 +57,7 @@
                 <p class="product-name">{{ p.name }}</p>
                 <p class = "product-category"> {{ p.category.name }}</p>
                 <p class="product-price">€{{ p.price }}</p>
-                <button>Aggiungi al carrello</button>
+                <a href="{{ url_for('cart.add_to_cart', product_id=p.id) }}">Aggiungi al carrello</a>
             </div>
         {% endfor %}
     </div>

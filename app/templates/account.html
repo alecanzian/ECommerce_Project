@@ -130,13 +130,17 @@
                     <td>{{ current_user.seller_information.iban }}
                         <a href="{{ url_for('account.modify_iban') }}">Modifica</a>
                     </td>
+                {%else%}
+                <td>vuoto <a href="{{ url_for('account.modify_iban') }}">Modifica</a></td>
                 {% endif %}
             </tr>
             <tr>
                 <th>Guadagno</th>
                 {% if current_user.seller_information.profit %}
-                    <th>{{ current_user.seller_information.profit }}</th>
-                {% endif %}
+                    <td>{{ current_user.seller_information.profit }}</td>
+                    {%else%}
+                    <td>vuoto</td>                
+                    {% endif %}
             </tr>
         </table>
 

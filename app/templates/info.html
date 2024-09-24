@@ -7,162 +7,97 @@
 {% endblock %}
 
 {% block main %}
-    <h1>All Info</h1>
+<h1>Informazioni Utenti</h1>
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nome utente</th>
-                <!--<th>Password</th>-->
-                <th>Ruoli</th>
-                <th>Profili</th> <!-- Nuova colonna per i profili -->
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-                <tr>
-                    <td>{{ user.id }}</td>
-                    <td>{{ user.username }}</td>
-                    <!--<td>{{ user.password }}</td>-->
-                    <td>
-                        {% for role in user.roles %}
-                            {{ role.name }}{% if not loop.last %}, {% endif %}
-                        {% endfor %}
-                    </td>
-                    <td>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome utente</th>
+            <th>Ruoli</th>
+            <th>Profili</th>
+            <th>Indirizzi</th>
+            <th>Carte</th>
+            <th>Ordini</th>
+            <th>Seller Information</th>
+            <th>Prodotti in vendita</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>
+                {% for role in user.roles %}
+                    {{ role.name }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            </td>
+            <td>
+                <ul>
+                    {% for profile in user.profiles %}
+                    <li>
+                        <img src="{{ profile.image_url }}" alt="{{ profile.name }}" width="50" height="50">
+                        {{ profile.name }} {{ profile.surname }}
+                        <!-- Carrello associato al profilo -->
+                        <h5>Carrello</h5>
                         <ul>
-                            {% for profile in user.profiles %}
-                                <img src="{{ profile.image_url }}" alt="{{ profile.name }}" width="50" height = "50">
-                                <p>{{ profile.id }} {{ profile.name }} {{ profile.surname }}</p>
+                            {% for item in profile.cart_items %}
+                            <li>{{ item.product.name }} - Quantità: {{ item.quantity }}</li>
+                            {% else %}
+                            <li>Nessun prodotto nel carrello</li>
                             {% endfor %}
                         </ul>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Via</th>
-                <th>Codice postale</th>
-                <th>Città</th>
-                <th>Provincia</th>
-                <th>Paese</th>
-            </tr>
-        </thead>
-
-        {% for address in addresses %}
-            <tr>
-                <td>{{ address.id }}</td>
-                <td>{{ address.street }}</td>
-                <td>{{ address.postal_code }}</td>
-                <td>{{ address.city }}</td>
-                <td>{{ address.province }}</td>
-                <td>{{ address.country }}</td>
-            </tr>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    {% for address in user.addresses %}
+                    <li>{{ address.street }}, {{ address.city }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    {% for card in user.cards %}
+                    <li>{{ card.card_type }} - **** {{ card.last_digits }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    {% for order in user.orders %}
+                    <li>Ordine #{{ order.id }} - Totale: {{ order.total_price }}€</li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+                {% if user.seller_information %}
+                <p>IBAN: {{ user.seller_information.iban }} - Profitto: {{ user.seller_information.profit }}€</p>
+                <p>User_id: {{user.seller_information.user_id}}</p>
+                {% else %}
+                <p>Non è un venditore</p>
+                {% endif %}
+            </td>
+            <td>
+                <ul>
+                    {% for product in user.products %}
+                    <li>{{ product.name }} - {{ product.price }}€</li>
+                    {% endfor %}
+                </ul>
+            </td>
+        </tr>
         {% endfor %}
-    </table>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Prodotto</th>
-                <th>Quantità</th>
-                <th>Utente</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                {% for item in cart_items %}
-                    {% if item %}
-                        <th>{{item.product.name}}</th>
-                        <th>{{item.quantity}}</th>
-                        <th>{{item.user.username}}</th>
-                    {% endif %}
-                {% endfor %}
-            </tr>
-        </tbody>
-    </table>
-
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nome</th>
-                <th>Prezzo</th>
-                <th>Descrizione</th>
-                <th>Disponibilità</th>
-                <th>Categoria</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for p in products %}
-                <tr>
-                    <td>{{ p.id }}</td>
-                    <td>{{ p.name }}</td>
-                    <td>{{ p.price }}</td>
-                    <td>{{ p.description }}</td>
-                    <td>{{ p.availability }}</td>
-                    <td>
-                        {% if p.categories %}
-                            {% for category in p.categories %}
-                                <p>{{ category.name }}</p>
-                            {% endfor %}
-                        {% else %}
-                            <p>Nessuna categoria associata</p>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nome</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for r in roles %}
-            <tr>
-                <td>{{ r.id }}</td>
-                <td>{{ r.name }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nome</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for c in categories %}
-            <tr>
-                <td>{{ c.id }}</td>
-                <td>{{ c.name }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <table>
-        <thead>
-            <tr>
-                <th>Nome utente in sessione</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>{{ current_user.username }}</td>
-                <td>{{ current_user.password }}</td>
-            </tr>
-        </tbody>
-    </table>
+    </tbody>
+</table>
+{%for tuple in seller_information%}
+    {%if tuple.user_id == current_user.id%}
+        <p>Il tuo profilo è stato trovato!</p>
+        <p>{{tuple.user_id}}</p>
+        <p>{{tuple.iban}}</p>
+        <p>{{tuple.profit}}</p>
+    {%endif%}
+{%endfor%}
 {% endblock %}

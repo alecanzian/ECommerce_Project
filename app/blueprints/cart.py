@@ -29,7 +29,8 @@ def add_to_cart(product_id):
     db.session.commit()
     
     flash('Prodotto aggiunto correttamente al carrello', "success")
-    return redirect(url_for('product.access_product', product_id=product_id))
+    #return redirect(url_for('product.access_product', product_id=product_id))
+    return redirect(url_for('cart.cart'))
 
 @app.route('/delete_item_from_cart/<int:item_id>', methods = ['GET'])
 @login_required
@@ -109,7 +110,7 @@ def order_cart_items():
             return redirect(url_for('cart.cart'))
         
     if not current_user.cards or not current_user.addresses:
-        flash('Devi avere almeno una carta di credito e un indirizzo per poter continuare con l\'acquisto', 'FAIL')
+        flash('Devi avere almeno una carta di credito e un indirizzo per poter continuare con l\'acquisto', 'fail')
         return redirect(url_for('cart.cart'))
     return render_template('order_cart_items.html')
 

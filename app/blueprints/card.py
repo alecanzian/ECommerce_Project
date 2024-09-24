@@ -63,7 +63,7 @@ def add(action):
             
             last_four = card_number[-4:]
             
-            new_card = Card(name = name, surname = surname, PAN = encrypted_pan, last_digits=last_four, expiration_month = encrypted_expiration_month, expiration_year = encrypted_expiration_year, card_type = card_type, user_id =current_user.id)
+            new_card = Card(name = name, surname = surname, pan = encrypted_pan, last_digits=last_four, expiration_month = encrypted_expiration_month, expiration_year = encrypted_expiration_year, card_type = card_type, user_id =current_user.id)
             db.session.add(new_card)
             db.session.commit()
 

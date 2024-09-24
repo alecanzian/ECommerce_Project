@@ -1,7 +1,7 @@
 from sqlite3 import IntegrityError
 from flask import Blueprint, render_template, redirect, url_for, request, session, flash
 from flask_login import login_required, fresh_login_required, current_user, logout_user
-from extensions.database import Address, Cart, Order, OrderProduct, Profile, User, Product, Role, Category, db
+from extensions.database import Address, Cart, Order, OrderProduct, Profile, SellerInformation, User, Product, Role, Category, db
 from extensions.princ import buyer_required, admin_required, admin_permission, buyer_permission
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import date
@@ -204,28 +204,10 @@ def info():
     # Ricaviamo tutti gli utenti della tabella User, tutti i prodotti di Products e tutti i Ruoli
     try:
         all_users = User.query.all()
-        all_products = Product.query.all()
         all_roles = Role.query.all()
         all_categories = Category.query.all()
-        all_addresses = Address.query.all()
-        all_cart_items = Cart.query.all()
+        seller_information = SellerInformation.query.all()
     except Exception:
         #flash('Si è verificato un errore di database. Riprova più tardi.', "error")
         flash('La pagina info.html non è stata caricata correttamente',"error")
-    return render_template('info.html', users=all_users, products=all_products, roles=all_roles, categories=all_categories, addresses = all_addresses, cart_items = all_cart_items) # Passo anche lo username dell'utente loggato(sarà sempre unico)
-
-# Personalizzazione della pagina profilo
-#@app.route('/filtered_profile_information/<int:profile_id>', methods=['GET', 'POST'])
-#@login_required
-#def filtered_profile_information(profile_id):
-#    if profile_id >= 1:
-#        # Recupera un singolo profilo in base all'ID tra quelli dell'utente autenticato
-#        profile = next((p for p in current_user.profiles if p.id == profile_id), None)
-#        if profile:
-#            session['filtered_by_profile_id'] = profile.id
-#            return redirect(url_for('account.view'))
-#        else:
-#            flash('Profilo non trovato.')
-#            return redirect(url_for('account.view'))
-#    else:
-#        return redirect(url_for('account.view'))
+    return render_template('info.html', users=all_users, roles=all_roles, categories=all_categories, seller_information = seller_information) # Passo anche lo username dell'utente loggato(sarà sempre unico)

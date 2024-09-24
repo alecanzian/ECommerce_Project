@@ -205,7 +205,7 @@ class Notification(db.Model):
 
 class Card(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    PAN = db.Column(db.String(256), nullable = False)
+    pan = db.Column(db.String(256), nullable = False)
     last_digits = db.Column(db.String(4), nullable = False)
     expiration_month = db.Column(db.String(256), nullable = False)
     expiration_year = db.Column(db.String(256), nullable = False)
@@ -218,10 +218,10 @@ class Card(db.Model):
     __table_args__ = (UniqueConstraint('name', 'surname', 'last_digits'),)
 
 
-    def __init__(self, name, surname, PAN, last_digits, expiration_month, expiration_year, card_type, user_id):
+    def __init__(self, name, surname, pan, last_digits, expiration_month, expiration_year, card_type, user_id):
         self.name = name
         self.surname = surname
-        self.PAN = PAN
+        self.pan = pan
         self.last_digits = last_digits
         self.expiration_year = expiration_year
         self.expiration_month = expiration_month
@@ -234,7 +234,7 @@ class SellerInformation(db.Model):
     iban = db.Column(db.String(27), nullable = False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
-    #user = db.relationship('User', backref = 'seller_information')
+    #user = db.relationship('User', backref = 'seller_information', lazy = True)
 
     def __init__(self, iban, user_id):
         self.profit = 0.0

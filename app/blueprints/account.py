@@ -166,16 +166,26 @@ def become_seller():
 
             seller_role = Role.query.filter_by(name='seller').first()
             if seller_role:
-                current_user.roles.append(seller_role)                
-                new_seller_information = SellerInformation(user_id = current_user.id, iban = iban)
-                db.session.add(new_seller_information)
-                db.session.commit()
-                info = SellerInformation.query.filter_by(user_id = current_user.id).first()
+                print('sei dentro l\'if')
+                try:
+                    current_user.roles.append(seller_role)                
+                    new_seller_information = SellerInformation(user_id = current_user.id, iban = iban)
+                    db.session.add(new_seller_information)
+                    db.session.commit()
+                    #info = SellerInformation.query.filter_by(user_id = current_user.id).first()
+                    info = SellerInformation.query.all()
+                except Exception as e:
+                    print(e)
+                    flash("Operazione fallita", "error")
+                    return redirect(url_for('account.view'))
                 
                 if not info:
                     print("non esiste")
                 else:
-                    print(info.iban)
+                    for p in info:
+                        print(p.user_id)
+                        print(p.iban)
+                        print(p.profit)
                 
                 #print(current_user.seller_information.iban)
                 flash("Sei diventato un venditore con successo", "success")
@@ -212,17 +222,19 @@ def modify_iban():
             return redirect(url_for('account.modify_iban'))
         
         #stampa di debug
-        #info = SellerInformation.query.all()
-        #if not info:
-        #    print("non esiste")
-        #else:
-        #    for p in info:
-        #        if p.user_id == current_user.id:
-        #            print(p.iban)
-        #            p.iban = iban
+        info = SellerInformation.query.all()
+        if not info:
+            print("non esiste")
+        else:
+            for p in info:
+                if p.user_id == current_user.id:
+                    print(p.iban)
+                    p.iban = iban
 
-        #current_user.seller_information.iban = iban
+        current_user.seller_information.iban = iban
         db.session.commit()
+        print('value:')
+        #print(current_user.seller_information.iban)
         flash("IBAN modificato con successo", "success")
         return redirect(url_for('account.view'))
 

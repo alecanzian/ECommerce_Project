@@ -25,7 +25,7 @@ def register():
     if request.method == 'POST':
         name = request.form['name']
         surname = request.form['surname']
-        birth_date = date.fromisoformat(request.form['birth_date'])  # Assumendo il formato 'YYYY-MM-DD'
+        birth_date_str = (request.form['birth_date'])  # Assumendo il formato 'YYYY-MM-DD'
         username = request.form['email']
         password = request.form['password']
         confirm_password = request.form['confirm_password']
@@ -59,7 +59,24 @@ def register():
             new_user = User(username=username, password=hashed_password)
             try:
                 db.session.add(new_user)
-                db.session.commit()
+                db.session.flush()
+                # Ottieni la data corrente
+                current_date = date.today()
+                # Definisci l'intervallo massimo per la data di nascita (100 anni fa)
+                earliest_date = date(current_date.year - 100, 1, 1)
+                # Controllo della data di nascita
+                birth_date = date.fromisoformat(birth_date_str)
+
+                # Controlla se la data è nel futuro
+                if birth_date > current_date:
+                    flash("La data di nascita non può essere nel futuro.")
+                    return redirect(url_for('auth.register'))
+
+                # Controlla se la data è troppo indietro (più di 100 anni fa)
+                if birth_date < earliest_date:
+                    flash(f"L'anno di nascita deve essere compreso tra {earliest_date.year} e {current_date.year}.")
+                    return redirect(url_for('auth.register'))
+                
                 db.session.add(Profile(name=name, surname=surname, birth_date=birth_date, user_id=new_user.id))
                 db.session.commit()
                 flash("Registrazione completata", "success")
