@@ -10,12 +10,13 @@
     <form action="{{ url_for('shop.filtered_results') }}" method="POST" id="filter-form">
         <!-- Barra di ricerca -->
         <div class="search-bar">
-            <select name="category">
-                {% if not session['selected_categories'] %}
-                    <option selected="selected" value="all">Tutte le categorie</option>
+            <select name="selected_category_name">
+                {% if not session['selected_category_name'] %}
+                    <option selected="selected" value="">Tutte le categorie</option>
                 {% else %}
-                    <option value="all">Tutte le categorie</option>
-                {% endif %}
+                    <option value="{{session['selected_category_name']}}">{{session['selected_category_name']}}</option>
+                    <option value="">Tutte le categorie</option>
+                {% endif %} 
 
                 {% for category in categories %}
                     <option value="{{ category.name }}">{{ category.name }}</option>
@@ -33,6 +34,7 @@
             <div class="price-range">
                 <h4>Filtra per Prezzo</h4>
                 <label for="minPriceRange">Prezzo minimo: <span id="minPriceValue">{{ session['min_price'] or 0 }}</span> €</label><br>
+                <!--<input type="range" id="minPriceRange" name="minPriceRange" min="0" max="1000" step="10" value="{{ session['min_price'] or 0 }}" oninput="updatePriceValues()"><br>-->
                 <input type="range" id="minPriceRange" name="minPriceRange" min="0" max="1000" step="10" value="{{ session['min_price'] or 0 }}" oninput="updatePriceValues()"><br>
 
                 <label for="maxPriceRange">Prezzo massimo: <span id="maxPriceValue">{{ session['max_price'] or 6000 }}</span> €</label><br>
@@ -47,19 +49,18 @@
         </div>
     </form>
 
-    {% if current_user.is_authenticated%}
     <h1>Prodotti</h1>
     <div class="product-grid">
         {% for p in products %}
             <div class="product">
                 <a href="{{ url_for('product.access_product', product_id=p.id) }}" class="product-link"><img src="{{ p.image_url }}" alt="{{ p.name }}" height="50" width="50"></a>
                 <p class="product-name">{{ p.name }}</p>
+                <p class = "product-category"> {{ p.category.name }}</p>
                 <p class="product-price">€{{ p.price }}</p>
                 <button>Aggiungi al carrello</button>
             </div>
         {% endfor %}
     </div>
-    {% endif %}
 {% endblock %}
 
 {% block scripts %}

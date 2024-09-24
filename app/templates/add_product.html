@@ -7,10 +7,12 @@
 
     <form action="{{ url_for('product.add_product') }}" method="POST" id="create_product-form">
         <div class="colonna">
-            {% for category in categories %}
-                <input type="checkbox" id="{{ category.name }}" name="selected_categories_product" value="{{ category.name }}">
-                <label for="{{ category.name }}">{{ category.name }}</label><br>
-            {% endfor %}
+            <label for="category_id">Seleziona una categoria:</label>
+            <select name="category_id" id="category_id" required>
+                {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>            
             <input type="text" id="name" name="name" placeholder="Nome" required>
             <input type="number" id="price" name="price" placeholder="Prezzo" min="0" max = "6000" step="0.01" required>
             <input type="text" id="image-url" name="image-url" placeholder="URL immagine">

@@ -1,5 +1,6 @@
 from flask import Blueprint, flash, render_template, session, redirect, request, url_for
 from flask_login import login_required, current_user
+from flask_migrate import current
 from extensions.database import Cart, Notification, Order, OrderProduct, Profile, State, db, Product, Category, get_user_orders#, Order
 from extensions.princ import buyer_required, seller_required
 
@@ -7,7 +8,7 @@ app = Blueprint('shop', __name__)
 
 @app.route('/homepage', methods = ['GET'])
 def homepage():
-    return render_template('homepage.html')
+    return redirect(url_for('shop.shop'))
 
 @app.route('/shop', methods = ['GET'])
 #@login_required
@@ -15,28 +16,47 @@ def homepage():
 def shop():
     if current_user.is_authenticated:
         if 'current_profile_id' not in session:
+            flash('Seleziona prima un profilo', 'ERROR')
             return redirect(url_for('profile.select'))
     try:
+        if current_user.is_authenticated:
         # Visto che ci sono tre controlli, ovvero la barra di ricerca, il checkbox e il range di prezzo, ho bisogno di salvarmi ciò che visualizza l'utente.
-        if 'selected_products' not in session:
+            if 'selected_products' not in session:
+                flash('selected_products non eisste', 'Error')
+                return redirect(url_for('auth.logout'))
+            print('selected_products esiste')
             # Se current_user è un seller, devo togliere tutti i prodotti venduti da lui dai prodotti visibili sullo shop
-            if current_user.is_authenticated:
-                if current_user.has_role('seller'):
-                    session['selected_products'] = [p.id for p in Product.query.filter(Product.user_id != current_user.id).all()]
-                else:
-                    session['selected_products'] = [p.id for p in Product.query.all()]
-            else:
-                session['selected_products'] = [p.id for p in Product.query.all()]
+            if current_user.has_role('seller'):
+                # Recupera i prodotti che non appartengono all'utente corrente
+                not_seller_products = [p.id for p in Product.query.filter(Product.user_id != current_user.id).all()]
 
+                # Recupera i prodotti precedentemente salvati nella sessione
+                session_products = session.get('selected_products', [])
+
+                # Calcola l'intersezione tra i prodotti della sessione e quelli che non appartengono all'utente corrente
+                selected_intersection = list(set(session_products) & set(not_seller_products))
+
+                # Aggiorna la sessione con i prodotti intersecati
+                session['selected_products'] = selected_intersection
+
+                
+        else:
+            if 'selected_products' not in session:
+                session['selected_products'] = [p.id for p in Product.query.all()]
+                
         # I prodotti il cui id è presente nella sessione. Questo perchè potrebbe esserci una route che reindirizza a shop e session['selected_products'] potrebbe averedegli elementi
         products = Product.query.filter(Product.id.in_(session['selected_products'])).all()
                 
-    except Exception:
+    except Exception as e:
+        print(e)
         flash('Si è verificato un errore di database. Riprova più tardi',"error")
         return redirect(url_for('auth.logout'))
     
-    if 'selected_categories' not in session:
-        session['selected_categories'] = []
+    if current_user.is_authenticated:
+        if 'selected_category_name' not in session:
+            session['selected_category_name'] = ''
+    else:
+        session['selected_category_name'] = ''
     if 'min_price' not in session:
         session['min_price'] = 0.0
     if 'max_price' not in session:
@@ -50,14 +70,14 @@ def filtered_results():
     if request.method == 'POST':
         # Estrapolo tutte le informazioni necessarie dal form
         query = request.form.get('query', '') # query della barra di ricerca
-        selected_categories = request.form.getlist('selected_categories') # lista delle categorie selezionate
+        category_name = request.form.get('selected_category_name') # lista delle categorie selezionate
         min_price = float(request.form.get('minPriceRange', 0)) # prezzo minimo
         max_price = float(request.form.get('maxPriceRange', 6000)) # prezzo massimo
 
         # Aggiorno i valori corrispondenti alle chiavi 
         session['min_price'] = min_price
         session['max_price'] = max_price
-        session['selected_categories'] = selected_categories
+        session['selected_category_name'] = category_name
 
         try:
             # Filtra i prodotti in base ai criteri
@@ -73,15 +93,16 @@ def filtered_results():
                 products = products.filter(Product.name.ilike(f'%{query}%'))
 
             # Se ci sono delle categorie selezionate
-            if selected_categories:
-                products = products.filter(Product.categories.any(Category.name.in_(selected_categories)))
+            if category_name:
+                products = products.filter(Product.category.has(Category.name == category_name))
 
             # I prodotti che rispettano che corrispondono a quelli precedenti e filtrati in base al prezzo
             products = products.filter(Product.price >= min_price, Product.price <= max_price).all()
 
             # Aggiorno gli id dei prodotti
             session['selected_products'] = [p.id for p in products]
-        except Exception:
+        except Exception as e:
+            print(e)
             flash('Si è verificato un errore di database. Riprova più tardi',"error")
             return redirect(url_for('auth.logout'))
 
@@ -92,7 +113,7 @@ def filtered_results():
 #@buyer_required
 def reset_filters():
     # Rimuovi tutte le categorie selezionate dalla sessione
-    session['selected_categories'] = []
+    session['selected_category_name'] = ''
 
     # Reimposta i valori di min_price e max_price nella sessione
     session['min_price'] = 0.0

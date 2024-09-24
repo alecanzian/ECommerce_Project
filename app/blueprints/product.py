@@ -31,35 +31,29 @@ def add_product():
         image_url = request.form.get('image-url')
         description = request.form.get('description')
         availability = request.form.get('availability')
-        list_categories = request.form.getlist('selected_categories_product')
-        category_objects = []
+        category_id = request.form.get('category_id')
         
         try:
-            if list_categories:
-                for category_name in list_categories:
-                        category = Category.query.filter_by(name=category_name).first()
-                        if not category:
-                            flash('Categoria non trovata', "error")
-                            return redirect(url_for('account.view'))
-                        category_objects.append(category)
-            else:
-                category = Category.query.filter_by(name='Altro').first()
-                if not category:
-                    flash('Errore nel database. Riprova più tardi', "error")
-                    return redirect(url_for('account.view'))
-                category_objects.append(category)
+            
+            category = Category.query.filter_by(id=category_id).first()
+            if not category:
+                flash('Categoria non trovata', "error")
+                return redirect(url_for('account.view'))
+            
+            #category = Category.query.filter_by(name='Altro').first()
 
             user_id = current_user.id
 
             if not image_url:
-                new_product = Product(name=name, price=price, user_id=user_id, description = description, availability = availability, categories = category_objects)
+                new_product = Product(name=name, price=price, user_id=user_id, description = description, availability = availability, category_id = category.id)
             else:
-                new_product = Product(name=name, price=price, user_id=user_id, description = description, availability = availability, categories = category_objects, image_url = image_url)
+                new_product = Product(name=name, price=price, user_id=user_id, description = description, availability = availability, category_id = category.id, image_url = image_url)
 
             db.session.add(new_product)
             db.session.commit()
 
-        except Exception:
+        except Exception as e:
+            print(e)
             db.session.rollback()
             flash('Si è verificato un errore di database. Riprova più tardi',"error")
             return redirect(url_for('shop.shop'))
@@ -92,7 +86,7 @@ def delete_product(product_id):
     flash('Prodotto eliminato correttamente', "success")
     return redirect(url_for('account.view'))
     
-@app.route('/modify_product/<int:product_id>', methods=['GET'])
+@app.route('/modify_product/<int:product_id>', methods=['GET', 'POST'])
 @login_required
 def modify_product(product_id):
     try:
@@ -112,36 +106,23 @@ def modify_product(product_id):
             image_url = request.form.get('image_url')
             description = request.form.get('description')
             availability = int(request.form.get('availability'))
-            list_categories = request.form.getlist('selected_categories_product')
+            category_id = request.form.get('category_id')
 
-            if not name or not price or not description or not image_url or not availability:
-                #for p in current_user.products:
-                #    if p.id != product.id and name == p.name:
-                #        flash('Nome già utilizzato')
-                #        return redirect(url_for('shop.modify_product', product_id=product.id))
+            if not name or not price or not description or not image_url or not availability or not category_id:
                 flash('Inserisci tutte le informazioni', 'FAIL')
                 return redirect(url_for('product.modify_product'), product_id = product.id)
 
-            categories = []
-            if list_categories:
-                    for category_name in list_categories:
-                            category = Category.query.filter_by(name=category_name).first()
-                            if not category:
-                                flash('Categoria non trovata', "error")
-                                return redirect(url_for('account.view'))
-                            categories.append(category)
-            else:
-                category = Category.query.filter_by(name='Altro').first()
-                if not category:
-                    flash('Errore nel database. Riprova più tardi', "error")
-                    return redirect(url_for('account.view'))
-                categories.append(category)
+            category = Category.query.filter_by(id = category_id).first()
+            if not category:
+                flash('Categoria non trovata', "error")
+                return redirect(url_for('account.view'))
             
             product.name = name
             product.price = price
             product.description = description
             product.image_url = image_url
             product.availability = availability
+            product.category_id = category.id
             if availability == 0:
                 for item in product.in_carts:
                     db.session.delete(item)
@@ -191,7 +172,7 @@ def order_product(product_id):
             flash('Si è verificato un errore di database1. Riprova più tardi.', "error")
             return redirect(url_for('product.access_product', product_id=product_id))
 
-        
+
         # Operazioni critiche sul database in blocco try-except
         try:
             #profile = Profile.query.filter_by(id = session['current_profile_id']).first()

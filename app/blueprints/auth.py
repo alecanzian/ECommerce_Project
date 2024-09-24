@@ -12,7 +12,7 @@ app = Blueprint('auth', __name__)
 @app.route('/', methods=['GET'])
 @anonymous_required
 def home():
-    return redirect(url_for('shop.shop'))
+    return redirect(url_for('shop.homepage'))
 
 @app.route('/register', methods=['GET', 'POST'])
 @anonymous_required

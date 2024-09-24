@@ -10,6 +10,7 @@
     <div class="product-details">
         <h1>{{ product.name }}</h1>
         <img src="{{ product.image_url }}" width="100" height="100" alt="{{ product.name }}" class="product-image">
+        <p><strong>Categoria:</strong> {{ product.category.name }}</p>
         <p><strong>Prezzo:</strong> €{{ product.price }}</p>
         <p><strong>Disponibilità:</strong> {{ product.availability }}</p>
         <p><strong>Descrizione:</strong> {{product.description}}</p>

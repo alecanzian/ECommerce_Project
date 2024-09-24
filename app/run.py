@@ -44,21 +44,20 @@ if __name__ == '__main__':
         #set_user_with_role(user, 'buyer')  # Aggiungi un utente di esempio
         #set_user_with_role(user, 'seller')  # Aggiungi un utente di esempio
         #example_products = [
-        #    {"name": "Scarpe Nike", "price": 10.99, "description": "gnegne", "availability": 10, "categories": ["Sport e Tempo Libero"]},
-        #    {"name": "Jeans Levis", "price": 19.99, "description": "gnegne", "availability": 2, "categories": ["Abbigliamento"]},
-        #    {"name": "Occhiali da sole H. Boss", "price": 15.49, "description": "gnegne", "availability": 5, "categories": ["Salute e Bellezza", "Abbigliamento"]},
-        #    {"name": "Laptop Dell", "price": 499.99, "description": "Laptop ad alte prestazioni", "availability": 3, "categories": ["Elettronica", "Tecnologia"]},
-        #    {"name": "Smartphone Samsung", "price": 299.99, "description": "Smartphone di ultima generazione", "availability": 15, "categories": ["Elettronica", "Telefonia"]},
-        #    {"name": "Divano Ikea", "price": 199.99, "description": "Divano confortevole e moderno", "availability": 4, "categories": ["Casa e Giardino", "Arredamento"]},
-        #    {"name": "Trapano Bosch", "price": 89.99, "description": "Trapano per lavori di fai da te", "availability": 12, "categories": ["Fai da te", "Tecnologia"]},
-        #    {"name": "Romanzo di Dan Brown", "price": 12.99, "description": "Thriller avvincente", "availability": 20, "categories": ["Libri e Riviste"]},
-        #    {"name": "Chitarra Fender", "price": 249.99, "description": "Chitarra elettrica per musicisti", "availability": 2, "categories": ["Strumenti Musicali", "Musica"]},
-        #    {"name": "Orologio Rolex", "price": 4999.99, "description": "Orologio di lusso", "availability": 1, "categories": ["Orologi e Gioielli"]},
-        #    {"name": "Videogioco PS5", "price": 59.99, "description": "Videogioco di ultima generazione", "availability": 30, "categories": ["Giochi e Giocattoli", "Tecnologia"]},
-        #    {"name": "Cibo per cani", "price": 24.99, "description": "Alimento completo per cani", "availability": 50, "categories": ["Animali domestici", "Alimentari"]},
-        #    {"name": "Set di pentole", "price": 79.99, "description": "Set di pentole antiaderenti", "availability": 10, "categories": ["Casa e Giardino", "Altro"]}
+        #    {"name": "Scarpe Nike", "price": 10.99, "description": "gnegne", "availability": 10, "category": "Sport e Tempo Libero"},
+        #    {"name": "Jeans Levis", "price": 19.99, "description": "gnegne", "availability": 2, "category": "Abbigliamento"},
+        #    {"name": "Occhiali da sole H. Boss", "price": 15.49, "description": "gnegne", "availability": 5, "category": "Salute e Bellezza"},
+        #    {"name": "Laptop Dell", "price": 499.99, "description": "Laptop ad alte prestazioni", "availability": 3, "category": "Elettronica"},
+        #    {"name": "Smartphone Samsung", "price": 299.99, "description": "Smartphone di ultima generazione", "availability": 15, "category": "Telefonia"},
+        #    {"name": "Divano Ikea", "price": 199.99, "description": "Divano confortevole e moderno", "availability": 4, "category": "Arredamento"},
+        #    {"name": "Trapano Bosch", "price": 89.99, "description": "Trapano per lavori di fai da te", "availability": 12, "category": "Fai da te"},
+        #    {"name": "Romanzo di Dan Brown", "price": 12.99, "description": "Thriller avvincente", "availability": 20, "category": "Libri e Riviste"},
+        #    {"name": "Chitarra Fender", "price": 249.99, "description": "Chitarra elettrica per musicisti", "availability": 2, "category": "Musica"},
+        #    {"name": "Orologio Rolex", "price": 4999.99, "description": "Orologio di lusso", "availability": 1, "category": "Orologi e Gioielli"},
+        #    {"name": "Videogioco PS5", "price": 59.99, "description": "Videogioco di ultima generazione", "availability": 30, "category": "Giochi e Giocattoli"},
+        #    {"name": "Cibo per cani", "price": 24.99, "description": "Alimento completo per cani", "availability": 50, "category": "Alimentari"},
+        #    {"name": "Set di pentole", "price": 79.99, "description": "Set di pentole antiaderenti", "availability": 10, "category": "Casa e Giardino"}
         #]
         #
         #add_products(example_products)
-#
     app.run(debug=True)

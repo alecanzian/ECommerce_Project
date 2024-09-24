@@ -15,10 +15,10 @@ user_roles = db.Table('user_roles',
 )
 
 # Tabella di associazione per la relazione molti-a-molti tra Product e Category
-product_categories = db.Table('product_categories',
-    db.Column('product_id', db.Integer, db.ForeignKey('product.id'), primary_key=True),
-    db.Column('category_id', db.Integer, db.ForeignKey('category.id'), primary_key=True)
-)
+#product_categories = db.Table('product_categories',
+#    db.Column('product_id', db.Integer, db.ForeignKey('product.id'), primary_key=True),
+#    db.Column('category_id', db.Integer, db.ForeignKey('category.id'), primary_key=True)
+#)
     
 # Definizione della classe User
 class User(db.Model, UserMixin):
@@ -99,23 +99,21 @@ class Product(db.Model):
 
     #profile_id = db.Column(db.Integer, db.ForeignKey('profile.id', ondelete = 'SET NULL'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False) 
 
-    categories = db.relationship('Category', secondary=product_categories, backref='products')
+    #categories = db.relationship('Category', secondary=product_categories, backref='products')
+    category = db.relationship('Category', backref='products')
     in_carts = db.relationship('Cart', backref='product', lazy = True)
 
 
-    def __init__(self, name, price, user_id, description, categories, availability = 1, image_url = 'https://img.freepik.com/vettori-premium/un-disegno-di-una-scarpa-con-sopra-la-parola-scarpa_410516-82664.jpg'):
-        user = db.session.get(User, int(user_id))
-        if not user or not user.has_role('seller'):
-            raise ValueError("Il profilo non appartiene a un utente con il ruolo di seller.")
+    def __init__(self, name, price, user_id, description, category_id, availability = 1, image_url = 'https://img.freepik.com/vettori-premium/un-disegno-di-una-scarpa-con-sopra-la-parola-scarpa_410516-82664.jpg'):
         self.name = name
         self.price = price
         self.image_url = image_url
         self.description = description
         self.availability = availability
         self.user_id = user_id
-        for c in categories:
-            self.categories.append(c)
+        self.category_id = category_id
 
 class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -335,15 +333,13 @@ def add_products(products_list):
             # Controlla se il prodotto esiste già
             if not existing_product:
                 # Recupera o crea le categorie per il prodotto corrente
-                categories = elem.get('categories', [])  # Ottiene la lista delle categorie dal dizionario prodotto
-                category_objects = []
+                category_name = elem['category'] # Ottiene la lista delle categorie dal dizionario prodotto
 
                 # Itera sulle categorie per trovare o creare gli oggetti Category corrispondenti
-                for category_name in categories:
-                    category = Category.query.filter_by(name=category_name).first()
-                    if not category:
-                        category = Category.query.filter_by(name='Altro').first()
-                    category_objects.append(category)
+                category = Category.query.filter_by(name=category_name).first()
+                if not category:
+                    category = Category.query.filter_by(name='Altro').first()
+                
 
                 # Crea e aggiungi il prodotto al database
                 prod = Product(
@@ -352,7 +348,7 @@ def add_products(products_list):
                     user_id=first_seller.id,
                     description=elem['description'],
                     availability=elem['availability'],
-                    categories=category_objects  # Aggiunge le categorie al prodotto
+                    category_id=category.id# Aggiunge le categorie al prodotto
                 )
                 
                 db.session.add(prod)
