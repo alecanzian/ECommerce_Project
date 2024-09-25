@@ -6,10 +6,6 @@ from extensions.princ import buyer_required, seller_required
 
 app = Blueprint('shop', __name__)
 
-@app.route('/homepage', methods = ['GET'])
-def homepage():
-    return redirect(url_for('shop.shop'))
-
 @app.route('/shop', methods = ['GET'])
 #@login_required
 #@buyer_required

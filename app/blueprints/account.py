@@ -104,9 +104,11 @@ def delete():
 
             flash("Account eliminato correttamente", "success")
             return redirect(url_for('auth.logout'))
-        
-        except Exception as e:
-            print(e)
+        except AttributeError:
+            db.session.rollback()
+            flash('L\'utente non è stato caricato correttamente', 'error')
+            return redirect(url_for('auth.logout'))
+        except Exception:
             db.session.rollback()
             flash('Si è verificato un errore di database. Riprova più tardi','error')
             return redirect(url_for('account.view'))
@@ -197,7 +199,7 @@ def become_seller():
             if not seller_role or not seller_role.is_valid:
                 flash("Ruolo di seller non trovato o non caricato correttamente", 'error')
                 return redirect(url_for('account.view'))
-            
+
             current_user.roles.append(seller_role)                
             new_seller_information = SellerInformation(user_id = current_user.id, iban = iban)
             db.session.add(new_seller_information)

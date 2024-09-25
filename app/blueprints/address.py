@@ -1,7 +1,7 @@
-from sqlite3 import IntegrityError
 from flask import Blueprint, abort, render_template, request, flash, redirect, url_for
 from flask_login import current_user, login_required, fresh_login_required
 from extensions.database import Address, db
+from sqlalchemy.exc import IntegrityError
 
 app = Blueprint('address', __name__)
 
@@ -32,19 +32,22 @@ def add(action):
         
         try:
             # Controllo se esiste già un indirizzo con la stessa via, allora blocca l'azione
-            if any(address.street.replace(" ", "").lower() == street.replace(" ", "").lower() for address in current_user.addresses):
-                flash("Indirizzo già presente", "error")
-                return redirect(url_for('address.add', action = action))
+            #if any(address.street.replace(" ", "").lower() == street.replace(" ", "").lower() for address in current_user.addresses):
+            #    flash("Indirizzo già presente", "error")
+            #    return redirect(url_for('address.add', action = action))
             
             new_address = Address(street = street, postal_code = postal_code, city = city, province = province, country = country, user_id = current_user.id)
             db.session.add(new_address)
             db.session.commit()
-        except AttributeError:
+        except IntegrityError:
             db.session.rollback()
-            flash('L\'utente non è stato caricato correttamente', 'error')
-            return redirect(url_for('auth.logout'))
-        except Exception as e:
-            print(e)
+            flash('Indirizzo già esistente', 'error')
+            return redirect(url_for('address.add', action = action))
+        #except AttributeError:
+        #    db.session.rollback()
+        #    flash('L\'utente non è stato caricato correttamente', 'error')
+        #    return redirect(url_for('auth.logout'))
+        except Exception:
             db.session.rollback()
             flash('Si è verificato un errore di database. Riprova più tardi','error')
             return redirect(url_for('shop.shop'))
@@ -96,9 +99,9 @@ def modify(address_id):
             return redirect(url_for('address.modify', address_id = address.id))
         try:
             # Controlla se la modifica della via che si vuole apportare coincide con il nome di una via di un altro indirizzo dell'utente
-            if any(a.id != address.id and a.street.replace(" ", "").lower() == street.replace(" ", "").lower() for a in current_user.addresses):
-                flash("Indirizzo già presente", "error")
-                return redirect(url_for('address.modify', address_id = address.id))
+            #if any(a.id != address.id and a.street.replace(" ", "").lower() == street.replace(" ", "").lower() for a in current_user.addresses):
+            #    flash("Indirizzo già presente", "error")
+            #    return redirect(url_for('address.modify', address_id = address.id))
                 
             address.street = street
             address.postal_code = postal_code
@@ -107,7 +110,10 @@ def modify(address_id):
             address.country = country
             
             db.session.commit()
-
+        except IntegrityError:
+            db.session.rollback()
+            flash('Indirizzo già esistente', 'error')
+            return redirect(url_for('address.modify', address_id = address.id))
         except Exception:
             db.session.rollback()
             flash('Si è verificato un errore di database. Riprova più tardi','error')
@@ -133,6 +139,10 @@ def delete(address_id):
         
         db.session.delete(address)
         db.session.commit()
+        
+    except AttributeError:
+        flash('L\'utente non è stato caricato correttamente', 'error')
+        return redirect(url_for('auth.logout'))
     except Exception:
         db.session.rollback()
         flash("Si è verificato un errore di database", "error")
