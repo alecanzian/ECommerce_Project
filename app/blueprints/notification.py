@@ -10,11 +10,10 @@ app = Blueprint('notification', __name__)
 @app.route('/notification', methods = ['GET'])
 @login_required
 def view():
-    try:
-        if not current_user.is_valid:
+    if not current_user.is_valid:
             flash('L\'utente non è stato caricato correttamente', 'error')
             return redirect(url_for('auth.logout'))
-        
+    try:
         notifications = Notification.query.filter_by(receiver_id=current_user.id).order_by(desc(Notification.timestamp)).all()
     except Exception:
         flash('Si è verificato un errore di database. Riprova più tardi','error')
@@ -27,10 +26,10 @@ def view():
 @app.route('/notification/delete/<int:notification_id>', methods=['GET'])
 @login_required
 def delete(notification_id):
+    if not current_user.is_valid:
+        flash('L\'utente non è stato caricato correttamente', 'error')
+        return redirect(url_for('auth.logout'))
     try:
-        if not current_user.is_valid:
-            flash('L\'utente non è stato caricato correttamente', 'error')
-            return redirect(url_for('auth.logout'))
 
         notification = db.session.get(Notification, notification_id)
         if not notification or not notification.is_valid:
@@ -56,10 +55,10 @@ def delete(notification_id):
 @app.route('/notification/delete/all', methods=['GET'])
 @login_required
 def delete_all():
+    if not current_user.is_valid:
+        flash('L\'utente non è stato caricato correttamente', 'error')
+        return redirect(url_for('auth.logout'))
     try:
-        if not current_user.is_valid:
-            flash('L\'utente non è stato caricato correttamente', 'error')
-            return redirect(url_for('auth.logout'))
         
         notifications = Notification.query.filter_by(receiver_id=current_user.id).all()
 

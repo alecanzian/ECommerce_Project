@@ -6,7 +6,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Blueprint('account', __name__)
 
-# Indirizzo lo suer alla pagina dell'account se l'utente è caricato correttamente
+# Indirizzo lo user alla pagina dell'account se l'utente è caricato correttamente
 @app.route('/account', methods = ['GET'])
 @login_required
 @fresh_login_required
@@ -34,6 +34,7 @@ def delete():
 
         
         try:
+            # Controllo tra la password dell'utente e l'hash della password inserita
             if not check_password_hash(current_user.password, password):
                 flash("Password errata", 'error')
                 return redirect(url_for('auth.delete'))
@@ -64,11 +65,7 @@ def delete():
                     db.session.delete(product)  
 
                 # Elimina le informazioni del seller
-                #db.session.delete(current_user.seller_information)
-                # visto che current_user.seller_information non funziona, per ora uso questo
-                for tuple in SellerInformation.query.all():
-                    if tuple.user_id == current_user.id:
-                        db.session.delete(tuple)
+                db.session.delete(current_user.seller_information)
 
             # Se esiste un prodotto ancora da ricevere, allora non si può eliminare l'utente
             if any(order_product.state_id != consegnato_state.id and order.user_id == current_user.id for order in current_user.orders for order_product in order.products):
@@ -200,24 +197,14 @@ def become_seller():
             if not seller_role or not seller_role.is_valid:
                 flash("Ruolo di seller non trovato o non caricato correttamente", 'error')
                 return redirect(url_for('account.view'))
-
+            
             current_user.roles.append(seller_role)                
             new_seller_information = SellerInformation(user_id = current_user.id, iban = iban)
             db.session.add(new_seller_information)
             db.session.commit()
-            #info = SellerInformation.query.all()
             
-            #if not info:
-            #    print("non esiste")
-            #else:
-            #    for p in info:
-            #        print(p.user_id)
-            #        print(p.iban)
-            #        print(p.profit)
-            
-            #print(current_user.seller_information.iban)
-        except Exception as e:
-            print(e)
+        except Exception:
+            db.session.rollback()
             flash('Si è verificato un errore di database. Riprova più tardi','error')
             return redirect(url_for('account.view'))
         
@@ -253,19 +240,11 @@ def modify_iban():
                 flash("Password errata", "error")
                 return redirect(url_for('account.modify_iban'))
 
-            #stampa di debug
-            #info = SellerInformation.query.all()
-            #if not info:
-            #    print("non esiste")
-            #else:
-            #    for p in info:
-            #        if p.user_id == current_user.id:
-            #            print(p.iban)
-            #            p.iban = iban
-
             current_user.seller_information.iban = iban
             db.session.commit()
+
         except Exception:
+            db.session.rollback()
             flash('Si è verificato un errore di database. Riprova più tardi','error')
             return redirect(url_for('account.view'))
         

@@ -126,17 +126,13 @@
         <table>
             <tr>
                 <th>IBAN</th>
-                {% if current_user.seller_information.is_valid %}
                     <td>{{ current_user.seller_information.iban }}
                         <a href="{{ url_for('account.modify_iban') }}">Modifica</a>
                     </td>
-                {%else%}
-                <td>vuoto <a href="{{ url_for('account.modify_iban') }}">Modifica</a></td>
-                {% endif %}
             </tr>
             <tr>
                 <th>Guadagno</th>
-                {% if current_user.seller_information.profit %}
+                {% if current_user.seller_information.is_valid %}
                     <td>{{ current_user.seller_information.profit }}</td>
                     {%else%}
                     <td>vuoto</td>                

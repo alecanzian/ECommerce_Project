@@ -92,6 +92,10 @@ class Address(db.Model):
     # Chiave esterna per collegare l'indirizzo all'utente
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+    __table_args__ = (
+        UniqueConstraint('street', 'city', 'postal_code', 'province', 'country', 'user_id', name='unique_address'),
+    )
+
     def __init__(self, street, city, postal_code, province, country, user_id):
         self.street = street
         self.city = city
@@ -132,7 +136,7 @@ class Product(db.Model):
         self.category_id = category_id
     @property
     def is_valid(self):
-        if not self.name or not self.price or not self.image_url or not self.description or not self.availability or not self.user_id or not self.category_id:
+        if not self.name or not self.price or not self.image_url or not self.description or not self.user_id or not self.category_id:
             return False
         return True
 
@@ -173,7 +177,7 @@ class Order(db.Model):
         self.address = address
     @property
     def is_valid(self):
-        if not self.order_date or not self.total_price or not self.address or not self.user_id:
+        if not self.order_date or not self.address or not self.user_id:
             return False
         return True
 
@@ -307,7 +311,7 @@ class SellerInformation(db.Model):
         self.user_id = user_id
     @property
     def is_valid(self):
-        if not self.iban or not self.profit or not self.user_id:
+        if not self.iban or not self.user_id:
             return False
         return True
 
