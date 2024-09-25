@@ -126,7 +126,7 @@
         <table>
             <tr>
                 <th>IBAN</th>
-                {% if current_user.seller_information.iban %}
+                {% if current_user.seller_information.is_valid %}
                     <td>{{ current_user.seller_information.iban }}
                         <a href="{{ url_for('account.modify_iban') }}">Modifica</a>
                     </td>

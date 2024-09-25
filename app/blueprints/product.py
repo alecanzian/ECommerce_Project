@@ -223,8 +223,9 @@ def order_product(product_id):
             if product.availability == 0:
                 flash('Prodotto non disponibile', 'fail')
                 return redirect(url_for('product.access_product', product_id=product_id))
+            profile = Profile.query.filter_by(id = session['current_profile_id']).first()
 
-            for item in current_user.cart_items:
+            for item in profile.cart_items:
                 if item.product_id == product.id:
                     flash('Prodotto già presente nel carrello', 'fail')
                     return redirect(url_for('product.access_product', product_id=product_id))

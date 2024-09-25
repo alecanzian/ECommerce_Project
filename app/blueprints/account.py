@@ -66,6 +66,9 @@ def delete():
                     
             # Elimina il profilo dopo aver eliminato i prodotti
             for profile in current_user.profiles:
+                # Elimina tutti i prodotti sul carrello
+                for item in profile.cart_items:
+                    db.session.delete(item)
                 db.session.delete(profile) 
             
             # Elimina gli indirizzi dopo aver eliminato i profili
@@ -74,10 +77,6 @@ def delete():
             
             for card in current_user.cards:
                 db.session.delete(card)
-
-            # Elimina tutti i prodotti sul carrello
-            for item in current_user.cart_items:
-                db.session.delete(item)
 
             for order in current_user.orders:
                 db.session.delete(order)

@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, render_template, session, redirect, request, url_for
 from flask_login import login_required, current_user
-from extensions.database import Cart, Order, OrderProduct, Product, Notification, db
+from extensions.database import Cart, Order, OrderProduct, Product, Notification, Profile, db
 from extensions.princ import buyer_required
 
 app = Blueprint('cart', __name__)
@@ -15,16 +15,17 @@ def cart():
 @login_required
 def add_to_cart(product_id):
     product = Product.query.filter_by(id = product_id).first()
-    for item in current_user.cart_items:
-        if item.product_id == product.id:
-            flash('Prodotto già nel carrello', 'fail')
-            return redirect(url_for('product.access_product', product_id=product_id))
+    if not product:
+        flash('prodotto non trovato', 'error')
+        return redirect(url_for('shop.shop'))
+
+    
         
     if product.availability == 0:
         flash('Prodotto non disponibile', 'fail')
         return redirect(url_for('product.access_product', product_id=product_id))
     
-    item = Cart(profile_id = session['current_profile_id'], user_id = current_user.id, product_id = product.id, quantity=1)
+    item = Cart(profile_id = session['current_profile_id'], product_id = product.id, quantity=1)
     db.session.add(item)
     db.session.commit()
     
@@ -35,7 +36,9 @@ def add_to_cart(product_id):
 @app.route('/delete_item_from_cart/<int:item_id>', methods = ['GET'])
 @login_required
 def delete_item_from_cart(item_id):
-    item = next((item for item in current_user.cart_items if item.id == item_id), None)
+    profile = Profile.query.filter_by(id = session['current_profile_id']).first()
+
+    item = next((item for item in profile.cart_items if item.id == item_id), None)
     if item:
         db.session.delete(item)
         db.session.commit()
@@ -66,7 +69,9 @@ def order_cart_items():
                 flash('Carta non trovata', 'fail')
                 return redirect(url_for('cart.order_cart_items'))
 
-            items = current_user.cart_items
+            profile = Profile.query.filter_by(id = session['current_profile_id']).first()
+
+            items = profile.cart_items
             if not items:
                 flash('Carrello vuoto', 'fail')
                 return redirect(url_for('shop.shop'))
@@ -123,7 +128,8 @@ def change_quantity_cart_item(item_id):
         return redirect(url_for('cart.cart'))
     
     try:
-        item = next((i for i in current_user.cart_items if i.id == item_id), None)
+        profile = Profile.query.filter_by(id = session['current_profile_id']).first()
+        item = next((i for i in profile.cart_items if i.id == item_id), None)
         if not item:
             flash('Prodotto non trovato', "error")
             return redirect(url_for('cart.cart'))

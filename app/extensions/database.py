@@ -1,7 +1,7 @@
 import time
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-from sqlalchemy import UniqueConstraint
+from sqlalchemy import UniqueConstraint, false
 from werkzeug.security import generate_password_hash
 from datetime import datetime
 
@@ -31,9 +31,10 @@ class User(db.Model, UserMixin):
     products = db.relationship('Product', backref='user', lazy = True)
     addresses = db.relationship('Address', backref='users', lazy=True)
     orders = db.relationship('Order', backref = 'user', lazy = True)
-    cart_items = db.relationship('Cart', backref='user', lazy=True)
+    #cart_items = db.relationship('Cart', backref='user', lazy=True)
     cards = db.relationship('Card', backref = 'user', lazy = True)
-    seller_information = db.relationship('SellerInformation', lazy = True)
+    seller_information = db.relationship('SellerInformation', backref='user', uselist=False, lazy=True)
+    #seller_information = db.relationship('SellerInformation', backref=db.backref('user', uselist=False), lazy = True)
 
 
     def __init__(self, username, password):
@@ -51,6 +52,11 @@ class User(db.Model, UserMixin):
 
     def has_role(self, role_name):
         return any(role.name == role_name for role in self.roles)
+    @property
+    def is_valid(self):
+        if not self.username or not self.password:
+            return False
+        return True
 
 class Profile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -69,6 +75,11 @@ class Profile(db.Model):
         self.birth_date = birth_date
         self.image_url = image_url
         self.user_id = user_id
+    @property
+    def is_valid(self):
+        if not self.name or not self.surname or not self.birth_date or not self.image_url or not self.user_id:
+            return False
+        return True
 
 class Address(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -88,6 +99,11 @@ class Address(db.Model):
         self.country = country
         self.user_id = user_id
         self.province = province
+    @property
+    def is_valid(self):
+        if not self.street or not self.city or not self.postal_code or not self.province or not self.country or not self.user_id:
+            return False
+        return True
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -114,20 +130,32 @@ class Product(db.Model):
         self.availability = availability
         self.user_id = user_id
         self.category_id = category_id
+    @property
+    def is_valid(self):
+        if not self.name or not self.price or not self.image_url or not self.description or not self.availability or not self.user_id or not self.category_id:
+            return False
+        return True
 
 class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     quantity = db.Column(db.Integer, nullable = False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    #user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable = False)
     profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'), nullable = False)
 
-    def __init__(self, quantity, user_id, product_id, profile_id):
+    __table_args__ = (db.UniqueConstraint('product_id', 'profile_id', name='unique_product_profile'),)
+
+    def __init__(self, quantity, product_id, profile_id):
         self.quantity = quantity
-        self.user_id = user_id
+        #self.user_id = user_id
         self.product_id = product_id
         self.profile_id = profile_id
+    @property
+    def is_valid(self):
+        if not self.quantity or not self.product_id or not self.profile_id:
+            return False
+        return True
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -143,6 +171,11 @@ class Order(db.Model):
         self.user_id = user_id
         self.total_price = total_price
         self.address = address
+    @property
+    def is_valid(self):
+        if not self.order_date or not self.total_price or not self.address or not self.user_id:
+            return False
+        return True
 
 class OrderProduct(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -162,6 +195,11 @@ class OrderProduct(db.Model):
         self.product_name = product_name
         self.quantity = quantity
         self.state = State.query.filter_by(name = 'Ordinato').first()
+    @property
+    def is_valid(self):
+        if not self.quantity or not self.timestamp or not self.product_name or not self.order_id or not self.state_id:
+            return False
+        return True
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -169,6 +207,11 @@ class Category(db.Model):
 
     def __init__(self, name):
         self.name = name
+    @property
+    def is_valid(self):
+        if not self.name:
+            return False
+        return True
 
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -176,6 +219,11 @@ class Role(db.Model):
 
     def __init__(self, name):
         self.name = name
+    @property
+    def is_valid(self):
+        if not self.name:
+            return False
+        return True
 
 class State(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -183,6 +231,11 @@ class State(db.Model):
 
     def __init__(self, name):
         self.name = name
+    @property
+    def is_valid(self):
+        if not self.name:
+            return False
+        return True
         
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -202,6 +255,11 @@ class Notification(db.Model):
         self.type = type
         self.product_name = product_name
         self.order_id = order_id
+    @property
+    def is_valid(self):
+        if not self.type or not self.timestamp or not self.product_name or not self.sender_id or not self.receiver_id or not self.order_id:
+            return False
+        return True
 
 class Card(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -227,19 +285,29 @@ class Card(db.Model):
         self.expiration_month = expiration_month
         self.card_type = card_type
         self.user_id = user_id
+    @property
+    def is_valid(self):
+        if not self.pan or not self.last_digits or not self.expiration_month or not self.expiration_year or not self.card_type or not self.name or not self.surname or not self.user_id:
+            return False
+        return True
 
 class SellerInformation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     profit = db.Column(db.Float, nullable = False)
-    iban = db.Column(db.String(27), nullable = False)
+    iban = db.Column(db.String(27), unique = True, nullable = False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
-    #user = db.relationship('User', backref = 'seller_information', lazy = True)
+    #user = db.relationship('User', backref=db.backref('seller_information', uselist=False), lazy=True)
 
     def __init__(self, iban, user_id):
         self.profit = 0.0
         self.iban = iban
         self.user_id = user_id
+    @property
+    def is_valid(self):
+        if not self.iban or not self.profit or not self.user_id:
+            return False
+        return True
 
 
 

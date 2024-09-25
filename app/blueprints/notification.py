@@ -9,9 +9,10 @@ app = Blueprint('notification', __name__)
 @login_required
 def view():
     try:
-        #if not current_user:
-        #    flash('Utente corrente non è stato caricato correttamente', 'error')
-        #    return redirect(url_for('auth.logout'))
+        if not current_user.is_valid:
+            flash('L\'utente non è stato caricato correttamente', 'error')
+            return redirect(url_for('auth.logout'))
+        
         notifications = Notification.query.filter_by(receiver_id=current_user.id).order_by(desc(Notification.timestamp)).all()
     except Exception:
         flash('Si è verificato un errore di database. Riprova più tardi','error')
@@ -23,13 +24,17 @@ def view():
 @login_required
 def delete(notification_id):
     try:
+        if not current_user.is_valid:
+            flash('L\'utente non è stato caricato correttamente', 'error')
+            return redirect(url_for('auth.logout'))
+
         notification = db.session.get(Notification, notification_id)
-        if not notification:
-            flash('Notifica non trovata', 'danger')
+        if not notification or not notification.is_valid:
+            flash('Notifica non trovata o con caricata correttamente', 'error')
             return redirect(url_for('notification.view'))
 
         if notification.receiver_id != current_user.id:
-            flash('La notifica non appartiene a te', 'danger')
+            flash('La notifica non appartiene a te', 'error')
             return redirect(url_for('notification.view'))
         
         db.session.delete(notification)
@@ -46,11 +51,14 @@ def delete(notification_id):
 @login_required
 def delete_all():
     try:
+        if not current_user.is_valid:
+            flash('L\'utente non è stato caricato correttamente', 'error')
+            return redirect(url_for('auth.logout'))
+        
         notifications = Notification.query.filter_by(receiver_id=current_user.id).all()
         
         for notification in notifications:
-            if notification.receiver_id == current_user.id:
-                db.session.delete(notification)
+            db.session.delete(notification)
         db.session.commit()
 
     except Exception:

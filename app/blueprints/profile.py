@@ -53,7 +53,7 @@ def add(action):
     if request.method == 'POST':
         name = request.form.get('name')
         surname = request.form.get('surname')
-        birth_date = date.fromisoformat(request.form.get('birth_date'))
+        birth_date = (request.form.get('birth_date'))
 
         if not name or not surname or not birth_date:
             flash('Inserisci tutti i campi', 'fail')
@@ -81,7 +81,7 @@ def add(action):
             new_profile = Profile(name=name, surname=surname, birth_date=birth_date, user_id=current_user.id)
             db.session.add(new_profile)
             db.session.commit()
-
+            flash('Profilo aggiunto correttamente', 'success')
             if action == 0:
                 return redirect(url_for('profile.select'))
             elif action == 1:
@@ -90,12 +90,19 @@ def add(action):
             # Handle unique constraint violation (e.g., duplicate profile name)
             db.session.rollback()
             flash('Un porfilo con lo stesso nome esiste già', "error")
-            return render_template('add_profile.html', action=action)
-        except Exception:
+            if action == 0:
+                return redirect(url_for('profile.select'))
+            elif action == 1:
+                return redirect(url_for('account.view'))
+        except Exception as e:
+            print(e)
             # Catch other unexpected errors
             db.session.rollback()
             flash('Si è verificato un errore di database. Riprova più tardi.', "error")
-            return redirect(url_for('profile.select'))
+            if action == 0:
+                return redirect(url_for('profile.select'))
+            elif action == 1:
+                return redirect(url_for('account.view'))
         
     return render_template('add_profile.html', action=action)
 
