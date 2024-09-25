@@ -9,6 +9,10 @@ app = Blueprint('cart', __name__)
 @login_required
 @buyer_required
 def cart():
+    if current_user.is_authenticated:
+        if 'current_profile_id' not in session:
+            flash('Seleziona prima un profilo', 'ERROR')
+            return redirect(url_for('profile.select'))
     return render_template('cart.html')
 
 @app.route('/add_to_cart/<int:product_id>', methods=['GET', 'POST'])
@@ -88,7 +92,7 @@ def order_cart_items():
             total_price = 0.0
             for item in items:
                 total_price += item.product.price * item.quantity
-                new_order_product = OrderProduct(order_id = new_order.id, product_id = item.product_id, product_name = item.product.name, quantity = item.quantity)
+                new_order_product = OrderProduct(order_id = new_order.id, product_id = item.product_id, product_name = item.product.name, quantity = item.quantity, seller_id = item.product.user_id)
                 db.session.add(new_order_product)
                 item.product.availability-=item.quantity
                 db.session.delete(item)

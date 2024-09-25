@@ -189,6 +189,7 @@
             {% endfor %}
         {% endif %}
 
+        <!--Non devo accedere ai prodotti da current_user, ma dagli ordini, altrimenti se elimino un prodotto non vedo più la modifica dello stato di quel prodotto-->
         <h1>Ordini dei propri prodotti</h1>
         {% if current_user.products %}
             {% for p in current_user.products %}

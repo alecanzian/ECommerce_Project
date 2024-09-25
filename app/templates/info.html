@@ -92,12 +92,15 @@
         {% endfor %}
     </tbody>
 </table>
-{%for tuple in seller_information%}
-    {%if tuple.user_id == current_user.id%}
-        <p>Il tuo profilo è stato trovato!</p>
-        <p>{{tuple.user_id}}</p>
-        <p>{{tuple.iban}}</p>
-        <p>{{tuple.profit}}</p>
-    {%endif%}
+
+<h1>Prodotti</h1>
+{% for p in products%}
+<p>{{p.name}}</p>
+{%endfor%}
+<h1>Orders</h1>{% for o in orders%}
+<p>{{o.total_price}}</p>
+{%endfor%}
+<h1>notifiche</h1>{% for n in notifications%}
+<p>{{n.product_name}} {{n.receiver.username}}</p>
 {%endfor%}
 {% endblock %}

@@ -180,6 +180,7 @@ class Order(db.Model):
 class OrderProduct(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_name = db.Column(db.String(50),nullable = False)
+    seller_id = db.Column(db.Integer, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable = False)
@@ -189,15 +190,16 @@ class OrderProduct(db.Model):
     product = db.relationship('Product', backref = 'in_order', lazy = True)
     state = db.relationship('State', backref = 'order_product', lazy = True)
 
-    def __init__(self, order_id, product_id, product_name, quantity):
+    def __init__(self, order_id, product_id, product_name, quantity, seller_id):
         self.order_id = order_id
         self.product_id = product_id
         self.product_name = product_name
         self.quantity = quantity
+        self.seller_id = seller_id
         self.state = State.query.filter_by(name = 'Ordinato').first()
     @property
     def is_valid(self):
-        if not self.quantity or not self.timestamp or not self.product_name or not self.order_id or not self.state_id:
+        if not self.quantity or not self.timestamp or not self.product_name or not self.seller_id or not self.order_id or not self.state_id:
             return False
         return True
 

@@ -186,7 +186,7 @@ def order_product(product_id):
             db.session.flush()  # Forza la generazione dell'ID per l'ordine
 
             # Aggiungi il prodotto all'ordine
-            new_order_product = OrderProduct(order_id=new_order.id, product_id=product.id, product_name = product.name, quantity=quantity)
+            new_order_product = OrderProduct(order_id=new_order.id, product_id=product.id, product_name = product.name, quantity=quantity, seller_id = product.user_id)
             
             db.session.add(new_order_product)
             product.availability-=quantity
