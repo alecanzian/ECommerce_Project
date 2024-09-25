@@ -5,6 +5,8 @@ from sqlalchemy import desc
 
 app = Blueprint('notification', __name__)
 
+# Verifica se l'utente è valido, carica tutte le notifiche del corrente utente in ordine decrescente di timestamp, 
+# e le visualizza in una pagina. Se qualcosa va storto, restituisce un messaggio di errore.
 @app.route('/notification', methods = ['GET'])
 @login_required
 def view():
@@ -20,6 +22,8 @@ def view():
     
     return render_template('notifications.html', notifications=notifications)
 
+# Cancella una specifica notifica se esiste, è valida e appartiene all'utente corrente.
+# Se non trovata o non valida, restituisce un errore. Cancella dal database la notifica.
 @app.route('/notification/delete/<int:notification_id>', methods=['GET'])
 @login_required
 def delete(notification_id):
@@ -47,6 +51,8 @@ def delete(notification_id):
     flash('Notifica cancellata', "success")
     return redirect(url_for('notification.view'))
 
+# Cancella tutte le notifiche dell'utente corrente. 
+# Se qualcosa va storto, restituisce un errore, altrimenti elimina tutte le notifiche trovate nel database.
 @app.route('/notification/delete/all', methods=['GET'])
 @login_required
 def delete_all():
@@ -56,7 +62,7 @@ def delete_all():
             return redirect(url_for('auth.logout'))
         
         notifications = Notification.query.filter_by(receiver_id=current_user.id).all()
-        
+
         for notification in notifications:
             db.session.delete(notification)
         db.session.commit()
