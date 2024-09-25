@@ -10,8 +10,8 @@ app = Blueprint('address', __name__)
 @login_required
 @fresh_login_required
 def add(action):
-    if not action:
-        flash('Azione non riconosciuta', 'error')
+    # Action deve corrispondere con determinati valori
+    if not action or (action != 'profile' and  action != 'order_cart_items' and not action.isdigit()):
         abort(404)
     
     if not current_user.is_valid:
@@ -57,12 +57,9 @@ def add(action):
             return redirect(url_for('account.view'))
         elif action == 'order_cart_items':
             return redirect(url_for('cart.order_cart_items'))
-        elif action.isdigit():
-            return redirect(url_for('product.order_product', product_id = int(action)))
         else:
-            flash('Azione non riconosciuta', 'error')
-            return redirect(url_for('shop.shop'))
-
+            # action è un intero e indica l'id del prodotto
+            return redirect(url_for('product.order_product', product_id = int(action)))
 
     return render_template('add_address.html', action = action)
 
