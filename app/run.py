@@ -37,6 +37,15 @@ if __name__ == '__main__':
         #addr = Address(street = 'Via borgo san andrea 85', postal_code = 31050, city = 'Povegliano', province = 'TV', country = 'Italia', user_id = user.id)
         #db.session.add(addr)
         #db.session.commit()
+        #addr2 = Address(street = 'Via borgo san andrea 85', postal_code = 31050, city = 'Povegliano', province = 'TV', country = 'Italia', user_id = example.id)
+        #db.session.add(addr2)
+        #db.session.commit()
+        #card1 = Card( name = 'alessandro', surname = 'canzian', pan= '1234567890987890', last_digits = '7890', expiration_month = '11', expiration_year= '2024', card_type = 'credit', user_id = example.id)
+        #db.session.add(card1)
+        #db.session.commit()
+        #card1 = Card( name = 'paolo', surname = 'canzian', pan= '1872567890981234', last_digits = '1234', expiration_month = '12', expiration_year= '2032', card_type = 'credit', user_id = user.id)
+        #db.session.add(card1)
+        #db.session.commit()
         #
         ##db.session.add(Address(street = 'Via borgo san andrea 85', postal_code = 31050, city = 'Povegliano', province = 'TV', country = 'Italia', user_id = example.id))
         #

@@ -5,6 +5,7 @@ from extensions.database import Notification, Order, Role, SellerInformation, St
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Blueprint('account', __name__)
+
 # Indirizzo lo suer alla pagina dell'account se l'utente è caricato correttamente
 @app.route('/account', methods = ['GET'])
 @login_required
