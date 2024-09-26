@@ -201,7 +201,7 @@ def order_product(product_id):
 
             db.session.add(notification)
 
-            #current_user.seller_information.profit += product.price * quantity
+            current_user.seller_information.profit += product.price * quantity
             db.session.commit()
             flash('Ordine effettuato con successo', "success")
             return redirect(url_for('shop.orders'))

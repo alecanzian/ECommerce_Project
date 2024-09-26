@@ -8,13 +8,17 @@ app = Blueprint('shop', __name__)
 # Gestisce lo shop e tutte le informazioni necessarie per i filtri di ricerca
 @app.route('/shop', methods = ['GET'])
 def shop():
+    if current_user.is_authenticated:
+        if 'current_profile_id' not in session:
+            flash('Seleziona prima un profilo', 'error')
+            return redirect(url_for('profile.select'))
+
     try:
         if current_user.is_authenticated:
         # Visto che ci sono tre controlli, ovvero la barra di ricerca, il checkbox e il range di prezzo, ho bisogno di salvarmi ciò che visualizza l'utente.
             if 'selected_products' not in session:
                 flash('selected_products non esiste', 'Error')
                 return redirect(url_for('auth.logout'))
-            print('selected_products esiste')
             # Se current_user è un seller, devo togliere tutti i prodotti venduti da lui dai prodotti visibili sullo shop
             if current_user.has_role('seller'):
                 # Recupera i prodotti che non appartengono all'utente corrente

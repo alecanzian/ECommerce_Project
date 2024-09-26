@@ -19,7 +19,6 @@ def view():
         orders = Order.query.all()
         for order in orders:
             for order_product in order.products:
-                print(order_product.product_name)
                 if order_product.seller_id == current_user.id:
                     order_products_of_seller.append(order_product)
     except Exception:
@@ -64,7 +63,7 @@ def delete():
                     for product in current_user.products:
                         for item in product.in_carts:
                             db.session.delete(item)
-                        db.session.delete(product)
+                        product.availability = 0
                         db.session.commit()
                     flash("Non puoi eliminare l'account se hai ancora dei prodotti da consegnare. Tutti i tuoi prodotti già consegnati sono stati eliminati", 'error')
                     return redirect(url_for('account.view')) 
