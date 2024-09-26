@@ -96,6 +96,7 @@
     justify-content: center;
     gap: 20px;
     margin-top: 20px;
+    flex-wrap: wrap; /* Aggiungiamo questa proprietà per fare in modo che i prodotti vengano stampati su più righe*/
 }
 
 .product {

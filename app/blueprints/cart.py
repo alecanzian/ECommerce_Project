@@ -111,7 +111,7 @@ def order_cart_items():
     
     # L'utente deve avere già un indirizzo e una carta di pagamento
     if not current_user.cards or not current_user.addresses:
-        flash('Devi avere almeno una carta di credito e un indirizzo per poter continuare con l\'acquisto', 'fail')
+        flash('Devi avere almeno una carta di credito e un indirizzo per poter continuare con l\'acquisto', 'error')
         return redirect(url_for('cart.cart'))
     
     if request.method == 'POST':

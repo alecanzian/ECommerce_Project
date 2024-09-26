@@ -47,8 +47,13 @@
                 <a href="{{ url_for('shop.reset_filters') }}">Reset</a>
             </div>
         </div>
+            <!--<h3>Prodotti in sessione</h3>
+            {% for p in products %}
+                <p>{% if p.id in session['selected_products'] %} {{ p.name }}{% endif %}</p>
+            {% endfor %}
+            <h3>Categoria in sessione</h3>
+                <p>{{session['selected_category_name'] }}</p>-->
     </form>
-
     <h1>Prodotti</h1>
     <div class="product-grid">
         {% for p in products %}
