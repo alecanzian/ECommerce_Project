@@ -78,6 +78,10 @@ form input {
     border-radius: 5px;
 }
 
+form#filter-form {
+    width: 50%;
+}
+
 select {
     padding: 10px;
     width: auto;
@@ -133,6 +137,35 @@ header a {
 
 header a:hover {
     text-decoration: underline;
+}
+
+/* Dropdown per cambio profilo */
+
+/* Personalizza il pulsante del dropdown */
+.dropdown-toggle.button {
+    cursor: pointer;
+    background-color: transparent; /* Rimuove il colore di sfondo */
+}
+
+.dropdown-toggle.button:hover, .dropdown-toggle.button:focus {
+    text-decoration: underline;
+}
+
+/* Personalizza il menu del dropdown */
+.dropdown-menu {
+    border: none; /* Rimuove il bordo */
+    background-color: #ffffff; /* Sfondo bianco */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.dropdown-item {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.dropdown-item-a:hover, .dropdown-item-a:focus {
+    color: #007bff;
 }
 
 

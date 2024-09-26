@@ -1,7 +1,7 @@
 /* Stile per la barra di ricerca */
 .search-bar {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     margin-bottom: 20px;
     padding: 10px;
     background-color: #f3f3f3;
@@ -96,6 +96,7 @@
     justify-content: center;
     gap: 20px;
     margin-top: 20px;
+    flex-wrap: wrap;
 }
 
 .product {

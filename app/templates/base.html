@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FakeAzon - {% block title %}{% endblock %}</title>
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
 
     {% block styles %}
     {% endblock %}
@@ -32,13 +32,35 @@
                 {% if current_user.has_role('admin') %}
                     <a href="{{ url_for('profile.info') }}">Pagina amministratore</a>
                 {% endif %}
-                {% for profile in current_user.profiles %}
-                    <a href="{{ url_for('profile.select_id', profile_id=profile.id, action=1) }}">{{ profile.name }} {{ profile.surname }}</a>
-                {% endfor %}
+
+                {% if current_user.profiles|length > 1 %}
+                    {% for profile in current_user.profiles %}
+                        {% if profile.id == session['current_profile_id'] %}
+                            <div class="dropdown d-inline mx-2">
+                                <a class="button dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    {{ profile.name }} {{ profile.surname }}
+                                </a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                    {% for profile in current_user.profiles %}
+                        {% if profile.id != session['current_profile_id'] %}
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('profile.select_id', profile_id=profile.id, action=1) }}">
+                                    {{ profile.name }} {{ profile.surname }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                    </div>
+                {% endif %}
+
                 <a href="{{ url_for('account.view') }}">Il mio account</a>
-                <a href="{{ url_for('auth.logout') }}">Esci dall'account</a>
+                <a href="{{ url_for('auth.logout') }}">Esci</a>
             {% else %}
-                <a href="{{url_for('auth.login')}}">Entra</a>
+                <a href="{{url_for('auth.login')}}">Accedi</a>
                 <a href="{{url_for('auth.register')}}">Registrati</a>
             {% endif %}
         </div>

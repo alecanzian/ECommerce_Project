@@ -1,10 +1,8 @@
-import time
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-from sqlalchemy import UniqueConstraint, false
+from sqlalchemy import UniqueConstraint
 from werkzeug.security import generate_password_hash
 from datetime import datetime
-
 
 db = SQLAlchemy()
 
@@ -315,11 +313,6 @@ class SellerInformation(db.Model):
             return False
         return True
 
-
-
-
-
-
 def add_user(name, surname, birth_date, username, password):
     # Crea l'utente
         user = User(
@@ -344,7 +337,7 @@ def add_user(name, surname, birth_date, username, password):
         # Aggiungi il profilo alla sessione
         db.session.add(profile)
         db.session.commit()
-        
+
 # Da chiamare solo quando serve popolare la tabella Role
 def add_roles():
     roles = ['admin', 'seller', 'buyer']
@@ -354,15 +347,51 @@ def add_roles():
             new_role = Role(name=role_name)
             db.session.add(new_role)
             db.session.commit()
-
+            
+# Funzione per popolare la tabella State
+def add_states():
+    states = ['Ordinato', 'Preso in carico', 'Spedito', 'Consegnato']
+    for state_name in states:
+        state = State.query.filter_by(name=state_name).first()
+        if not state:
+            db.session.add(State(name=state_name))
+            db.session.commit()
+            
 # Funzione per popolare la tabella Category
 def add_categories():
-    categories_list = ['Elettronica','Abbigliamento','Casa e Giardino','Sport e Tempo Libero','Giochi e Giocattoli','Alimentari','Libri e Riviste','Salute e Bellezza','Arredamento','Auto e Moto','Fai da te','Musica','Film e TV','Animali domestici','Strumenti Musicali','Telefonia','Arte e Collezionismo','Viaggi','Tecnologia','Orologi e Gioielli','Altro']
-    for nome_categoria in categories_list:
-        categoria = Category(name=nome_categoria)
-        db.session.add(categoria)
-    db.session.commit()
-
+    categories_list = [
+        'Abbigliamento e accessori',
+        'Alimentari e cura della casa',
+        'Auto e moto',
+        'Arte',
+        'Cancelleria e prodotti per ufficio',
+        'Casa e cucina',
+        'Musica',
+        'Elettronica',
+        'Fai da te',
+        'Film e TV',
+        'Giardino e giardinaggio',
+        'Giochi e giocattoli',
+        'Grandi elettrodomestici',
+        'Illuminazione',
+        'Informatica',
+        'Libri',
+        'Prima infanzia',
+        'Prodotti per animali domestici',
+        'Salute e bellezza',
+        'Sport e tempo libero',
+        'Valigie e accessori da viaggio',
+        'Videogiochi'
+    ]
+            
+    for category_name in categories_list:
+        category = Category.query.filter_by(name=category_name).first()
+        # Controlla se la categoria esiste già nel database
+        if not category:
+            # Se la categoria non esiste, aggiungila
+            db.session.add(Category(name=category_name))
+            db.session.commit()
+            
 ################Tutte le altre funzioni non sono necessarie###############
 # Dato un utente preesistente, aggiunge il ruolo passato come parametro(nel caso non sia presente in user.roles)
 def set_user_with_role(user, role_name):
@@ -411,33 +440,18 @@ def add_products(products_list):
 
                 # Itera sulle categorie per trovare o creare gli oggetti Category corrispondenti
                 category = Category.query.filter_by(name=category_name).first()
-                if not category:
-                    category = Category.query.filter_by(name='Altro').first()
-                
-
-                # Crea e aggiungi il prodotto al database
-                prod = Product(
-                    name=elem['name'],
-                    price=elem['price'],
-                    user_id=first_seller.id,
-                    description=elem['description'],
-                    availability=elem['availability'],
-                    category_id=category.id# Aggiunge le categorie al prodotto
-                )
-                
-                db.session.add(prod)
+                if category:    
+                    # Crea e aggiungi il prodotto al database
+                    prod = Product(
+                        name=elem['name'],
+                        price=elem['price'],
+                        user_id=first_seller.id,
+                        description=elem['description'],
+                        availability=elem['availability'],
+                        category_id=category.id# Aggiunge le categorie al prodotto
+                    )
+                    db.session.add(prod)
                 db.session.commit()
-
-# Funzione per popolare la tabella Category
-def add_categories(categories_list):
-    for nome_categoria in categories_list:
-        categoria = Category.query.filter_by(name=nome_categoria).first()
-        # Controlla se la categoria esiste già nel database
-        if not categoria:
-            # Se la categoria non esiste, aggiungila
-            nuova_categoria = Category(name=nome_categoria)
-            db.session.add(nuova_categoria)
-            db.session.commit()
 
 # Data una lista di interi, elimina i prodotti che hanno quegli id
 def delete_products_by_ids(ids):
@@ -494,9 +508,63 @@ def get_user_orders(user_id):
     
     return result
 
-def add_states():
-    states = ['Ordinato', 'Preso in carico', 'Spedito', 'Consegnato']
-    for state in states:
-        db.session.add(State(name=state))
+def popolate_db():
+    db.drop_all() # Elimina tutte le tabelle nel database
+    db.create_all()  # Crea tutte le tabelle nel database
+    add_roles()  # Popola il database con ruoli di esempio
+    add_states()
+    add_categories()
+    
+    # Viene inserito il primo utente (admin) con password admin (default)
+    user = User(username = 'admin@admin.com', password = generate_password_hash('admin', method='pbkdf2:sha256') )
+    db.session.add(user)
+    db.session.flush()
+    db.session.add(Profile(name = 'Admin', surname = 'Admin', birth_date=datetime.strptime('1990-01-01', '%Y-%m-%d').date(), user_id=user.id))
     db.session.commit()
-
+    
+    set_user_with_role(user, 'admin')  # Aggiungi un utente di esempio
+    set_user_with_role(user, 'buyer')  # Aggiungi un utente di esempio
+    
+    # Vanno eliminati
+    
+    db.session.add(SellerInformation(iban='IT93N0300203280241424179211', user_id=user.id))
+    db.session.commit()
+    
+    set_user_with_role(user, 'seller')
+    
+    example = User(username = 'canzianpaolo@gmail.com', password = generate_password_hash('paolo', method='pbkdf2:sha256') )
+    db.session.add(example)
+    db.session.commit()
+    
+    db.session.add(Profile(name = 'Paolo', surname = 'Canzian', birth_date=datetime.strptime('1966-05-11', '%Y-%m-%d').date(), user_id=example.id))
+    db.session.commit()
+    
+    addr2 = Address(street = 'Via borgo san andrea 85', postal_code = 31050, city = 'Povegliano', province = 'TV', country = 'Italia', user_id = example.id)
+    db.session.add(addr2)
+    db.session.commit()
+    
+    card1 = Card( name = 'alessandro', surname = 'canzian', pan= '1234567890987890', last_digits = '7890', expiration_month = '11', expiration_year= '2024', card_type = 'credit', user_id = example.id)
+    db.session.add(card1)
+    db.session.commit()
+    
+    card1 = Card( name = 'paolo', surname = 'canzian', pan= '1872567890981234', last_digits = '1234', expiration_month = '12', expiration_year= '2032', card_type = 'credit', user_id = user.id)
+    db.session.add(card1)
+    db.session.commit()
+        
+    example_products = [
+        {"name": "Scarpe Nike", "price": 10.99, "description": "gnegne", "availability": 10, "category": "Abbigliamento e accessori"},
+        {"name": "Jeans Levis", "price": 19.99, "description": "gnegne", "availability": 2, "category": "Abbigliamento e accessori"},
+        {"name": "Occhiali da sole H. Boss", "price": 15.49, "description": "gnegne", "availability": 5, "category": "Salute e bellezza"},
+        {"name": "Laptop Dell", "price": 499.99, "description": "Laptop ad alte prestazioni", "availability": 3, "category": "Elettronica"},
+        {"name": "Smartphone Samsung", "price": 299.99, "description": "Smartphone di ultima generazione", "availability": 15, "category": "Elettronica"},
+        {"name": "Divano Ikea", "price": 199.99, "description": "Divano confortevole e moderno", "availability": 4, "category": "Casa e cucina"},
+        {"name": "Trapano Bosch", "price": 89.99, "description": "Trapano per lavori di fai da te", "availability": 12, "category": "Fai da te"},
+        {"name": "Romanzo di Dan Brown", "price": 12.99, "description": "Thriller avvincente", "availability": 20, "category": "Libri"},
+        {"name": "Chitarra Fender", "price": 249.99, "description": "Chitarra elettrica per musicisti", "availability": 2, "category": "Musica"},
+        {"name": "Orologio Rolex", "price": 4999.99, "description": "Orologio di lusso", "availability": 1, "category": "Abbigliamento e accessori"},
+        {"name": "Videogioco PS5", "price": 59.99, "description": "Videogioco di ultima generazione", "availability": 30, "category": "Giochi e giocattoli"},
+        {"name": "Cibo per cani", "price": 24.99, "description": "Alimento completo per cani", "availability": 50, "category": "Prodotti per animali domestici"},
+        {"name": "Set di pentole", "price": 79.99, "description": "Set di pentole antiaderenti", "availability": 10, "category": "Casa e cucina"}
+    ]
+    
+    add_products(example_products)
