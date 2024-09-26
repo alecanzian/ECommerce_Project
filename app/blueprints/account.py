@@ -55,7 +55,7 @@ def delete():
                             db.session.delete(item)
                         db.session.delete(product)
                         db.session.commit()
-                    flash("Non puoi eliminare l'account se hai ancora dei prodotti da consegnare. Tutti i tuoi prodotti già consegnati sono stati eliminati", "error")
+                    flash("Non puoi eliminare l'account se hai ancora dei prodotti da consegnare. Tutti i tuoi prodotti già consegnati sono stati eliminati", 'error')
                     return redirect(url_for('account.view')) 
                 
                 # Tutti i prodotti sono stati consegnati, quindi vengono eliminati tutti
@@ -69,7 +69,7 @@ def delete():
 
             # Se esiste un prodotto ancora da ricevere, allora non si può eliminare l'utente
             if any(order_product.state_id != consegnato_state.id and order.user_id == current_user.id for order in current_user.orders for order_product in order.products):
-                flash("Non puoì eliminare l\'account se hai ancora dei prodotti da ricevere", "error")
+                flash("Non puoì eliminare l\'account se hai ancora dei prodotti da ricevere", 'error')
                 return redirect(url_for('account.view'))
                     
             # Elimina il profilo dopo aver eliminato i prodotti
@@ -102,7 +102,7 @@ def delete():
             db.session.delete(current_user)
             db.session.commit()
 
-            flash("Account eliminato correttamente", "success")
+            flash('Account eliminato correttamente', 'success')
             return redirect(url_for('auth.logout'))
         except AttributeError:
             db.session.rollback()
@@ -136,17 +136,17 @@ def change_password():
 
         # Se la nuova password non corrisponde con la sua conferma
         if new_password != confirm_new_password:
-            flash("La nuova password non corrisponde", "error")
+            flash('La nuova password non corrisponde', 'error')
             return redirect(url_for('account.view'))
         
         # Se la nuova password è uguale a quella vecchia
         if new_password == old_password:
-            flash("La nuova password è uguale a quella vecchia", "error")
+            flash('La nuova password è uguale a quella vecchia', 'error')
             return redirect(url_for('account.view'))
         try:
             # Controllo tra la password dell'utente e l'hash della nuova password
             if not check_password_hash(current_user.password, old_password):
-                flash("Password errata", "error")
+                flash('Password errata', 'error')
                 return redirect(url_for('auth.login'))
 
             current_user.password = generate_password_hash(new_password)
@@ -157,7 +157,7 @@ def change_password():
             flash('Si è verificato un errore di database. Riprova più tardi','error')
             return redirect(url_for('account.view'))
 
-        flash("Password modificata correttamente", "success")
+        flash('Password modificata correttamente', 'success')
         return redirect(url_for('account.view'))
     
     return render_template('change_password.html')
@@ -172,7 +172,7 @@ def become_seller():
         return redirect(url_for('auth.logout'))
     
     if current_user.has_role('seller'):
-        flash("Sei già un venditore", "error")
+        flash('Sei già un venditore', 'error')
         return redirect(url_for('account.view'))
     
     if request.method == 'POST':
@@ -182,7 +182,7 @@ def become_seller():
         try:
             # Controllo dei dati del form
             if not iban or len(iban) != 27:
-                flash("IBAN non valido", "error")
+                flash('IBAN non valido', 'error')
                 return redirect(url_for('account.become_seller'))
             if not password:
                 flash('Inserisci tutti i campi', 'error')
@@ -190,14 +190,14 @@ def become_seller():
             
             # Controllo tra la password dell'utente e l'hash della nuova password
             if not check_password_hash(current_user.password, password):
-                flash("Password errata", "error")
+                flash('Password errata', 'error')
                 return redirect(url_for('account.become_seller'))
 
 
             seller_role = Role.query.filter_by(name='seller').first()
 
             if not seller_role or not seller_role.is_valid:
-                flash("Ruolo di seller non trovato o non caricato correttamente", 'error')
+                flash('Ruolo di seller non trovato o non caricato correttamente', 'error')
                 return redirect(url_for('account.view'))
 
             current_user.roles.append(seller_role)                
@@ -210,7 +210,7 @@ def become_seller():
             flash('Si è verificato un errore di database. Riprova più tardi','error')
             return redirect(url_for('account.view'))
         
-        flash("Sei diventato un venditore!", "success")
+        flash('Sei diventato un venditore!', 'success')
         return redirect(url_for('account.view'))
     
     return render_template('become_seller.html')
@@ -231,7 +231,7 @@ def modify_iban():
 
         # Controllo dei dati del form
         if not iban or len(iban) != 27:
-            flash("IBAN non valido", "error")
+            flash('IBAN non valido', 'error')
             return redirect(url_for('account.modify_iban'))
         if not password:
             flash('Inserisci tutti i campi', 'error')
@@ -239,7 +239,7 @@ def modify_iban():
         try:
             # Controllo tra la password dell'utente e l'hash della nuova password
             if not check_password_hash(current_user.password, password):
-                flash("Password errata", "error")
+                flash('Password errata', 'error')
                 return redirect(url_for('account.modify_iban'))
 
             current_user.seller_information.iban = iban
@@ -250,7 +250,7 @@ def modify_iban():
             flash('Si è verificato un errore di database. Riprova più tardi','error')
             return redirect(url_for('account.view'))
         
-        flash("IBAN modificato correttamente", "success")
+        flash('IBAN modificato correttamente', 'success')
         return redirect(url_for('account.view'))
 
     return render_template('modify_iban.html')

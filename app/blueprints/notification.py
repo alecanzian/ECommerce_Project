@@ -31,7 +31,7 @@ def delete(notification_id):
         return redirect(url_for('auth.logout'))
     try:
 
-        notification = db.session.get(Notification, notification_id)
+        notification = db.session.get(Notification, int(notification_id))
         if not notification or not notification.is_valid:
             flash('Notifica non trovata o con caricata correttamente', 'error')
             return redirect(url_for('notification.view'))
@@ -47,7 +47,7 @@ def delete(notification_id):
         flash('Si è verificato un errore di database. Riprova più tardi','error')
         return redirect(url_for('shop.shop'))
         
-    flash('Notifica cancellata', "success")
+    flash('Notifica cancellata', 'success')
     return redirect(url_for('notification.view'))
 
 # Cancella tutte le notifiche dell'utente corrente. 
@@ -70,5 +70,5 @@ def delete_all():
         flash('Si è verificato un errore di database. Riprova più tardi','error')
         return redirect(url_for('shop.shop'))
         
-    flash('Tutte le notifiche sono state cancellate', "success")
+    flash('Tutte le notifiche sono state cancellate', 'success')
     return redirect(url_for('notification.view'))

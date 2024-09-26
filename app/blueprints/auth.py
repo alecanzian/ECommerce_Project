@@ -22,7 +22,7 @@ def register():
     if request.method == 'POST':
         name = request.form.get('name')
         surname = request.form.get('surname')
-        birth_date_str = request.form.get('birth_date')  # Assumendo il formato 'YYYY-MM-DD'
+        birth_date_str = request.form.get('birth_date')
         username = request.form.get('email')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')

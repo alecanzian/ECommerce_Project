@@ -79,8 +79,8 @@ def modify(address_id):
         flash('L\'utente non è stato caricato correttamente', 'error')
         return redirect(url_for('auth.logout'))
     
-    if not address:
-        flash('Indirizzo non trovato', 'error')
+    if not address or not address.is_valid:
+        flash('Indirizzo non trovato o non caricato correttamente', 'error')
         return redirect(url_for('account.view'))
     
     if request.method == 'POST':

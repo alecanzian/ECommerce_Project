@@ -171,7 +171,7 @@ class Order(db.Model):
     # Relazione con i prodotti attraverso tabella intermedia OrderProduct
     products = db.relationship('OrderProduct', backref='order', lazy = True)
 
-    def __init__(self, user_id, address, total_price):
+    def __init__(self, user_id, address, total_price = 0.0):
         self.user_id = user_id
         self.total_price = total_price
         self.address = address

@@ -35,6 +35,10 @@ def add(action):
     # Action deve corrispondere con determinati valori
     if not action or (action != 'profile' and  action != 'order_cart_items' and not action.isdigit()):
         abort(404)
+    
+    if not current_user.is_valid:
+        flash('L\'utente non è stato caricato correttamente', 'error')
+        return redirect(url_for('auth.logout'))
 
     if request.method == 'POST':
         name = request.form.get('name')
@@ -101,6 +105,10 @@ def add(action):
 @app.route('/card/delete/<int:card_id>', methods = ['GET'])
 @login_required
 def delete(card_id):
+
+    if not current_user.is_valid:
+        flash('L\'utente non è stato caricato correttamente', 'error')
+        return redirect(url_for('auth.logout'))
     try:
         # Controllo se la carta esiste e se appartiene allo user
         card = next((card for card in current_user.cards if card.id == card_id), None)
@@ -110,7 +118,10 @@ def delete(card_id):
         
         db.session.delete(card)
         db.session.commit()
-        
+    except AttributeError:
+        db.session.rollback()
+        flash('L\'utente non è stato caricato correttamente', 'error')
+        return redirect(url_for('auth.logout'))
     except Exception:
         db.session.rollback()
         flash("Si è verificato un errore di sistema", "error")
