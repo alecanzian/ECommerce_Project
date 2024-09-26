@@ -124,10 +124,14 @@ class Product(db.Model):
     in_carts = db.relationship('Cart', backref='product', lazy = True)
 
 
-    def __init__(self, name, price, user_id, description, category_id, availability = 1, image_url = 'https://img.freepik.com/vettori-premium/un-disegno-di-una-scarpa-con-sopra-la-parola-scarpa_410516-82664.jpg'):
+    def __init__(self, name, price, user_id, description, category_id, image_url = 'https://img.freepik.com/vettori-premium/un-disegno-di-una-scarpa-con-sopra-la-parola-scarpa_410516-82664.jpg', availability = 1):
         self.name = name
         self.price = price
-        self.image_url = image_url
+        # Riconosce se una stringa è solo piena di spazi
+        if image_url.isspace():
+            self.image_url = 'https://img.freepik.com/vettori-premium/un-disegno-di-una-scarpa-con-sopra-la-parola-scarpa_410516-82664.jpg'
+        else:
+            self.image_url = image_url
         self.description = description
         self.availability = availability
         self.user_id = user_id
