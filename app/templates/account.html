@@ -187,9 +187,8 @@
 
         <!--Non devo accedere ai prodotti da current_user, ma dagli ordini, altrimenti se elimino un prodotto non vedo più la modifica dello stato di quel prodotto-->
         <h1>Ordini dei propri prodotti</h1>
-        {% if current_user.products %}
-            {% for p in current_user.products %}
-                {% for order_product in p.in_order %}
+        {% if order_products %}
+            {% for order_product in order_products %}
                     {% if order_product.state.name != "Consegnato" %}
                         <table>
                             <tr>
@@ -203,7 +202,6 @@
                             </tr>
                         </table>
                     {% endif %}
-                {% endfor %}
                 <p></p>
             {% endfor %}
         {% endif %}

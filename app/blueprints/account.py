@@ -14,7 +14,18 @@ def view():
     if not current_user.is_valid:
         flash('L\'utente non è stato caricato correttamente', 'error')
         return redirect(url_for('auth.logout'))
-    return render_template('account.html')
+    try:
+        order_products_of_seller = []
+        orders = Order.query.all()
+        for order in orders:
+            for order_product in order.products:
+                print(order_product.product_name)
+                if order_product.seller_id == current_user.id:
+                    order_products_of_seller.append(order_product)
+    except Exception:
+        flash('Si è verificato un errore di database. Riprova più tardi','error')
+        return redirect(url_for('shop.shop'))
+    return render_template('account.html', order_products = order_products_of_seller)
 
 #Se i dati inseriti sono corretti e se l'utente rispetta determinate condizioni, allora viene eliminato l'utente e tutte le sue informazioni correlate
 @app.route('/account/delete', methods=['GET','POST'])

@@ -201,7 +201,7 @@ class OrderProduct(db.Model):
         self.state = State.query.filter_by(name = 'Ordinato').first()
     @property
     def is_valid(self):
-        if not self.quantity or not self.timestamp or not self.product_name or not self.seller_id or not self.order_id or not self.state_id:
+        if not self.quantity or not self.product_name or not self.seller_id or not self.order_id or not self.state_id:
             return False
         return True
 
