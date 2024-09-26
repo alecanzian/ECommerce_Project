@@ -132,24 +132,17 @@ def modify_product(product_id):
             image_url = request.form.get('image_url')
             description = request.form.get('description')
             availability = request.form.get('availability')
-            category_id = request.form.get('category_id')
 
             # Controllo dei dati del form
-            if not price or not description or not image_url or not availability or not category_id or not price or not availability:
+            if not price or not description or not image_url or not availability or not price or not availability:
                 flash('Inserisci tutte le informazioni', 'error')
                 return redirect(url_for('product.modify_product'), product_id = product.id)
-
-            # Cerco la categoria scelta per l'oggetto
-            category = Category.query.filter_by(id = category_id).first()
-            if not category or not category.is_valid:
-                flash('Categoria non trovata o non caricata correttamente', "error")
-                return redirect(url_for('account.view'))
             
             product.price = float(price)
             product.description = description
             product.image_url = image_url
             product.availability = int(availability)
-            product.category_id = category.id
+            
             # Il prodotto non è più disponibile all'ordine, quindi viene rimosso da tutti i carrelli degli utenti
             if product.availability == 0:
                 for item in product.in_carts:

@@ -147,18 +147,32 @@ def change_password():
         # Se la nuova password non corrisponde con la sua conferma
         if new_password != confirm_new_password:
             flash('La nuova password non corrisponde', 'error')
-            return redirect(url_for('account.view'))
+            return redirect(url_for('account.change_password'))
         
         # Se la nuova password è uguale a quella vecchia
         if new_password == old_password:
             flash('La nuova password è uguale a quella vecchia', 'error')
-            return redirect(url_for('account.view'))
+            return redirect(url_for('account.change_password'))
         try:
             # Controllo tra la password dell'utente e l'hash della nuova password
             if not check_password_hash(current_user.password, old_password):
                 flash('Password errata', 'error')
-                return redirect(url_for('auth.login'))
+                return redirect(url_for('account.change_password'))
 
+                # Password complexity checks
+            if len(new_password) < 8:
+                flash('Password must be at least 8 characters long!', category="error")
+                return redirect(url_for('account.change_password'))
+            elif not any(char.isupper() for char in new_password):
+                flash('Password must contain at least one uppercase letter!', category="error")
+                return redirect(url_for('account.change_password'))
+            elif not any(char.islower() for char in new_password):
+                flash('Password must contain at least one lowercase letter!', category="error")
+                return redirect(url_for('account.change_password'))
+            elif not any(char.isdigit() for char in new_password):
+                flash('Password must contain at least one digit!', category="error")
+                return redirect(url_for('account.change_password'))
+            
             current_user.password = generate_password_hash(new_password)
             db.session.commit()
 
