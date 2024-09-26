@@ -148,25 +148,25 @@ def order_product(product_id):
         card_id = int(request.form.get('selected_card_id'))
         # Verifica preliminare della quantità e indirizzo
         if not quantity or not address_id or not card_id:
-            flash('Inserisci la quantità e l\'indirizzo', 'fail')
+            flash('Inserisci la quantità e l\'indirizzo', 'error')
             return redirect(url_for('product.order_product', product_id=product_id))
         
         try:
             # Query per il prodotto
             product = Product.query.filter_by(id=product_id).first()
             if not product:
-                flash('Prodotto non trovato', 'fail')
+                flash('Prodotto non trovato', 'error')
                 return redirect(url_for('product.access_product', product_id=product_id))
             
             # Query per l'indirizzo
             address = next((a for a in current_user.addresses if a.id == address_id), None)
             if not address:
-                flash('Indirizzo non valido', 'fail')
+                flash('Indirizzo non valido', 'error')
                 return redirect(url_for('product.access_product', product_id=product_id))
             
             card = next((card for card in current_user.cards if card.id == card_id), None)
             if not card:
-                flash('Carta non trovata', 'fail')
+                flash('Carta non trovata', 'error')
                 return redirect(url_for('product.access_product', product_id=product_id))
         except Exception:
             flash('Si è verificato un errore di database1. Riprova più tardi.', "error")
@@ -201,7 +201,7 @@ def order_product(product_id):
 
             db.session.add(notification)
 
-            current_user.seller_information.profit += product.price * quantity
+            product.user.seller_information.profit += product.price * quantity
             db.session.commit()
             flash('Ordine effettuato con successo', "success")
             return redirect(url_for('shop.orders'))
@@ -216,18 +216,18 @@ def order_product(product_id):
         try:
             product = Product.query.filter_by(id=product_id).first()
             if not product:
-                flash('Prodotto non trovato', 'fail')
+                flash('Prodotto non trovato', 'error')
                 return redirect(url_for('product.access_product', product_id=product_id))
             
             # Verifica disponibilità prodotto
             if product.availability == 0:
-                flash('Prodotto non disponibile', 'fail')
+                flash('Prodotto non disponibile', 'error')
                 return redirect(url_for('product.access_product', product_id=product_id))
             profile = Profile.query.filter_by(id = session['current_profile_id']).first()
 
             for item in profile.cart_items:
                 if item.product_id == product.id:
-                    flash('Prodotto già presente nel carrello', 'fail')
+                    flash('Prodotto già presente nel carrello', 'error')
                     return redirect(url_for('product.access_product', product_id=product_id))
                 
             if not current_user.cards or not current_user.addresses:

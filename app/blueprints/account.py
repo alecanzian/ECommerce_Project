@@ -65,7 +65,7 @@ def delete():
                             db.session.delete(item)
                         product.availability = 0
                         db.session.commit()
-                    flash("Non puoi eliminare l'account se hai ancora dei prodotti da consegnare. Tutti i tuoi prodotti già consegnati sono stati eliminati", 'error')
+                    flash("Non puoi eliminare l'account se hai ancora dei prodotti da consegnare. La disponibilità di tutti i tuoi prodotti è stata messa a 0", 'error')
                     return redirect(url_for('account.view')) 
                 
                 # Tutti i prodotti sono stati consegnati, quindi vengono eliminati tutti

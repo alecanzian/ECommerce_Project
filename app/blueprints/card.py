@@ -88,7 +88,13 @@ def add(action):
         except Exception:
             db.session.rollback()
             flash('Si è verificato un errore di database. Riprova più tardi','error')
-            return redirect(url_for('shop.shop'))
+            if action == 'profile':
+                return redirect(url_for('account.view'))
+            elif action == 'order_cart_items':
+                return redirect(url_for('cart.order_cart_items'))
+            else:
+                # action è un intero e indica l'id del prodotto
+                return redirect(url_for('product.order_product', product_id = int(action)))
         
         flash("Carta aggiunta correttamente", "success")
         if action == 'profile':

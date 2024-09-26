@@ -7,6 +7,54 @@
 {% endblock %}
 
 {% block main %}
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in roles %}
+        <tr>
+            <td>{{ r.id }}</td>
+            <td>{{ r.name }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in categories %}
+        <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.name }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in states %}
+        <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.name }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 <h1>Informazioni Utenti</h1>
 
 <table>
@@ -14,12 +62,10 @@
         <tr>
             <th>ID</th>
             <th>Nome utente</th>
-            <th>Ruoli</th>
             <th>Profili</th>
             <th>Indirizzi</th>
             <th>Carte</th>
             <th>Ordini</th>
-            <th>Seller Information</th>
             <th>Prodotti in vendita</th>
         </tr>
     </thead>
@@ -27,11 +73,14 @@
         {% for user in users %}
         <tr>
             <td>{{ user.id }}</td>
-            <td>{{ user.username }}</td>
-            <td>
+            <td>{{ user.username }}
                 {% for role in user.roles %}
-                    {{ role.name }}{% if not loop.last %}, {% endif %}
+                    <li>{{ role.name }}</li>
                 {% endfor %}
+                {% if user.seller_information %}
+                <p>IBAN: {{ user.seller_information.iban }}</p>
+                <p>Profitto: {{ user.seller_information.profit }}€</p>
+                {% endif %}
             </td>
             <td>
                 <ul>
@@ -40,12 +89,11 @@
                         <img src="{{ profile.image_url }}" alt="{{ profile.name }}" width="50" height="50">
                         {{ profile.name }} {{ profile.surname }}
                         <!-- Carrello associato al profilo -->
-                        <h5>Carrello</h5>
                         <ul>
                             {% for item in profile.cart_items %}
                             <li>{{ item.product.name }} - Quantità: {{ item.quantity }}</li>
                             {% else %}
-                            <li>Nessun prodotto nel carrello</li>
+                            <li>Carrello vuoto</li>
                             {% endfor %}
                         </ul>
                     </li>
@@ -62,29 +110,21 @@
             <td>
                 <ul>
                     {% for card in user.cards %}
-                    <li>{{ card.card_type }} - **** {{ card.last_digits }}</li>
+                    <li>{{ card.card_type }}  ****{{ card.last_digits }}</li>
                     {% endfor %}
                 </ul>
             </td>
             <td>
                 <ul>
                     {% for order in user.orders %}
-                    <li>Ordine #{{ order.id }} - Totale: {{ order.total_price }}€</li>
+                    <li>Ordine #{{ order.id }}</li>
                     {% endfor %}
                 </ul>
             </td>
             <td>
-                {% if user.seller_information %}
-                <p>IBAN: {{ user.seller_information.iban }} - Profitto: {{ user.seller_information.profit }}€</p>
-                <p>User_id: {{user.seller_information.user_id}}</p>
-                {% else %}
-                <p>Non è un venditore</p>
-                {% endif %}
-            </td>
-            <td>
                 <ul>
                     {% for product in user.products %}
-                    <li>{{ product.name }} - {{ product.price }}€</li>
+                    <li>{{ product.name }}</li>
                     {% endfor %}
                 </ul>
             </td>
@@ -93,14 +133,4 @@
     </tbody>
 </table>
 
-<h1>Prodotti</h1>
-{% for p in products%}
-<p>{{p.name}}</p>
-{%endfor%}
-<h1>Orders</h1>{% for o in orders%}
-<p>{{o.total_price}}</p>
-{%endfor%}
-<h1>notifiche</h1>{% for n in notifications%}
-<p>{{n.product_name}} {{n.receiver.username}}</p>
-{%endfor%}
 {% endblock %}

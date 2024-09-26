@@ -73,7 +73,7 @@ def delete_item_from_cart(item_id):
         profile = next((p for p in current_user.profiles if p.id == session['current_profile_id']), None)
         if not profile or not profile.is_valid:
             flash('Profilo non trovato o non caricato correttamente', 'error')
-            return redirect(url_for('shop.shop'))
+            return redirect(url_for('auth.logout'))
         
         # Cerco l'item del carrello che contiene il prodotto che si vuole eliminare dal carrello
         item = next((item for item in profile.cart_items if item.id == item_id), None)

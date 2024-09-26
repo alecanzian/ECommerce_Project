@@ -34,11 +34,18 @@ def shop():
                 session['selected_products'] = selected_intersection
 
         else:
+            # Avviene dopo che un utente ha eseguito il logout
             if 'selected_products' not in session:
                 session['selected_products'] = [p.id for p in Product.query.all()]
                 
         # I prodotti il cui id è presente nella sessione. Questo perchè potrebbe esserci una route che reindirizza a shop e session['selected_products'] potrebbe averedegli elementi
         products = Product.query.filter(Product.id.in_(session['selected_products'])).all()
+
+        all_categories = Category.query.all()
+        if not all_categories:
+            flash('Nessuna categoria trovata', 'error')
+            return redirect(url_for('auth.home'))
+        
     except Exception:
         flash('Si è verificato un errore di database. Riprova più tardi',"error")
         return redirect(url_for('auth.logout'))
@@ -49,7 +56,7 @@ def shop():
         session['min_price'] = 0.0
     if 'max_price' not in session:
         session['max_price'] = 6000.0
-    return render_template('homepage.html', products=products, categories=Category.query.all()) 
+    return render_template('homepage.html', products=products, categories=all_categories) 
 
 @app.route('/filtered_results', methods=['POST'])
 def filtered_results():
