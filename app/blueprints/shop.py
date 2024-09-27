@@ -95,12 +95,17 @@ def filtered_results():
 
             # Aggiorno gli id dei prodotti
             session['selected_products'] = [p.id for p in products]
+
+            all_categories = Category.query.all()
+            if not all_categories:
+                flash('Categorie non trovate', 'error')
+                return redirect(url_for('shop.shop'))
         except Exception as e:
             print(e)
             flash('Si è verificato un errore di database. Riprova più tardi',"error")
             return redirect(url_for('auth.logout'))
 
-        return render_template('homepage.html', products=products, categories=Category.query.all())
+        return render_template('homepage.html', products=products, categories=all_categories)
 
 # Gestisce il reset dei filtri della ricerca dei prodotti
 @app.route('/reset_filters', methods=['GET'])

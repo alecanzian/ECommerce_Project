@@ -41,7 +41,7 @@ def anonymous_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if current_user.is_authenticated:
-            flash('Devi prima eseguire il log out', 'FAIL')
+            flash('Devi prima eseguire il log out', 'error')
             return redirect(url_for('auth.logout'))  # Redirige alla home se l'utente è loggato
         return f(*args, **kwargs)
     return decorated_function
@@ -55,8 +55,8 @@ def admin_required(f):
         try:
             admin_permission.test()
         except PermissionDenied:
-            flash('You do not have admin permission to access this page.', 'FAIL')
-            return redirect(url_for('shop.shop'))  
+            flash('You do not have admin permission to access this page.', 'error')
+            return redirect(url_for('auth.home'))  
         return f(*args, **kwargs)
     return decorated_function
 
@@ -66,8 +66,8 @@ def seller_required(f):
         try:
             seller_permission.test()
         except PermissionDenied:
-            flash('You do not have seller permission to access this page.', 'FAIL')
-            return redirect(url_for('shop.shop')) 
+            flash('You do not have seller permission to access this page.', 'error')
+            return redirect(url_for('auth.home')) 
         return f(*args, **kwargs)
     return decorated_function
 
@@ -77,7 +77,7 @@ def buyer_required(f):
         try:
             buyer_permission.test()
         except PermissionDenied:
-            flash('You do not have buyer permission to access this page.', 'FAIL')
-            return redirect(url_for('shop.shop')) 
+            flash('You do not have buyer permission to access this page.', 'error')
+            return redirect(url_for('auth.home')) 
         return f(*args, **kwargs)
     return decorated_function
