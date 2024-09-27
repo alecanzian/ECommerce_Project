@@ -14,6 +14,7 @@
                 <th>ID ordine</th>
                 <th>Data ordine</th>
                 <th>Indirizzo spedizione</th>
+                <th>carta di pagamento</th>
                 <th>Prodotti</th>
                 <th>Prezzo totale</th>
             </tr>
@@ -25,6 +26,7 @@
                     <td>{{ order.id }}</td>
                     <td>{{ order.order_date.strftime('%d-%m-%Y') }}</td>
                     <td>{{ order.address }}</td>
+                    <td>PAN: ******{{ order.card_last_digits}}</td>
                     <td>
                         <ul>
                         {% if order.products %}
@@ -38,7 +40,7 @@
                         {% endif %}
                         </ul>
                     </td>
-                    <td>{{ order.total_price }}</td>
+                    <td>$ {{ order.total_price }}</td>
                 </tr>
                 {% endfor %}
         {% else %}

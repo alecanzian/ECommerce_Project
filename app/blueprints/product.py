@@ -181,7 +181,7 @@ def order_product(product_id):
             if not product or not product.is_valid:
                 flash('Prodotto non trovato o non caricato correttamente', 'error')
                 return redirect(url_for('product.access_product', product_id=product_id))
-            
+
             # Cerco l'indirizzo scelto per la spediazione
             address = next((a for a in current_user.addresses if a.id == address_id), None)
             if not address or not address.is_valid:
@@ -193,20 +193,22 @@ def order_product(product_id):
             if not card or not card.is_valid:
                 flash('Carta non trovata o non caricata correttamente', 'error')
                 return redirect(url_for('product.access_product', product_id=product_id))
-        
+
             ## Creazione della stringa address
             address_name = address.street + ", " + str(address.postal_code) +", " + address.city + ", " + address.province + ", " + address.country
 
             # Creazione dell'ordine
-            new_order = Order(user_id = current_user.id, address = address_name, total_price = (product.price * quantity))
+            new_order = Order(user_id = current_user.id, card_last_digits = card.last_digits, address = address_name, total_price = (product.price * quantity))
             db.session.add(new_order)
-            db.session.flush()  # Forza la generazione dell'ID per avere new_order.id
+            # # Forza la generazione dell'ID per avere new_order.id
+            db.session.flush()
 
             # Aggiungi il prodotto all'ordine
             new_order_product = OrderProduct(order_id=new_order.id, product_id=product.id, product_name = product.name, quantity=quantity, seller_id = product.user_id)
             
             db.session.add(new_order_product)
-
+            # # Forza la generazione dell'ID per avere new_order_product.id
+            db.session.flush()
             # Diminuisci la quantità disponibile del prodotto acquistato
             product.availability-=quantity
             
@@ -216,7 +218,7 @@ def order_product(product_id):
                 receiver_id=product.user_id,  # The user who placed the order
                 type='Nuovo ordine',
                 product_name=product.name,
-                order_id=new_order.id
+                order_product_id=new_order_product.id
             )
 
             db.session.add(notification)
@@ -244,6 +246,12 @@ def order_product(product_id):
                 flash('Prodotto non trovato o non caricato correttamente', 'error')
                 return redirect(url_for('product.access_product', product_id=product_id))
             
+            # Controllo che il prodotto da acquistare non appartenga all'utente stesso
+            if current_user.has_role('seller'):
+                if product.user_id == current_user.id:
+                    flash('Non puoi comprare il prodotto venduto da te', 'error')
+                    return redirect(url_for('product.access_product', product_id=product_id))
+
             # Verifica disponibilità prodotto
             if product.availability == 0:
                 flash('Prodotto non disponibile', 'error')

@@ -1,8 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-from sqlalchemy import UniqueConstraint
+from sqlalchemy import Nullable, UniqueConstraint
 from werkzeug.security import generate_password_hash
 from datetime import datetime
+from sqlalchemy.orm import backref
 
 db = SQLAlchemy()
 
@@ -11,12 +12,6 @@ user_roles = db.Table('user_roles',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
     db.Column('role_id', db.Integer, db.ForeignKey('role.id'), primary_key=True)
 )
-
-# Tabella di associazione per la relazione molti-a-molti tra Product e Category
-#product_categories = db.Table('product_categories',
-#    db.Column('product_id', db.Integer, db.ForeignKey('product.id'), primary_key=True),
-#    db.Column('category_id', db.Integer, db.ForeignKey('category.id'), primary_key=True)
-#)
     
 # Definizione della classe User
 class User(db.Model, UserMixin):
@@ -24,15 +19,14 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(20), unique = True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
 
-    roles = db.relationship('Role', secondary=user_roles, backref='users', lazy = True)
-    profiles = db.relationship('Profile', backref='user', lazy=True)
+    roles = db.relationship('Role', secondary=user_roles, lazy = True)
+
+    profiles = db.relationship('Profile', backref='user', lazy=True)#?
     products = db.relationship('Product', backref='user', lazy = True)
-    addresses = db.relationship('Address', backref='users', lazy=True)
+    addresses = db.relationship('Address', lazy=True,)
     orders = db.relationship('Order', backref = 'user', lazy = True)
-    #cart_items = db.relationship('Cart', backref='user', lazy=True)
-    cards = db.relationship('Card', backref = 'user', lazy = True)
-    seller_information = db.relationship('SellerInformation', backref='user', uselist=False, lazy=True)
-    #seller_information = db.relationship('SellerInformation', backref=db.backref('user', uselist=False), lazy = True)
+    cards = db.relationship('Card', lazy = True)
+    seller_information = db.relationship('SellerInformation', uselist=False, lazy=True)
 
 
     def __init__(self, username, password):
@@ -65,7 +59,7 @@ class Profile(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    cart_items = db.relationship('Cart', backref='profile', lazy=True)
+    cart_items = db.relationship('Cart', lazy=True)
 
     def __init__(self, name, surname, birth_date, user_id, image_url='https://static.vecteezy.com/ti/vettori-gratis/p1/2318271-icona-profilo-utente-vettoriale.jpg'):
         self.name = name
@@ -120,8 +114,10 @@ class Product(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False) 
 
     #categories = db.relationship('Category', secondary=product_categories, backref='products')
-    category = db.relationship('Category', backref='products')
+
     in_carts = db.relationship('Cart', backref='product', lazy = True)
+
+    in_order = db.relationship('OrderProduct', backref = 'product', lazy = True)
 
 
     def __init__(self, name, price, user_id, description, category_id, image_url = 'https://img.freepik.com/vettori-premium/un-disegno-di-una-scarpa-con-sopra-la-parola-scarpa_410516-82664.jpg', availability = 1):
@@ -146,7 +142,6 @@ class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     quantity = db.Column(db.Integer, nullable = False)
 
-    #user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable = False)
     profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'), nullable = False)
 
@@ -168,15 +163,16 @@ class Order(db.Model):
     order_date = db.Column(db.DateTime, default=datetime.now(), nullable=False)
     total_price = db.Column(db.Float, nullable=False)
     address = db.Column(db.String(255),nullable = False)
-    
+    card_last_digits = db.Column(db.String(4),nullable = False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     # Relazione con i prodotti attraverso tabella intermedia OrderProduct
     products = db.relationship('OrderProduct', backref='order', lazy = True)
 
-    def __init__(self, user_id, address, total_price = 0.0):
+    def __init__(self, user_id, address, card_last_digits,total_price = 0.0):
         self.user_id = user_id
         self.total_price = total_price
         self.address = address
+        self.card_last_digits = card_last_digits
     @property
     def is_valid(self):
         if not self.order_date or not self.address or not self.user_id:
@@ -191,10 +187,10 @@ class OrderProduct(db.Model):
     
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable = False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete = 'SET NULL'))
-    state_id = db.Column(db.Integer, db.ForeignKey('state.id'),nullable = False)
+    state_id = db.Column(db.Integer, db.ForeignKey('state.id'), nullable = False)
 
-    product = db.relationship('Product', backref = 'in_order', lazy = True)
-    state = db.relationship('State', backref = 'order_product', lazy = True)
+    notification = db.relationship('Notification', backref='order_product', lazy = True)
+
 
     def __init__(self, order_id, product_id, product_name, quantity, seller_id):
         self.order_id = order_id
@@ -212,6 +208,8 @@ class OrderProduct(db.Model):
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
+
+    products = db.relationship('Product', backref='category', lazy = True)
 
     def __init__(self, name):
         self.name = name
@@ -237,6 +235,7 @@ class State(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True,nullable = False)
 
+    order_product = db.relationship('OrderProduct', backref = 'state', lazy = True)
     def __init__(self, name):
         self.name = name
     @property
@@ -247,22 +246,23 @@ class State(db.Model):
         
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(50), nullable=False)
+    #product_name = db.Column(db.String(50),nullable = False)
+    timestamp = db.Column(db.DateTime, default=datetime.now(), nullable=False)
+    
     sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    type = db.Column(db.String(50), nullable=False)
-    product_name = db.Column(db.String(50),nullable = False)
-    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.now(), nullable=False)
+    order_product_id = db.Column(db.Integer, db.ForeignKey('order_product.id'), nullable=False)
     
     sender = db.relationship('User', foreign_keys=[sender_id])
     receiver = db.relationship('User', foreign_keys=[receiver_id])
 
-    def __init__(self,sender_id, receiver_id,type,product_name, order_id):
+    def __init__(self,sender_id, receiver_id,type,product_name, order_product_id):
         self.sender_id = sender_id
         self.receiver_id = receiver_id
         self.type = type
         self.product_name = product_name
-        self.order_id = order_id
+        self.order_product_id = order_product_id
     @property
     def is_valid(self):
         if not self.type or not self.timestamp or not self.product_name or not self.sender_id or not self.receiver_id or not self.order_id:
@@ -305,7 +305,6 @@ class SellerInformation(db.Model):
     iban = db.Column(db.String(27), unique = True, nullable = False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
-    #user = db.relationship('User', backref=db.backref('seller_information', uselist=False), lazy=True)
 
     def __init__(self, iban, user_id):
         self.profit = 0.0

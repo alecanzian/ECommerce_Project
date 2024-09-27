@@ -180,22 +180,24 @@
         <!--Non devo accedere ai prodotti da current_user, ma dagli ordini, altrimenti se elimino un prodotto non vedo più la modifica dello stato di quel prodotto-->
         <h1>Ordini dei propri prodotti</h1>
         {% if order_products %}
-            {% for order_product in order_products %}
-                    {% if order_product.state.name != "Consegnato" %}
-                        <table>
+            <table>
+                <tr>
+                    <th>Compratore</th>
+                    <th>Data</th>
+                    <th>Nome</th>
+                    <td>Stato</td>
+                </tr>
+                {% for order_product in order_products %}
+                        {% if order_product.state.name != "Consegnato" %}
                             <tr>
-                                <th>Nome</th>
-                                <td>{{ order_product.product_name }}</td>
-                            </tr>
-                            <tr>
-                                
-                                <td>Stato</td>
+                                <td>{{ order_product.order.user.username }}</td>
+                                <td>{{ order_product.order.order_date.strftime('%d-%m-%Y %H:%M') }}</td>
+                                <td>{{ order_product.product_name }} (x {{ order_product.quantity }})</td>
                                 <th>{{ order_product.state.name }} <a href="{{ url_for('shop.modify_order_state', order_product_id = order_product.id) }}">Modifica</a></th>
                             </tr>
-                        </table>
-                    {% endif %}
-                <p></p>
-            {% endfor %}
+                        {% endif %}
+                {% endfor %}
+            </table>
         {% endif %}
     {% else %}
         <a rel="stylesheet" href="{{ url_for('account.become_seller') }}">Diventa un venditore!</a>

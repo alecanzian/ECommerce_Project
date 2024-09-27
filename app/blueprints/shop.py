@@ -16,9 +16,6 @@ def shop():
     try:
         if current_user.is_authenticated:
         # Visto che ci sono tre controlli, ovvero la barra di ricerca, il checkbox e il range di prezzo, ho bisogno di salvarmi ciò che visualizza l'utente.
-            if 'selected_products' not in session:
-                flash('selected_products non esiste', 'Error')
-                return redirect(url_for('auth.logout'))
             # Se current_user è un seller, devo togliere tutti i prodotti venduti da lui dai prodotti visibili sullo shop
             if current_user.has_role('seller'):
                 # Recupera i prodotti che non appartengono all'utente corrente
@@ -196,7 +193,7 @@ def modify_order_state(order_product_id):
                 receiver_id = order_product.order.user_id,
                 type = 'Stato ordine modificato',
                 product_name = order_product.product_name,
-                order_id = order_product.order_id
+                order_product_id = order_product.id
             )
             db.session.add(new_notification)
             db.session.commit()

@@ -19,7 +19,7 @@ def cart():
     return render_template('cart.html')
 
 # Gestisce l'aggiunta di un nuovo prodotto al carrello
-@app.route('/add_to_cart/<int:product_id>', methods=['GET', 'POST'])
+@app.route('/add_to_cart/<int:product_id>', methods=['GET'])
 @login_required
 def add_to_cart(product_id):
 
@@ -35,6 +35,11 @@ def add_to_cart(product_id):
             flash('Prodotto non trovato o non caricato correttamente', 'error')
             return redirect(url_for('shop.shop'))
 
+        # Controllo che il prodotto da aggiungere al carrello non appartenga all'utente stesso
+        if current_user.has_role('seller'):
+            if product.user_id == current_user.id:
+                flash('Non puoi aggiungere il tuo prodotto al carrello', 'error')
+                return redirect(url_for('shop.shop'))
         # Prodotto presente ma la disponibilità == 0
         if not product.availability:
             flash('Prodotto non disponibile', 'error')
@@ -150,7 +155,7 @@ def order_cart_items():
 
             # creo la stringa address
             address = address.street + ", " + str(address.postal_code) +", " + address.city + ", " + address.province + ", " + address.country
-            new_order = Order(user_id = current_user.id, address = address)
+            new_order = Order(user_id = current_user.id, card_last_digits = card.last_digits, address = address)
             db.session.add(new_order)
             # Necessario perchè  ci serve conoscere order_id
             db.session.flush()
@@ -163,6 +168,8 @@ def order_cart_items():
                 # Creo il nuovo prodotto dell'ordine
                 new_order_product = OrderProduct(order_id = new_order.id, product_id = item.product_id, product_name = item.product.name, quantity = item.quantity, seller_id = item.product.user_id)
                 db.session.add(new_order_product)
+                # Necessario perchè  ci serve conoscere new_order_product.id
+                db.session.flush()
                 # Riduco la quantità disponibile del prodotto associato all'item del carrello
                 item.product.availability-=item.quantity
                 # Elimino l'item dal carrello perchè lo sto per comprare
@@ -174,7 +181,7 @@ def order_cart_items():
                     receiver_id=item.product.user_id,  # The user who placed the order
                     type='Nuovo ordine',
                     product_name=item.product.name,
-                    order_id=new_order.id
+                    order_product_id=new_order_product.id
                 )
                 db.session.add(notification)
 
