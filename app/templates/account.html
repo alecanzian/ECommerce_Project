@@ -65,60 +65,50 @@
     <h1>Metodi di pagamento</h1>
     <a href="{{ url_for('card.add', action = 'profile') }}">Aggiungi</a>
     {% if current_user.cards %}
+    <table>
+        <tr>
+            <th>
+            </th>
+            <th>Nome Cognome</th>
+            <th>PAN</th>
+        </tr>
         {% for card in current_user.cards %}
-            <table>
                 <tr>
-                    <th>
-                        <a href="{{ url_for('card.delete', card_id = card.id) }}">Elimina</a>
-                    </th>
-                </tr>
-                <tr>
-                    <th>Nome Cognome</th>
+                    <td><a href="{{ url_for('card.delete', card_id = card.id) }}">Elimina</a></td>
                     <td>{{ card.name }} {{ card.surname }}</td>
-                </tr>
-                <tr>
-                    <th>PAN</th>
                     <td>*****{{ card.last_digits }}</td>
                 </tr>
-            </table>
-            <p></p>
         {% endfor %}
+    </table>
     {% endif %}
 
     <h1>Indirizzi</h1>
     <a href="{{ url_for('address.add', action = 'profile') }}">Aggiungi</a>
     {% if current_user.addresses %}
-    {% for address in current_user.addresses %}
-        <table>
-            <tr>
-                <th>
-                    <a href="{{ url_for('address.modify', address_id = address.id) }}">Modifica</a>
-                    <a href="{{ url_for('address.delete', address_id = address.id) }}">Elimina</a>
-                </th>
-            </tr>
-            <tr>
+    <table>
+        <tr>
+                <th></th>
                 <th>Via</th>
-                <td>{{ address.street }}</td>
-            </tr>
-            <tr>
                 <th>Codice Postale</th>
-                <td>{{ address.postal_code }}</td>
-            </tr>
-            <tr>
                 <th>Città</th>
-                <td>{{ address.city }}</td>
-            </tr>
-            <tr></tr>
                 <th>Provincia</th>
-                <td>{{ address.province }}</td>
-            </tr>
-            <tr>
                 <th>Paese</th>
+        </tr>
+
+    {% for address in current_user.addresses %}
+            <tr>
+                <td>
+                    <a href="{{ url_for('address.modify', address_id = address.id) }}">Modifica</a>
+                    <a href="{{ url_for('address.delete', address_id = address.id) }}">Elimina</a></td>
+                <td>{{ address.street }}</td>
+                <td>{{ address.postal_code }}</td>
+                <td>{{ address.city }}</td>
+                <td>{{ address.province }}</td>
                 <td>{{ address.country }}</td>
             </tr>
+            
+            {% endfor %}
         </table>
-        <p></p>
-        {% endfor %}
     {% endif %}
 
     {% if current_user.has_role('seller') %}
@@ -143,8 +133,8 @@
         <h1>Prodotti</h1>
         <a href="{{ url_for('product.add_product') }}">Aggiungi</a>
         {% if current_user.products %}
+        <table>
             {% for p in current_user.products %}
-                <table>
                     <tr>
                         <th><a href="{{ url_for('product.modify_product', product_id = p.id) }}">Modifica</a>
                             <a href="{{ url_for('product.delete_product', product_id = p.id) }}">Elimina</a></th>
@@ -172,9 +162,8 @@
                         <th>Disponibilità</th>
                         <td>{{ p.availability }}</td>
                     </tr>
+                    {% endfor %}
                 </table>
-                <p></p>
-            {% endfor %}
         {% endif %}
 
         <!--Non devo accedere ai prodotti da current_user, ma dagli ordini, altrimenti se elimino un prodotto non vedo più la modifica dello stato di quel prodotto-->
@@ -185,7 +174,7 @@
                     <th>Compratore</th>
                     <th>Data</th>
                     <th>Nome</th>
-                    <td>Stato</td>
+                    <th>Stato</th>
                 </tr>
                 {% for order_product in order_products %}
                         {% if order_product.state.name != "Consegnato" %}

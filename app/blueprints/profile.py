@@ -90,7 +90,8 @@ def add(action):
                 return redirect(url_for('profile.select'))
             else:
                 return redirect(url_for('account.view'))
-        except Exception:
+        except Exception as e:
+            print(e)
             db.session.rollback()
             flash('Si è verificato un errore di database. Riprova più tardi.', "error")
             if action == 0:

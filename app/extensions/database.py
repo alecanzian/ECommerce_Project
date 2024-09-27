@@ -16,7 +16,7 @@ user_roles = db.Table('user_roles',
 # Definizione della classe User
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique = True, nullable=False)
+    username = db.Column(db.String(50), unique = True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
 
     roles = db.relationship('Role', secondary=user_roles, lazy = True)
@@ -52,15 +52,18 @@ class User(db.Model, UserMixin):
 
 class Profile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20), unique = True, nullable=False)
-    surname = db.Column(db.String(20), nullable=False)
+    name = db.Column(db.String(50), nullable=False)
+    surname = db.Column(db.String(50), nullable=False)
     birth_date = db.Column(db.Date, nullable=False)
-    image_url = db.Column(db.String(255), nullable=False)
+    image_url = db.Column(db.String(256), nullable=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     cart_items = db.relationship('Cart', lazy=True)
 
+    __table_args__ = (
+        UniqueConstraint('name', 'user_id', name='unique_profile'),
+    )
     def __init__(self, name, surname, birth_date, user_id, image_url='https://static.vecteezy.com/ti/vettori-gratis/p1/2318271-icona-profilo-utente-vettoriale.jpg'):
         self.name = name
         self.surname = surname
@@ -77,7 +80,7 @@ class Address(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     street = db.Column(db.String(100), nullable=False)
     city = db.Column(db.String(50), nullable=False)
-    postal_code = db.Column(db.String(20), nullable=False)
+    postal_code = db.Column(db.String(5), nullable=False)
     province = db.Column(db.String(50), nullable=False)
     country = db.Column(db.String(50), nullable=False)
 
@@ -103,10 +106,10 @@ class Address(db.Model):
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), unique = True,nullable=False)
+    name = db.Column(db.String(50),nullable=False)
     price = db.Column(db.Float, nullable=False)
-    image_url = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.String(255), nullable=False)
+    image_url = db.Column(db.String(256), nullable=False)
+    description = db.Column(db.String(256), nullable=False)
     availability = db.Column(db.Integer, nullable = False)
 
     #profile_id = db.Column(db.Integer, db.ForeignKey('profile.id', ondelete = 'SET NULL'))
@@ -119,6 +122,9 @@ class Product(db.Model):
 
     in_order = db.relationship('OrderProduct', backref = 'product', lazy = True)
 
+    __table_args__ = (
+        UniqueConstraint('name', 'user_id', name='unique_product_seller'),
+    )
 
     def __init__(self, name, price, user_id, description, category_id, image_url = 'https://img.freepik.com/vettori-premium/un-disegno-di-una-scarpa-con-sopra-la-parola-scarpa_410516-82664.jpg', availability = 1):
         self.name = name
@@ -149,7 +155,6 @@ class Cart(db.Model):
 
     def __init__(self, quantity, product_id, profile_id):
         self.quantity = quantity
-        #self.user_id = user_id
         self.product_id = product_id
         self.profile_id = profile_id
     @property
@@ -162,9 +167,11 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_date = db.Column(db.DateTime, default=datetime.now(), nullable=False)
     total_price = db.Column(db.Float, nullable=False)
-    address = db.Column(db.String(255),nullable = False)
+    address = db.Column(db.String(256),nullable = False)
     card_last_digits = db.Column(db.String(4),nullable = False)
+
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
     # Relazione con i prodotti attraverso tabella intermedia OrderProduct
     products = db.relationship('OrderProduct', backref='order', lazy = True)
 
@@ -265,7 +272,7 @@ class Notification(db.Model):
         self.order_product_id = order_product_id
     @property
     def is_valid(self):
-        if not self.type or not self.timestamp or not self.product_name or not self.sender_id or not self.receiver_id or not self.order_id:
+        if not self.type or not self.timestamp or not self.sender_id or not self.receiver_id or not self.order_product_id:
             return False
         return True
 
@@ -281,7 +288,7 @@ class Card(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
 
-    __table_args__ = (UniqueConstraint('name', 'surname', 'last_digits'),)
+    __table_args__ = (UniqueConstraint('name', 'surname', 'last_digits', 'user_id', name = 'unique_card_for_user'),)
 
 
     def __init__(self, name, surname, pan, last_digits, expiration_month, expiration_year, card_type, user_id):

@@ -6,8 +6,7 @@
     <h1>Modifica IBAN</h1>
     <form action="{{ url_for('account.modify_iban') }}" method="POST">
         <input type="password" name = "password" placeholder="Conferma Password" required>
-        <input type="text" name="iban" placeholder="IBAN" value = "{{ current_user.seller_information.iban }}"
-        min="27" max="27" pattern="\d{27}" title="Il codice iban deve essere di 27 cifre" required>
+        <input type="text" name="iban" placeholder="IBAN" value = "{{ current_user.seller_information.iban }}"required>
         <button type="submit">Modifica</button>
     </form>
     <a href="{{ url_for('account.view') }}">Annulla</a>

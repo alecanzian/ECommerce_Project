@@ -34,7 +34,8 @@ def add_product():
         if not all_categories:
             flash('Nessuna categoria trovata', 'error')
             return redirect(url_for('account.view'))
-    except Exception:
+    except Exception as e:
+        print(e)
         flash('Si è verificato un errore di database. Riprova più tardi','error')
         return redirect(url_for('auth.logout'))
 
@@ -64,7 +65,8 @@ def add_product():
             db.session.add(new_product)
             db.session.commit()
 
-        except Exception:
+        except Exception as e:
+            print(e)
             db.session.rollback()
             flash('Si è verificato un errore di database. Riprova più tardi',"error")
             return redirect(url_for('shop.shop'))
@@ -270,7 +272,7 @@ def order_product(product_id):
                     return redirect(url_for('cart.add'))
             # Se l'utente non possiede almeno una carta e un indirizzo, allora non può procedere all'ordine
             if not current_user.cards or not current_user.addresses:
-                flash('Devi avere almeno una carta di credito e un indirizzo per poter continuare con l\'acquisto', 'FAIL')
+                flash('Devi avere almeno una carta di credito e un indirizzo per poter continuare con l\'acquisto', 'error')
                 return redirect(url_for('product.access_product', product_id=product_id))
         except Exception as e:
             print(f"Errore durante l'operazione: {str(e)}")
