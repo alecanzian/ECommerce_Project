@@ -6,7 +6,7 @@
     <h1>Conferma per diventare un venditore</h1>
     <p>Per favore, inserisci l'iban e la tua password per poter diventare un seller.</p>
     <form action="{{ url_for('account.become_seller') }}" method="POST">
-        <input type="text" name = "iban" placeholder="IBAN" min="27" max="27" pattern="\d{27}" title="Il codice iban deve essere di 27 cifre" required>
+        <input type="text" name = "iban" placeholder="IBAN" min="27" max="27" pattern="[A-Z0-9]{27}" title="Il codice iban deve essere di 27 caratteri alfanumerici" required>
         <input type="password" id="password" name="password" placeholder="Password" required>
         <button type="submit">Conferma</button>
     </form>
