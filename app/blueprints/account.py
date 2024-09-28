@@ -41,7 +41,6 @@ def delete():
         if not password:
             flash("Inserisci nuovamente la password per confermare la cancellazione dell'account", 'error')
             return redirect(url_for('account.delete'))
-
         
         try:
             # Controllo tra la password dell'utente e l'hash della password inserita
@@ -71,9 +70,14 @@ def delete():
                 db.session.delete(current_user.seller_information)
 
             # Se esiste un prodotto ancora da ricevere, allora non si può eliminare l'utente
-            if any(order_product.state.name != 'Consegnato'.id and order.user_id == current_user.id for order in current_user.orders for order_product in order.products):
+            if any(order_product.state.name != 'Consegnato' and order.user_id == current_user.id for order in current_user.orders for order_product in order.products):
                 flash("Non puoì eliminare l\'account se hai ancora dei prodotti da ricevere", 'error')
                 return redirect(url_for('account.view'))
+            
+            # Elimina tutte le notifications ricevute o inviate dall'utente    
+            notifications = Notification.query.filter((Notification.sender_id == current_user.id) | (Notification.receiver_id == current_user.id)).all()
+            for notification in notifications:
+                db.session.delete(notification)
                     
             # Elimina il profilo dopo aver eliminato i prodotti
             for profile in current_user.profiles:
@@ -96,23 +100,20 @@ def delete():
                     db.session.delete(order_product)
                 db.session.delete(order)
 
-            #Elimina tutte le notifications ricevute o inviate dall'utente    
-            notifications = Notification.query.filter((Notification.sender_id == current_user.id) | (Notification.receiver_id == current_user.id)).all()
-            for notification in notifications:
-                db.session.delete(notification)
-
             # Elimina l'utente
             db.session.delete(current_user)
             db.session.commit()
 
             flash('Account eliminato correttamente', 'success')
             return redirect(url_for('auth.logout'))
-        except AttributeError:
+        except AttributeError as e:
             db.session.rollback()
+            print(str(e))
             flash('L\'utente non è stato caricato correttamente', 'error')
             return redirect(url_for('auth.logout'))
-        except Exception:
+        except Exception as e:
             db.session.rollback()
+            print(str(e))
             flash('Si è verificato un errore di database. Riprova più tardi','error')
             return redirect(url_for('account.view'))
         

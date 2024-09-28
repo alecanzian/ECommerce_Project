@@ -4,7 +4,7 @@
 
 {% block main %}
     <h1>Modifica profilo</h1>
-    <p>Inserire i nuovi dati</p>
+    <p>Modifica i dati</p>
     <form action="{{ url_for('profile.modify', profile_id=profile.id) }}" method="POST">
         <input type="text" id="name" name="name" value="{{ profile.name }}" required>
         <input type="text" id="surname" name="surname" value="{{ profile.surname }}" required>

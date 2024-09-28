@@ -4,7 +4,7 @@
 
 {% block main %}
     <h1>Modifica indirizzo</h1>
-    <p>Inserire i nuovi dati</p>
+    <p>Modifica i dati</p>
     <form action="{{ url_for('address.modify', address_id=address.id) }}" method="POST">
         <input type="text" id="street" name="street" placeholder="Via" value = "{{address.street}}" required>
         <input type="number" id="postal_code" name="postal_code" placeholder="Codice postale"  value = "{{address.postal_code}}" minlength="5" maxlength="5" pattern="\d{5}" title="Il codice postale deve essere di 5 cifre" required>
