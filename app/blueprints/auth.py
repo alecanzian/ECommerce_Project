@@ -125,7 +125,7 @@ def login():
             login_user(user, True, timedelta(minutes=5))
             # Avvisa che l'identita dell'utente è cambiata(si passa da anonimo a un nuovo user.id)
             identity_changed.send(current_app._get_current_object(), identity=Identity(user.id))
-
+    
         except Exception:
             flash("Si è verificato un errore durante la registrazione", "error")
             return redirect(url_for('auth.login'))

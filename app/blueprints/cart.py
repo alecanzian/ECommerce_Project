@@ -216,13 +216,11 @@ def change_quantity_cart_item(item_id):
         return redirect(url_for('profile.select'))
     
     quantity = request.form.get('quantity')
-
-    # Controllo dei dati del form
-    if not quantity:
-        flash('Inserisci la quantità', 'error')
-        return redirect(url_for('cart.cart'))
-    
     try:
+        # Controllo dei dati del form
+        if not quantity or not int(quantity) > 0:
+            flash('Inserisci la quantità', 'error')
+            return redirect(url_for('cart.cart'))
         # Cerco se il profilo corrente corrisponde a un profilo associato all'utente
         profile = next((p for p in current_user.profiles if p.id == session['current_profile_id']), None)
         if not profile or not profile.is_valid:

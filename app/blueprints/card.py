@@ -69,7 +69,7 @@ def add(action):
                 return redirect(url_for('card.add', action = action))
 
             key = derive_key(current_app.config['SECRET_KEY'])
-
+            
             # Crittografa i dati
             encrypted_pan = encrypt_data(key, card_number)
             encrypted_expiration_month = encrypt_data(key, expiration_month)

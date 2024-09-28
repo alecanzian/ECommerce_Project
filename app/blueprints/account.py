@@ -48,18 +48,11 @@ def delete():
             if not check_password_hash(current_user.password, password):
                 flash("Password errata", 'error')
                 return redirect(url_for('auth.delete'))
-            
-            consegnato_state = State.query.filter_by(name='Consegnato').first()
-
-            if not consegnato_state or not consegnato_state.is_valid:
-                flash("Stato non trovato o non caricato correttamente", 'error')
-                return redirect(url_for('account.view'))
-            
 
             if current_user.has_role('seller'):
                 # Se esiste almeno un prodotto dell'utente che non è ancora stato consegnato, si eliminano comunque tutti i prodotti ma non si elimina lo user
                 orders = Order.query.all()
-                if any(order_product.state_id != consegnato_state.id and order_product.seller_id == current_user.id for order in orders for order_product in order.products):
+                if any(order_product.state.name != 'Consegnato' and order_product.seller_id == current_user.id for order in orders for order_product in order.products):
                     for product in current_user.products:
                         for item in product.in_carts:
                             db.session.delete(item)
@@ -78,7 +71,7 @@ def delete():
                 db.session.delete(current_user.seller_information)
 
             # Se esiste un prodotto ancora da ricevere, allora non si può eliminare l'utente
-            if any(order_product.state_id != consegnato_state.id and order.user_id == current_user.id for order in current_user.orders for order_product in order.products):
+            if any(order_product.state.name != 'Consegnato'.id and order.user_id == current_user.id for order in current_user.orders for order_product in order.products):
                 flash("Non puoì eliminare l\'account se hai ancora dei prodotti da ricevere", 'error')
                 return redirect(url_for('account.view'))
                     

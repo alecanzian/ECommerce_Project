@@ -21,4 +21,8 @@ login_manager.needs_refresh_message_category = "error"
 # Usato internamente da Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
-    return db.session.get(User,int(user_id)) #User.query.get(int(user_id)) è considerato legacy
+    try:
+        return db.session.get(User,int(user_id)) 
+    except Exception as e:
+        print(e)
+        return None

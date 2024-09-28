@@ -7,7 +7,6 @@ app = Blueprint('product', __name__)
 
 # Gestisce l'accesso alla pagina del prodotto
 @app.route('/product/<int:product_id>', methods = ['GET'])
-#@login_required
 def access_product(product_id):
     try:
         # Cerco il prodotto corrispondente
@@ -50,7 +49,7 @@ def add_product():
         
         try:
             # controllo dei dati del form
-            if not name or not price or not description or not availability or not category_id or not image_url.strip():
+            if not name or not price  or not float(price) > 0.0 or not description or not availability or not category_id or not image_url.strip():
                 flash('Inserisci tutti i campi',"error")
                 return redirect(url_for('product.add_product'))
             
@@ -87,15 +86,12 @@ def delete_product(product_id):
         if not product or not product.is_valid:
             flash('Prodotto non trovato o non caricato correttamente',"error")
             return redirect(url_for('shop.shop'))
-        
-        consegnato_state = State.query.filter_by(name='Consegnato').first()
-
-        if not consegnato_state or not consegnato_state.is_valid:
-            flash("Stato non trovato o non caricato correttamente", 'error')
-            return redirect(url_for('account.view'))
 
         for order_product in product.in_order:
-            if order_product.state_id != consegnato_state.id:
+            if order_product.state.name != 'Consegnato':
+                # Aggiorno la quantità del prodotto a 0 così che non possono arrivare nuovi ordini per quel prodotto
+                order_product.product.availability = 0
+                db.session.commit()
                 flash('Non puoi eliminare un prodotto che non è stato consegnato','error')
                 return redirect(url_for('account.view'))
         
@@ -184,6 +180,11 @@ def order_product(product_id):
             if not product or not product.is_valid:
                 flash('Prodotto non trovato o non caricato correttamente', 'error')
                 return redirect(url_for('product.access_product', product_id=product_id))
+            
+            #Controllo che la quantità sia corretta
+            if quantity < 1 or quantity > product.availability:
+                flash('Quantità non valida', 'error')
+                return redirect(url_for('product.order_product', product_id=product_id))
 
             # Cerco l'indirizzo scelto per la spediazione
             address = next((a for a in current_user.addresses if a.id == address_id), None)

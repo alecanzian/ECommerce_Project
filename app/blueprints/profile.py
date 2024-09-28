@@ -160,9 +160,6 @@ def modify(profile_id):
 
             db.session.commit()
 
-        except ValueError:
-            flash('Formato della data non valido.',"error")
-            return redirect(url_for('profile.modify', profile_id=profile_id))
         except Exception:
             db.session.rollback()
             flash('Si è verificato un errore di database. Riprova più tardi.', "error")
@@ -211,7 +208,7 @@ def delete(profile_id):
     return redirect(url_for('account.view')) 
 
 # Gestisce la visualizzazione di tutte le informazioni del database(SOLO PER L'ADMIN)
-@app.route('/profile/info', methods = ['GET'])
+@app.route('/accounts/info', methods = ['GET'])
 @login_required
 @fresh_login_required
 @admin_required

@@ -59,18 +59,19 @@ def shop():
 def filtered_results():
     
     if request.method == 'POST':
-        # Estrapolo tutte le informazioni necessarie dal form
-        query = request.form.get('query', '') # query della barra di ricerca
-        category_name = request.form.get('selected_category_name') # lista delle categorie selezionate
-        min_price = float(request.form.get('minPriceRange', 0)) # prezzo minimo
-        max_price = float(request.form.get('maxPriceRange', 6000)) # prezzo massimo
-
-        # Aggiorno i valori corrispondenti alle chiavi 
-        session['min_price'] = min_price
-        session['max_price'] = max_price
-        session['selected_category_name'] = category_name
-
         try:
+            # Estrapolo tutte le informazioni necessarie dal form
+            query = request.form.get('query', '') 
+            category_name = request.form.get('selected_category_name', '')
+            min_price = float(request.form.get('minPriceRange', 0))
+            max_price = float(request.form.get('maxPriceRange', 6000))
+
+            # Aggiorno i valori corrispondenti alle chiavi 
+            session['min_price'] = min_price
+            session['max_price'] = max_price
+            session['selected_category_name'] = category_name
+
+        
             # Filtra i prodotti in base ai criteri
             products = Product.query
 
@@ -154,13 +155,8 @@ def modify_order_state(order_product_id):
             flash('L\'ordine non si riferisce a un tuo prodotto',"error")
             return redirect(url_for('account.view'))
         
-        # Cerco lo stato associato alla consegna del prodotto
-        consegnato_state = State.query.filter_by(name = 'Consegnato').first()
-        if not consegnato_state or not consegnato_state.is_valid:
-            flash('Stato non trovato o non caricato correttamente',"error")
-            return redirect(url_for('account.view'))
         # Lo stato del prodotto non è più modificabile dopo che è stato consegnato
-        if order_product.state_id == consegnato_state.id:
+        if order_product.state.name == 'Consegnato':
             flash('non puoi cambiare lo stato dopo che è stato consegnato','error')
             return redirect(url_for('account.view'))
         

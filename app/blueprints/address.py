@@ -24,17 +24,12 @@ def add(action):
         city = request.form.get('city')
         province = request.form.get('province')
         country = request.form.get('country')
-
-        # Controllo dei dati del form
-        if not street or not postal_code or not city or not province or not country:
-            flash('Inserisci tutti i campi', 'error')
-            return redirect(url_for('address.add', action = action))
         
         try:
-            # Controllo se esiste già un indirizzo con la stessa via, allora blocca l'azione
-            #if any(address.street.replace(" ", "").lower() == street.replace(" ", "").lower() for address in current_user.addresses):
-            #    flash("Indirizzo già presente", "error")
-            #    return redirect(url_for('address.add', action = action))
+            # Controllo dei dati del form
+            if not street or not postal_code or len(postal_code) != 5 or not city or not province or not country:
+                flash('Inserisci tutti i campi', 'error')
+                return redirect(url_for('address.add', action = action))
             
             new_address = Address(street = street, postal_code = postal_code, city = city, province = province, country = country, user_id = current_user.id)
             db.session.add(new_address)
@@ -43,10 +38,6 @@ def add(action):
             db.session.rollback()
             flash('Indirizzo già esistente', 'error')
             return redirect(url_for('address.add', action = action))
-        #except AttributeError:
-        #    db.session.rollback()
-        #    flash('L\'utente non è stato caricato correttamente', 'error')
-        #    return redirect(url_for('auth.logout'))
         except Exception:
             db.session.rollback()
             flash('Si è verificato un errore di database. Riprova più tardi','error')
@@ -96,15 +87,11 @@ def modify(address_id):
         province = request.form.get('province')
         country = request.form.get('country')
 
-        # Controllo i dati del form
-        if not street or not postal_code or not city or not province or not country:
-            flash('Inserisci tutti i campi', 'error')
-            return redirect(url_for('address.modify', address_id = address.id))
         try:
-            # Controlla se la modifica della via che si vuole apportare coincide con il nome di una via di un altro indirizzo dell'utente
-            #if any(a.id != address.id and a.street.replace(" ", "").lower() == street.replace(" ", "").lower() for a in current_user.addresses):
-            #    flash("Indirizzo già presente", "error")
-            #    return redirect(url_for('address.modify', address_id = address.id))
+            # Controllo i dati del form
+            if not street or not postal_code or len(postal_code) != 5 or not city or not province or not country:
+                flash('Inserisci tutti i campi', 'error')
+                return redirect(url_for('address.modify', address_id = address.id))
                 
             address.street = street
             address.postal_code = postal_code
