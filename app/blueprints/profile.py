@@ -1,9 +1,8 @@
 from sqlite3 import IntegrityError
 from flask import Blueprint, abort, render_template, redirect, url_for, request, session, flash
-from flask_login import login_required, fresh_login_required, current_user, logout_user
-from extensions.database import Address, Cart, Notification, Order, OrderProduct, Profile, SellerInformation, State, User, Product, Role, Category, db
-from extensions.princ import buyer_required, admin_required, admin_permission, buyer_permission
-from werkzeug.security import check_password_hash, generate_password_hash
+from flask_login import login_required, fresh_login_required, current_user
+from extensions.database import Profile, State, User, Role, Category, db
+from extensions.princ import admin_required
 from datetime import date
 
 app = Blueprint('profile', __name__)

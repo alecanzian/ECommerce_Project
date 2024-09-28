@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import current_user, login_required, fresh_login_required
 from extensions.princ import seller_required
-from extensions.database import Notification, Order, Role, SellerInformation, State, db
+from extensions.database import Notification, Order, Role, SellerInformation, db
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Blueprint('account', __name__)

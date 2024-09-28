@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, render_template, session, redirect, request, url_for
 from flask_login import login_required, current_user
-from extensions.database import Cart, Order, OrderProduct, Product, Notification, Profile, db
+from extensions.database import Cart, Order, OrderProduct, Product, Notification, db
 from extensions.princ import buyer_required
 from sqlalchemy.exc import IntegrityError
 

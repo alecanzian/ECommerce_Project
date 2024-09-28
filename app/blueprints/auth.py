@@ -1,6 +1,6 @@
 from sqlalchemy.exc import IntegrityError
 from flask import Blueprint, render_template, request, session, flash, redirect, url_for, current_app
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user
 from flask_principal import AnonymousIdentity, Identity, identity_changed
 from extensions.database import User, Profile, db
 from extensions.princ import anonymous_required

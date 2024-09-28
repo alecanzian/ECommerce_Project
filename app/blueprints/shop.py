@@ -1,7 +1,7 @@
 from flask import Blueprint, flash, render_template, session, redirect, request, url_for
 from flask_login import login_required, current_user
-from extensions.database import Cart, Notification, Order, OrderProduct, Profile, State, db, Product, Category, get_user_orders#, Order
-from extensions.princ import buyer_required, seller_required
+from extensions.database import  Notification, OrderProduct, State, db, Product, Category
+from extensions.princ import  seller_required
 
 app = Blueprint('shop', __name__)
 
