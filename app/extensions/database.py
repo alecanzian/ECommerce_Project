@@ -254,7 +254,6 @@ class State(db.Model):
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(50), nullable=False)
-    #product_name = db.Column(db.String(50),nullable = False)
     timestamp = db.Column(db.DateTime, default=datetime.now(), nullable=False)
     
     sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -264,11 +263,10 @@ class Notification(db.Model):
     sender = db.relationship('User', foreign_keys=[sender_id])
     receiver = db.relationship('User', foreign_keys=[receiver_id])
 
-    def __init__(self,sender_id, receiver_id,type,product_name, order_product_id):
+    def __init__(self,sender_id, receiver_id,type, order_product_id):
         self.sender_id = sender_id
         self.receiver_id = receiver_id
         self.type = type
-        self.product_name = product_name
         self.order_product_id = order_product_id
     @property
     def is_valid(self):

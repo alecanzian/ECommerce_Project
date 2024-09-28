@@ -116,6 +116,7 @@ def delete_product(product_id):
 # gestisce la modifica di un podotto del seller
 @app.route('/modify_product/<int:product_id>', methods=['GET', 'POST'])
 @login_required
+@seller_required
 def modify_product(product_id):
     try:
         # Cerco il prodotto corrispondente tra i prodotti del seller
@@ -219,7 +220,6 @@ def order_product(product_id):
                 sender_id=current_user.id,  # The user who changed the state
                 receiver_id=product.user_id,  # The user who placed the order
                 type='Nuovo ordine',
-                product_name=product.name,
                 order_product_id=new_order_product.id
             )
 
@@ -269,11 +269,12 @@ def order_product(product_id):
             for item in profile.cart_items:
                 if item.product_id == product.id:
                     flash('Prodotto già presente nel carrello', 'error')
-                    return redirect(url_for('cart.add'))
+                    return redirect(url_for('cart.cart'))
             # Se l'utente non possiede almeno una carta e un indirizzo, allora non può procedere all'ordine
             if not current_user.cards or not current_user.addresses:
                 flash('Devi avere almeno una carta di credito e un indirizzo per poter continuare con l\'acquisto', 'error')
                 return redirect(url_for('product.access_product', product_id=product_id))
+        
         except Exception as e:
             print(f"Errore durante l'operazione: {str(e)}")
             flash('Si è verificato un errore di database3. Riprova più tardi',"error")

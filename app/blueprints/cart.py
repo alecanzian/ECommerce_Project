@@ -180,7 +180,6 @@ def order_cart_items():
                     sender_id=current_user.id,  # The user who changed the state
                     receiver_id=item.product.user_id,  # The user who placed the order
                     type='Nuovo ordine',
-                    product_name=item.product.name,
                     order_product_id=new_order_product.id
                 )
                 db.session.add(notification)

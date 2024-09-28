@@ -192,7 +192,6 @@ def modify_order_state(order_product_id):
                 sender_id =  current_user.id,
                 receiver_id = order_product.order.user_id,
                 type = 'Stato ordine modificato',
-                product_name = order_product.product_name,
                 order_product_id = order_product.id
             )
             db.session.add(new_notification)

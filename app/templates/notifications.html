@@ -13,7 +13,6 @@
             <tr>
                 <th>Notifica</th>
                 <th>Mittente</th>
-                <th>Destinatario</th>
                 <th>Prodotto</th>
                 <th>Tipo</th>
                 <th>Data</th>
@@ -26,7 +25,6 @@
                     <tr>
                         <td>{{ notification.id }}</td>
                         <td>{{ notification.sender.username }}</td>
-                        <td>{{ notification.receiver.username }}</td>
                         <td>{{ notification.order_product.product_name }} (x {{notification.order_product.quantity}})</td>
                         <td>{{ notification.type }}</td>
                         <td>{{ notification.timestamp.strftime('%d-%m-%Y %H:%M') }}</td>
