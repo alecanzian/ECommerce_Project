@@ -33,8 +33,7 @@ def add_product():
         if not all_categories:
             flash('Nessuna categoria trovata', 'error')
             return redirect(url_for('account.view'))
-    except Exception as e:
-        print(e)
+    except Exception:
         flash('Si è verificato un errore di database. Riprova più tardi','error')
         return redirect(url_for('auth.logout'))
 
@@ -64,8 +63,7 @@ def add_product():
             db.session.add(new_product)
             db.session.commit()
 
-        except Exception as e:
-            print(e)
+        except Exception:
             db.session.rollback()
             flash('Si è verificato un errore di database. Riprova più tardi',"error")
             return redirect(url_for('shop.shop'))
@@ -149,10 +147,9 @@ def modify_product(product_id):
             
             db.session.commit()
         
-        except Exception as e:
-            print(e)
+        except Exception:
             db.session.rollback()
-            flash('Si è verificato un errore di database23. Riprova più tardi',"error")
+            flash('Si è verificato un errore di database. Riprova più tardi',"error")
             return redirect(url_for('shop.shop'))
         
         flash('Prodotto aggiornato con successo', 'success')
@@ -232,11 +229,10 @@ def order_product(product_id):
 
             db.session.commit()
             
-        except Exception as e:
+        except Exception:
             # In caso di errore, rollback e gestione dell'eccezione
             db.session.rollback()
-            print(f"Errore durante l'operazione: {str(e)}")
-            flash('Si è verificato un errore di database2. Riprova più tardi.', "error")
+            flash('Si è verificato un errore di database. Riprova più tardi.', "error")
             return redirect(url_for('product.access_product', product_id=product_id))
         
         flash('Ordine effettuato correttamente', "success")
@@ -277,9 +273,8 @@ def order_product(product_id):
                 flash('Devi avere almeno una carta di credito e un indirizzo per poter continuare con l\'acquisto', 'error')
                 return redirect(url_for('product.access_product', product_id=product_id))
         
-        except Exception as e:
-            print(f"Errore durante l'operazione: {str(e)}")
-            flash('Si è verificato un errore di database3. Riprova più tardi',"error")
+        except Exception:
+            flash('Si è verificato un errore di database. Riprova più tardi',"error")
             return redirect(url_for('product.access_product', product_id=product_id))
         
         return render_template('order_product.html', product = product)

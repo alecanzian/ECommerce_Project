@@ -37,7 +37,7 @@
     birthDateInput.addEventListener('change', function() {
         const selectedDate = new Date(this.value);
         if (selectedDate > maxDate) {
-            alert("La data di nascita non può essere nel futuro.");
+            alert("La data di nascita non può essere nel futuro");
             this.value = ""; // Resetta il campo
         }
     });

@@ -86,9 +86,8 @@ def register():
             db.session.rollback()
             flash('Username già esistente', 'error')
             return redirect(url_for('auth.register'))
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            print(f"Error occurred: {e}")  # Log per il debugging
             flash("Si è verificato un errore durante la registrazione", "error")
             return redirect(url_for('auth.register'))
         

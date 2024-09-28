@@ -1,7 +1,7 @@
 from flask import Blueprint, flash, render_template, session, redirect, request, url_for
 from flask_login import login_required, current_user
-from extensions.database import  Notification, OrderProduct, State, db, Product, Category
-from extensions.princ import  seller_required
+from extensions.database import Notification, OrderProduct, State, db, Product, Category
+from extensions.princ import seller_required
 
 app = Blueprint('shop', __name__)
 
@@ -57,7 +57,6 @@ def shop():
 
 @app.route('/filtered_results', methods=['POST'])
 def filtered_results():
-    
     if request.method == 'POST':
         try:
             # Estrapolo tutte le informazioni necessarie dal form
@@ -98,8 +97,7 @@ def filtered_results():
             if not all_categories:
                 flash('Categorie non trovate', 'error')
                 return redirect(url_for('shop.shop'))
-        except Exception as e:
-            print(e)
+        except Exception:
             flash('Si è verificato un errore di database. Riprova più tardi',"error")
             return redirect(url_for('auth.logout'))
 
@@ -166,9 +164,8 @@ def modify_order_state(order_product_id):
             flash('Stati non trovati', 'error')
             return redirect(url_for('account.view'))
         
-    except Exception as e:
-        print(e)
-        flash('Si è verificato un errore di database-2. Riprova più tardi', 'error')
+    except Exception:
+        flash('Si è verificato un errore di database. Riprova più tardi', 'error')
         return redirect(url_for('auth.logout'))
     
     if request.method == 'POST':
@@ -192,8 +189,7 @@ def modify_order_state(order_product_id):
             )
             db.session.add(new_notification)
             db.session.commit()
-        except Exception as e:
-            print(e)
+        except Exception:
             flash("Si è verificato un errore di sistema-1. Riprova più tardi", "error")
             return redirect(url_for('account.view'))
     

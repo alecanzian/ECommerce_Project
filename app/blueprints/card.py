@@ -8,7 +8,6 @@ from datetime import date
 import os
 from sqlalchemy.exc import IntegrityError
 
-
 app = Blueprint('card', __name__)
 
 # Funzione per generare una chiave AES (32 byte per AES-256)

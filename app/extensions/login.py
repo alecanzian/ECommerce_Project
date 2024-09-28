@@ -3,18 +3,18 @@ from .database import User, db
 
 login_manager = LoginManager()
 
-# Settaggio del login_manager
-# Quando un utente anonimo accede a una ruote col decoratore @login_required,
-# allora viene rimandato alla schermata di login_view con il messaggio login_message
+# Configurazione del login_manager
+# Quando un utente anonimo tenta di accedere a una rotta protetta dal decoratore @login_required,
+# viene reindirizzato alla vista specificata in login_view con il messaggio login_message
 login_manager.login_view = "auth.logout"
-login_manager.login_message = "To access, you have to log in."
+login_manager.login_message = "Per accedere, devi effettuare l'accesso."
 login_manager.login_message_category = "error"
 
-# Settaggio del login_manager
-# Quando un utente anonimo accede a una ruote col decoratore @login_required,
-# allora viene rimandato alla schermata di refresh_view con il messaggio login_message
+# Configurazione del login_manager per la richiesta di reautenticazione
+# Quando un utente anonimo tenta di accedere a una rotta che richiede una reautenticazione,
+# viene reindirizzato alla vista specificata in refresh_view con il messaggio needs_refresh_message
 login_manager.refresh_view = "auth.logout"
-login_manager.needs_refresh_message = "To protect your account, please reauthenticate to access this page."
+login_manager.needs_refresh_message = "Per proteggere il tuo account, per favore riautenticati per accedere a questa pagina."
 login_manager.needs_refresh_message_category = "error"
 
 # Serve a ricaricare l'oggetto utente usando lo user.id
@@ -23,6 +23,5 @@ login_manager.needs_refresh_message_category = "error"
 def load_user(user_id):
     try:
         return db.session.get(User,int(user_id)) 
-    except Exception as e:
-        print(e)
+    except Exception:
         return None

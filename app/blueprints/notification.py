@@ -43,8 +43,7 @@ def delete(notification_id):
         db.session.delete(notification)
         db.session.commit()
 
-    except Exception as e:
-        print(e)
+    except Exception:
         flash('Si è verificato un errore di database. Riprova più tardi','error')
         return redirect(url_for('shop.shop'))
         

@@ -4,7 +4,6 @@ from extensions.database import Cart, Order, OrderProduct, Product, Notification
 from extensions.princ import buyer_required
 from sqlalchemy.exc import IntegrityError
 
-
 app = Blueprint('cart', __name__)
 
 # Gestisce la pagina per visualizzare il carrello
@@ -188,8 +187,7 @@ def order_cart_items():
             new_order.total_price = total_price
             db.session.commit()
 
-        except Exception as e:
-            print(f"Errore durante l'operazione: {str(e)}")
+        except Exception:
             db.session.rollback()
             flash('Si è verificato un errore di database. Riprova più tardi',"error")
             return redirect(url_for('cart.cart'))

@@ -106,14 +106,12 @@ def delete():
 
             flash('Account eliminato correttamente', 'success')
             return redirect(url_for('auth.logout'))
-        except AttributeError as e:
+        except AttributeError:
             db.session.rollback()
-            print(str(e))
             flash('L\'utente non è stato caricato correttamente', 'error')
             return redirect(url_for('auth.logout'))
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            print(str(e))
             flash('Si è verificato un errore di database. Riprova più tardi','error')
             return redirect(url_for('account.view'))
         

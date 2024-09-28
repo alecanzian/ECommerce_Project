@@ -11,7 +11,7 @@ user_roles = db.Table('user_roles',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
     db.Column('role_id', db.Integer, db.ForeignKey('role.id'), primary_key=True)
 )
-    
+
 # Definizione della classe User
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -20,13 +20,12 @@ class User(db.Model, UserMixin):
 
     roles = db.relationship('Role', secondary=user_roles, lazy = True)
 
-    profiles = db.relationship('Profile', backref='user', lazy=True)#?
+    profiles = db.relationship('Profile', backref='user', lazy=True)
     products = db.relationship('Product', backref='user', lazy = True)
     addresses = db.relationship('Address', lazy=True,)
     orders = db.relationship('Order', backref = 'user', lazy = True)
     cards = db.relationship('Card', lazy = True)
     seller_information = db.relationship('SellerInformation', uselist=False, lazy=True)
-
 
     def __init__(self, username, password):
         self.username = username
@@ -40,9 +39,9 @@ class User(db.Model, UserMixin):
             db.session.commit()
         self.roles.append(buyer_role)
 
-
     def has_role(self, role_name):
         return any(role.name == role_name for role in self.roles)
+    
     @property
     def is_valid(self):
         if not self.username or not self.password:
@@ -60,15 +59,15 @@ class Profile(db.Model):
 
     cart_items = db.relationship('Cart', lazy=True)
 
-    __table_args__ = (
-        UniqueConstraint('name', 'user_id', name='unique_profile'),
-    )
+    __table_args__ = (UniqueConstraint('name', 'user_id', name='unique_profile'),)
+    
     def __init__(self, name, surname, birth_date, user_id, image_url='https://static.vecteezy.com/ti/vettori-gratis/p1/2318271-icona-profilo-utente-vettoriale.jpg'):
         self.name = name
         self.surname = surname
         self.birth_date = birth_date
         self.image_url = image_url
         self.user_id = user_id
+    
     @property
     def is_valid(self):
         if not self.name or not self.surname or not self.birth_date or not self.image_url or not self.user_id:
@@ -86,9 +85,7 @@ class Address(db.Model):
     # Chiave esterna per collegare l'indirizzo all'utente
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    __table_args__ = (
-        UniqueConstraint('street', 'city', 'postal_code', 'province', 'country', 'user_id', name='unique_address'),
-    )
+    __table_args__ = (UniqueConstraint('street', 'city', 'postal_code', 'province', 'country', 'user_id', name='unique_address'),)
 
     def __init__(self, street, city, postal_code, province, country, user_id):
         self.street = street
@@ -97,6 +94,7 @@ class Address(db.Model):
         self.country = country
         self.user_id = user_id
         self.province = province
+        
     @property
     def is_valid(self):
         if not self.street or not self.city or not self.postal_code or not self.province or not self.country or not self.user_id:
@@ -111,32 +109,29 @@ class Product(db.Model):
     description = db.Column(db.String(256), nullable=False)
     availability = db.Column(db.Integer, nullable = False)
 
-    #profile_id = db.Column(db.Integer, db.ForeignKey('profile.id', ondelete = 'SET NULL'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False) 
 
-    #categories = db.relationship('Category', secondary=product_categories, backref='products')
-
     in_carts = db.relationship('Cart', backref='product', lazy = True)
-
     in_order = db.relationship('OrderProduct', backref = 'product', lazy = True)
 
-    __table_args__ = (
-        UniqueConstraint('name', 'user_id', name='unique_product_seller'),
-    )
+    __table_args__ = (UniqueConstraint('name', 'user_id', name='unique_product_seller'),)
 
     def __init__(self, name, price, user_id, description, category_id, image_url = 'https://img.freepik.com/vettori-premium/un-disegno-di-una-scarpa-con-sopra-la-parola-scarpa_410516-82664.jpg', availability = 1):
         self.name = name
         self.price = price
+        
         # Riconosce se una stringa è solo piena di spazi
         if image_url.isspace():
             self.image_url = 'https://img.freepik.com/vettori-premium/un-disegno-di-una-scarpa-con-sopra-la-parola-scarpa_410516-82664.jpg'
         else:
             self.image_url = image_url
+            
         self.description = description
         self.availability = availability
         self.user_id = user_id
         self.category_id = category_id
+        
     @property
     def is_valid(self):
         if not self.name or not self.image_url or not self.description or not self.user_id or not self.category_id:
@@ -150,12 +145,13 @@ class Cart(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable = False)
     profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'), nullable = False)
 
-    __table_args__ = (db.UniqueConstraint('product_id', 'profile_id', name='unique_product_profile'),)
+    __table_args__ = (UniqueConstraint('product_id', 'profile_id', name='unique_product_profile'),)
 
     def __init__(self, quantity, product_id, profile_id):
         self.quantity = quantity
         self.product_id = product_id
         self.profile_id = profile_id
+        
     @property
     def is_valid(self):
         if not self.quantity or not self.product_id or not self.profile_id:
@@ -179,6 +175,7 @@ class Order(db.Model):
         self.total_price = total_price
         self.address = address
         self.card_last_digits = card_last_digits
+        
     @property
     def is_valid(self):
         if not self.order_date or not self.address or not self.user_id:
@@ -197,14 +194,14 @@ class OrderProduct(db.Model):
 
     notification = db.relationship('Notification', backref='order_product', lazy = True)
 
-
     def __init__(self, order_id, product_id, product_name, quantity, seller_id):
         self.order_id = order_id
         self.product_id = product_id
         self.product_name = product_name
         self.quantity = quantity
         self.seller_id = seller_id
-        self.state = State.query.filter_by(name = 'Ordinato').first()
+        self.state = State.query.filter_by(name='Ordinato').first()
+        
     @property
     def is_valid(self):
         if not self.quantity or not self.product_name or not self.seller_id or not self.order_id or not self.state_id:
@@ -219,6 +216,7 @@ class Category(db.Model):
 
     def __init__(self, name):
         self.name = name
+        
     @property
     def is_valid(self):
         if not self.name:
@@ -231,6 +229,7 @@ class Role(db.Model):
 
     def __init__(self, name):
         self.name = name
+        
     @property
     def is_valid(self):
         if not self.name:
@@ -241,9 +240,10 @@ class State(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True,nullable = False)
 
-    order_product = db.relationship('OrderProduct', backref = 'state', lazy = True)
+    order_product = db.relationship('OrderProduct', backref='state', lazy=True)
     def __init__(self, name):
         self.name = name
+        
     @property
     def is_valid(self):
         if not self.name:
@@ -267,6 +267,7 @@ class Notification(db.Model):
         self.receiver_id = receiver_id
         self.type = type
         self.order_product_id = order_product_id
+        
     @property
     def is_valid(self):
         if not self.type or not self.timestamp or not self.sender_id or not self.receiver_id or not self.order_product_id:
@@ -297,6 +298,7 @@ class Card(db.Model):
         self.expiration_month = expiration_month
         self.card_type = card_type
         self.user_id = user_id
+        
     @property
     def is_valid(self):
         if not self.pan or not self.last_digits or not self.expiration_month or not self.expiration_year or not self.card_type or not self.name or not self.surname or not self.user_id:
@@ -314,6 +316,7 @@ class SellerInformation(db.Model):
         self.profit = 0.0
         self.iban = iban
         self.user_id = user_id
+        
     @property
     def is_valid(self):
         if not self.iban or not self.user_id:
@@ -322,28 +325,28 @@ class SellerInformation(db.Model):
 
 def add_user(name, surname, birth_date, username, password):
     # Crea l'utente
-        user = User(
-            name=name,
-            surname=surname,
-            birth_date=datetime.strptime(birth_date, '%Y-%m-%d').date(),
-            username=username,
-            password=generate_password_hash(password, method='pbkdf2:sha256')
-        )
-        
-        # Aggiungi l'utente alla sessione
-        db.session.add(user)
-        db.session.commit()
+    user = User(
+        name=name,
+        surname=surname,
+        birth_date=datetime.strptime(birth_date, '%Y-%m-%d').date(),
+        username=username,
+        password=generate_password_hash(password, method='pbkdf2:sha256')
+    )
+    
+    # Aggiungi l'utente alla sessione
+    db.session.add(user)
+    db.session.commit()
 
-        # Crea un profilo di default per l'utente appena creato
-        profile = Profile(
-            name=user.name,
-            surname=user.surname,
-            user_id=user.id
-        )
-        
-        # Aggiungi il profilo alla sessione
-        db.session.add(profile)
-        db.session.commit()
+    # Crea un profilo di default per l'utente appena creato
+    profile = Profile(
+        name=user.name,
+        surname=user.surname,
+        user_id=user.id
+    )
+    
+    # Aggiungi il profilo alla sessione
+    db.session.add(profile)
+    db.session.commit()
 
 # Da chiamare solo quando serve popolare la tabella Role
 def add_roles():
@@ -478,8 +481,6 @@ def create_order(user_id, address_id, cart_items):
     db.session.commit()
     
     for product_id, quantity in cart_items:
-        print(f'product_id:{product_id}')
-        print(f'quantity:{quantity}')
         product = Product.query.get(product_id)
         if product:
             order_product = OrderProduct(
@@ -531,8 +532,6 @@ def popolate_db():
     
     set_user_with_role(user, 'admin')  # Aggiungi un utente di esempio
     set_user_with_role(user, 'buyer')  # Aggiungi un utente di esempio
-    
-    # Vanno eliminati
     
     db.session.add(SellerInformation(iban='IT93N0300203280241424179211', user_id=user.id))
     db.session.commit()

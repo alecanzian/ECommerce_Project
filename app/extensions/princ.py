@@ -5,35 +5,28 @@ from functools import wraps
 
 princ = Principal()
 
-# Define role-based permissions
+# Definisce i permessi basati sui ruoli
 admin_permission = Permission(RoleNeed('admin'))
 seller_permission = Permission(RoleNeed('seller'))
 buyer_permission = Permission(RoleNeed('buyer'))
 
-# The Identity represents the user, and is stored/loaded from various locations (eg session) for each request. The Identity is the user’s avatar to the system. It contains the access rights that the user has.
-# A Need is the smallest grain of access control, and represents a specific parameter for the situation.Whilst a Need is a permission to access a resource, an Identity should provide a set of Needs that it has access to.
-# A Permission is a set of requirements, any of which should be present for access to a resource.
+# L'identità rappresenta l'utente e viene memorizzato/caricato per ogni richiesta
+# Contiene i diritti di accesso dell'utente
 @identity_loaded.connect
 def on_identity_loaded(sender, identity):
-    #print(sender)
-    #print('carico identità')
-    # Set the identity user object
     identity.user = current_user
 
-    # Add the UserNeed to the identity
+    # Aggiunge l'id dell'user corrente all'identità
     if hasattr(current_user, 'id'):
         identity.provides.add(UserNeed(current_user.id))
 
-    # Assuming the User model has a list of roles, update the
-    # identity with the roles that the user provides
+    # Controlla se l'utente ha ruoli e li aggiunge all'identità per i permessi
     if hasattr(current_user, 'roles'):
         for role in current_user.roles:
             identity.provides.add(RoleNeed(role.name))
-            #print(f'aggiunto ruolo {role.name}')
             
 def update_identity(app, user_id):
     # Invia il segnale per aggiornare l'identità
-    #print('invio segnale per aggiornare identita')
     identity_changed.send(current_app._get_current_object(), identity=Identity(user_id))
     
 # Decoratore personalizzato per gestire il caso in cui l'utente non ha l'autorizzazione(ovvero non possiede il ruolo) per eseguire una azione
@@ -46,7 +39,7 @@ def anonymous_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# Decoratore personalizzato per gestire il caso in cui l'utente non ha l'autorizzazione di admin(ovvero non possiede il ruolo admin) per accedere a info.html
+# Decoratore personalizzato per gestire il caso in cui l'utente non ha l'autorizzazione di admin(ovvero non possiede il ruolo admin)
 # Avrei potuto utilizzare @admin_permission.require() al posto del decoratore personalizzato, tuttavia così non posso gestire l'errore
 # Avrei anche potuto creare un try all'interno della funzione(come ho fatto nella funzione del decoratore), però ho preferito mantenere il codice pulito
 def admin_required(f):
@@ -55,7 +48,7 @@ def admin_required(f):
         try:
             admin_permission.test()
         except PermissionDenied:
-            flash('You do not have admin permission to access this page.', 'error')
+            flash('Non hai il permesso di amministratore per accedere a questa pagina', 'error')
             return redirect(url_for('auth.home'))  
         return f(*args, **kwargs)
     return decorated_function
@@ -66,7 +59,7 @@ def seller_required(f):
         try:
             seller_permission.test()
         except PermissionDenied:
-            flash('You do not have seller permission to access this page.', 'error')
+            flash('Non hai il permesso di venditore per accedere a questa pagina', 'error')
             return redirect(url_for('auth.home')) 
         return f(*args, **kwargs)
     return decorated_function
@@ -77,7 +70,7 @@ def buyer_required(f):
         try:
             buyer_permission.test()
         except PermissionDenied:
-            flash('You do not have buyer permission to access this page.', 'error')
+            flash('Non hai il permesso di acquirente per accedere a questa pagina', 'error')
             return redirect(url_for('auth.home')) 
         return f(*args, **kwargs)
     return decorated_function
