@@ -9,62 +9,70 @@
 {% block main %}
     <h1>Account</h1>
     <a href="{{ url_for('account.delete') }}">Elimina</a>
-    <table>
-        <tr>
-            <th>Nome utente</th>
-            <td>{{current_user.username}}</td>
-        </tr>
-        <tr>
-            <th>Password</th>
-            <td>********  
-                <a href="{{ url_for('account.change_password') }}">Modifica</a>
-            </td>
-        </tr>
-        <tr>
-            <th>Ruoli</th>
-            <td>
-                <ul>
-                    {% for role in current_user.roles %}
-                        <li>{{ role.name }}</li>
-                    {% endfor %}
-                </ul>
-            </td>
-        </tr>
-    </table>
+    {% if current_user %}
+        <table>
+            <tr>
+                <th>Nome utente</th>
+                <td>{{current_user.username}}</td>
+            </tr>
+            <tr>
+                <th>Password</th>
+                <td>********  
+                    <a href="{{ url_for('account.change_password') }}">Modifica</a>
+                </td>
+            </tr>
+            <tr>
+                <th>Ruoli</th>
+                <td>
+                    <ul>
+                        {% if current_user.roles %}
+                            {% for role in current_user.roles %}
+                                <li>{{ role.name }}</li>
+                            {% endfor %}
+                        {% endif %}
+                    </ul>
+                </td>
+            </tr>
+        </table>
+    {% endif %}
 
     <h1>Profili</h1>
     <a href="{{ url_for('profile.add', action=1) }}">Aggiungi</a>
-    {% for p in current_user.profiles %}
-        <p></p>
-        <table>
-            <tr>
-                <th>
-                    <a href="{{ url_for('profile.modify', profile_id = p.id) }}">Modifica</a>
-                    <a href="{{ url_for('profile.delete', profile_id = p.id) }}">Elimina</a>
-                </th>
-                <td>
-                    <img src="{{ p.image_url }}" alt="Nome" width = "50" height = "50">
-                </td>
-                
-            </tr>
-            <tr>
-                <th>Nome</th>
-                <td>{{ p.name }}</td>
-            </tr>
-            <tr>
-                <th>Cognome</th> 
-                <td>{{ p.surname }}</td>
-            </tr>
-            <tr>
-                <th>Data di nascita</th>
-                <td>{{ p.birth_date }}</td>
-            </tr>
-        </table>
-    {% endfor %}
+    {% if current_user and current_user.roles %}
+        {% for p in current_user.profiles %}
+            {% if p %}
+                <p></p>
+                <table>
+                    <tr>
+                        <th>
+                            <a href="{{ url_for('profile.modify', profile_id = p.id) }}">Modifica</a>
+                            <a href="{{ url_for('profile.delete', profile_id = p.id) }}">Elimina</a>
+                        </th>
+                        <td>
+                            <img src="{{ p.image_url }}" alt="Nome" width = "50" height = "50">
+                        </td>
+                        
+                    </tr>
+                    <tr>
+                        <th>Nome</th>
+                        <td>{{ p.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Cognome</th> 
+                        <td>{{ p.surname }}</td>
+                    </tr>
+                    <tr>
+                        <th>Data di nascita</th>
+                        <td>{{ p.birth_date }}</td>
+                    </tr>
+                </table>
+                {% endif %}
+        {% endfor %}
+    {% endif %}
 
     <h1>Metodi di pagamento</h1>
     <a href="{{ url_for('card.add', action = 'profile') }}">Aggiungi</a>
-    {% if current_user.cards %}
+    {% if current_user and current_user.cards %}
     <table>
         <tr>
             <th>
@@ -73,11 +81,13 @@
             <th>PAN</th>
         </tr>
         {% for card in current_user.cards %}
+            {% if card %}
                 <tr>
                     <td><a href="{{ url_for('card.delete', card_id = card.id) }}">Elimina</a></td>
                     <td>{{ card.name }} {{ card.surname }}</td>
                     <td>*****{{ card.last_digits }}</td>
                 </tr>
+            {% endif %}
         {% endfor %}
     </table>
     {% endif %}
@@ -95,23 +105,24 @@
                 <th>Paese</th>
         </tr>
 
-    {% for address in current_user.addresses %}
-            <tr>
-                <td>
-                    <a href="{{ url_for('address.modify', address_id = address.id) }}">Modifica</a>
-                    <a href="{{ url_for('address.delete', address_id = address.id) }}">Elimina</a></td>
-                <td>{{ address.street }}</td>
-                <td>{{ address.postal_code }}</td>
-                <td>{{ address.city }}</td>
-                <td>{{ address.province }}</td>
-                <td>{{ address.country }}</td>
-            </tr>
-            
-            {% endfor %}
-        </table>
+        {% for address in current_user.addresses %}
+            {% if address %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('address.modify', address_id = address.id) }}">Modifica</a>
+                        <a href="{{ url_for('address.delete', address_id = address.id) }}">Elimina</a></td>
+                    <td>{{ address.street }}</td>
+                    <td>{{ address.postal_code }}</td>
+                    <td>{{ address.city }}</td>
+                    <td>{{ address.province }}</td>
+                    <td>{{ address.country }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
     {% endif %}
 
-    {% if current_user.has_role('seller') %}
+    {% if current_user.has_role('seller') and current_user.seller_information%}
         <h1>Informazioni venditore</h1>
         <table>
             <tr>
@@ -122,11 +133,7 @@
             </tr>
             <tr>
                 <th>Guadagno</th>
-                {% if current_user.seller_information.is_valid %}
-                    <td>{{ current_user.seller_information.profit }}</td>
-                    {%else%}
-                    <td>vuoto</td>                
-                    {% endif %}
+                    <td>{{ current_user.seller_information.profit }}</td>    
             </tr>
         </table>
 
@@ -135,6 +142,7 @@
         {% if current_user.products %}
         <table>
             {% for p in current_user.products %}
+                {% if p %}
                     <tr>
                         <th><a href="{{ url_for('product.modify_product', product_id = p.id) }}">Modifica</a>
                             <a href="{{ url_for('product.delete_product', product_id = p.id) }}">Elimina</a></th>
@@ -162,8 +170,9 @@
                         <th>Disponibilità</th>
                         <td>{{ p.availability }}</td>
                     </tr>
-                    {% endfor %}
-                </table>
+                {% endif %}
+            {% endfor %}
+        </table>
         {% endif %}
 
         <!--Non devo accedere ai prodotti da current_user, ma dagli ordini, altrimenti se elimino un prodotto non vedo più la modifica dello stato di quel prodotto-->
@@ -177,7 +186,7 @@
                     <th>Stato</th>
                 </tr>
                 {% for order_product in order_products %}
-                        {% if order_product.state.name != "Consegnato" %}
+                        {% if order_product and order_product.state.name != "Consegnato" %}
                             <tr>
                                 <td>{{ order_product.order.user.username }}</td>
                                 <td>{{ order_product.order.order_date.strftime('%d-%m-%Y %H:%M') }}</td>

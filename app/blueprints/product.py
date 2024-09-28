@@ -49,7 +49,7 @@ def add_product():
         
         try:
             # controllo dei dati del form
-            if not name or not price  or not float(price) > 0.0 or not description or not availability or not category_id or not image_url.strip():
+            if not name or not price  or float(price) < 0.0 or not description or not availability or int(availability) < 0  or not category_id or not image_url.strip():
                 flash('Inserisci tutti i campi',"error")
                 return redirect(url_for('product.add_product'))
             
@@ -133,7 +133,7 @@ def modify_product(product_id):
             availability = request.form.get('availability')
 
             # Controllo dei dati del form
-            if not price or not description or not image_url or not availability or not price or not availability:
+            if not price or float(price) < 0.0 or not description or not image_url or not availability or int(availability) < 0 or not price or not availability:
                 flash('Inserisci tutte le informazioni', 'error')
                 return redirect(url_for('product.modify_product'), product_id = product.id)
             
@@ -149,9 +149,10 @@ def modify_product(product_id):
             
             db.session.commit()
         
-        except Exception:
+        except Exception as e:
+            print(e)
             db.session.rollback()
-            flash('Si è verificato un errore di database. Riprova più tardi',"error")
+            flash('Si è verificato un errore di database23. Riprova più tardi',"error")
             return redirect(url_for('shop.shop'))
         
         flash('Prodotto aggiornato con successo', 'success')

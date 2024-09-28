@@ -89,10 +89,6 @@ def delete_item_from_cart(item_id):
         db.session.delete(item)
         db.session.commit()
 
-    except AttributeError:
-        db.session.rollback()
-        flash('L\'utente non è stato caricato correttamente', 'error')
-        return redirect(url_for('auth.logout'))
     except Exception:
         db.session.rollback()
         flash("Si è verificato un errore di sistema", "error")
@@ -191,16 +187,11 @@ def order_cart_items():
             # Assegno finalmente il costo totale dell'ordine
             new_order.total_price = total_price
             db.session.commit()
-        except AttributeError as e:
-            print(e)
-            db.session.rollback()
-            flash('Contenuti dell\'ordine non sono stati caricati correttamente', 'error')
-            return redirect(url_for('cart.cart'))
 
         except Exception as e:
             print(f"Errore durante l'operazione: {str(e)}")
             db.session.rollback()
-            flash('Si è verificato un errore di database4. Riprova più tardi',"error")
+            flash('Si è verificato un errore di database. Riprova più tardi',"error")
             return redirect(url_for('cart.cart'))
         
         flash('Ordine avvenuto correttamente',"success")
@@ -218,7 +209,7 @@ def change_quantity_cart_item(item_id):
     quantity = request.form.get('quantity')
     try:
         # Controllo dei dati del form
-        if not quantity or not int(quantity) > 0:
+        if not quantity or  int(quantity) <= 0:
             flash('Inserisci la quantità', 'error')
             return redirect(url_for('cart.cart'))
         # Cerco se il profilo corrente corrisponde a un profilo associato all'utente
@@ -233,6 +224,10 @@ def change_quantity_cart_item(item_id):
             flash('Prodotto non trovato o non caricato correttamente', "error")
             return redirect(url_for('cart.cart'))
         
+        if int(quantity) <= 0 or int(quantity) > item.product.availability:
+            flash('Inserisci la quantità corretta', 'error')
+            return redirect(url_for('cart.cart'))
+
         # Assegno la quantità scelta
         item.quantity = int(quantity)
         db.session.commit()

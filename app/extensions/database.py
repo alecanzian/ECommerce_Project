@@ -140,7 +140,7 @@ class Product(db.Model):
         self.category_id = category_id
     @property
     def is_valid(self):
-        if not self.name or not self.price or not self.image_url or not self.description or not self.user_id or not self.category_id:
+        if not self.name or not self.image_url or not self.description or not self.user_id or not self.category_id:
             return False
         return True
 
@@ -286,7 +286,7 @@ class Card(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
 
-    __table_args__ = (UniqueConstraint('name', 'surname', 'last_digits', 'user_id', name = 'unique_card_for_user'),)
+    __table_args__ = (UniqueConstraint('name', 'surname', 'last_digits', 'user_id', name = 'unique_card'),)
 
 
     def __init__(self, name, surname, pan, last_digits, expiration_month, expiration_year, card_type, user_id):
