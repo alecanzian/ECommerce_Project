@@ -4,14 +4,7 @@ progetto deve essere sviluppato in Python, utilizzando le librerie Flask e SQLAl
 da utilizzare è invece libera e lasciata ai singoli gruppi (di due o tre persone), anche se è consigliato l’utilizzo
 di Postgres. Siete invitati a leggere interamente questo documento con attenzione ed a chiarire col docente
 eventuali punti oscuri prima dello sviluppo del progetto.
-### 2 Temi per il Progetto
-Il progetto può essere svolto liberamente su uno dei seguenti due temi. La scelta del tema non avrà nes-
-suno impatto sulla valutazione finale del progetto: entrambi i temi possono garantire il punteggio massimo
-all’esame. I temi sono deliberatamente presentati ad alto livello e si prestano allo sviluppo di progetti più
-o meno complicati, a seconda dei gusti, della fantasia e dell’abilità dei componenti del gruppo. Considerate
-questi temi sostanzialmente come semplici spunti da cui partire: potete utilizzare la vostra creatività e la
-vostra esperienza con applicazioni simili per identificare nuove funzionalità interessanti da implementare.
-#### 2.1 Piattaforma di E-commerce
+### 2 Tema per il Progetto: Piattaforma di E-commerce
 Si richiede di curare il design e l’implementazione di un portale di e-commerce, dove gli utenti possono
 comprare e vendere i prodotti online. Il sistema include le seguenti funzionalità:
 • Gestione degli utenti: Implementare funzionalità di autenticazione e autorizzazione degli utenti. Gli
